@@ -1,4 +1,5 @@
 ﻿using authservice.Domain;
+using authservice.Infrastructure;
 using authservice.JWT;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,18 @@ namespace authservice.Factories
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName
+            };
+        }
+
+        public static User ToDomain(this UserDb entity)
+        {
+            return new User
+            {
+                Id = entity.Id,
+                FirstName = entity.FirstName,
+                LastName = entity.LastName,
+                Email = entity.Email,
+                Hash = entity.Hash
             };
         }
     }

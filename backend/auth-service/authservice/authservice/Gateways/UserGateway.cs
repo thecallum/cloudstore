@@ -1,4 +1,5 @@
 ﻿using authservice.Domain;
+using authservice.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace authservice.Gateways
             throw new NotImplementedException();
         }
 
-        public Task<User> GetUserByEmailAddress(string email)
+        public Task<UserDb> GetUserByEmailAddress(string email)
         {
             // find user by email
             // if null, return null

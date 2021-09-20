@@ -9,7 +9,7 @@ namespace authservice.Gateways
 {
     public interface IUserGateway
     {
-        Task<User> GetUserByEmailAddress(string email);
+        Task<UserDb> GetUserByEmailAddress(string email);
 
         Task<Guid> RegisterUser(User newUser);
 
