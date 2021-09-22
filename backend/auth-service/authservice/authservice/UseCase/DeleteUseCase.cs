@@ -1,4 +1,8 @@
-﻿using authservice.UseCase.Interfaces;
+﻿using authservice.Boundary.Request;
+using authservice.Domain;
+using authservice.Factories;
+using authservice.Gateways;
+using authservice.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +12,17 @@ namespace authservice.UseCase
 {
     public class DeleteUseCase : IDeleteUseCase
     {
-        public Task Execute(string email)
-        {
-            // call userGateway.deleteUser
+        private readonly IUserGateway _userGateway;
 
-            throw new NotImplementedException();
+        public DeleteUseCase(IUserGateway userGateway)
+        {
+            _userGateway = userGateway;
+        }
+
+        public async Task Execute(string email)
+        {
+            await _userGateway.DeleteUser(email);
         }
     }
 }
+;
