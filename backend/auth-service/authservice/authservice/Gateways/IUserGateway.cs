@@ -11,7 +11,7 @@ namespace authservice.Gateways
     {
         Task<UserDb> GetUserByEmailAddress(string email);
 
-        Task<Guid> RegisterUser(User newUser);
+        Task RegisterUser(User newUser);
 
         Task DeleteUser(string email);
     }

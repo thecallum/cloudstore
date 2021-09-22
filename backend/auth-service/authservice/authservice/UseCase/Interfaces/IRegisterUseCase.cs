@@ -9,6 +9,6 @@ namespace authservice.UseCase.Interfaces
 {
     public interface IRegisterUseCase
     {
-        Task<Guid> Execute(RegisterRequestObject newUser);
+        Task<Guid> Execute(RegisterRequestObject requestObject, string hash);
     }
 }

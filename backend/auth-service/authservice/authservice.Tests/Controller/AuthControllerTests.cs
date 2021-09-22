@@ -120,13 +120,18 @@ namespace authservice.Tests.Controller
         {
             // Arrange    
             var requestObject = _fixture.Create<RegisterRequestObject>();
+            var mockHash = _fixture.Create<string>();
 
             // setup usecase to throw exception
             var exception = new UserWithEmailAlreadyExistsException(requestObject.Email);
 
             _mockRegisterUseCase
-                .Setup(x => x.Execute(It.IsAny<RegisterRequestObject>()))
+                .Setup(x => x.Execute(It.IsAny<RegisterRequestObject>(), It.IsAny<string>()))
                 .ThrowsAsync(exception);
+
+            _mockHashService
+                .Setup(x => x.Hash(It.IsAny<string>()))
+                .Returns(mockHash);
 
             // Act
             var result = await _authController.Register(requestObject);
@@ -142,9 +147,14 @@ namespace authservice.Tests.Controller
         {
             // Arrange    
             var requestObject = _fixture.Create<RegisterRequestObject>();
+            var mockHash = _fixture.Create<string>();
 
-            _mockDeleteUseCase
-                .Setup(x => x.Execute(It.IsAny<string>()));
+            _mockRegisterUseCase
+                .Setup(x => x.Execute(It.IsAny<RegisterRequestObject>(), It.IsAny<string>()));
+
+            _mockHashService
+               .Setup(x => x.Hash(It.IsAny<string>()))
+               .Returns(mockHash);
 
             // Act
             var result = await _authController.Register(requestObject);

@@ -1,4 +1,5 @@
-﻿using authservice.Domain;
+﻿using authservice.Boundary.Request;
+using authservice.Domain;
 using authservice.Infrastructure;
 using authservice.JWT;
 using System;
@@ -29,6 +30,17 @@ namespace authservice.Factories
                 LastName = entity.LastName,
                 Email = entity.Email,
                 Hash = entity.Hash
+            };
+        }
+
+        public static User ToDomain(this RegisterRequestObject requestObject)
+        {
+            return new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = requestObject.FirstName,
+                LastName = requestObject.LastName,
+                Email = requestObject.Email,
             };
         }
     }

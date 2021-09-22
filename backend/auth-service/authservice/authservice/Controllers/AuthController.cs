@@ -27,7 +27,6 @@ namespace authservice.Controllers
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
-        private const string Secret = "GQDstcKsx0NHjPOuXOYg5MbeJ1XT0uFiwDVvVBrk";
         private readonly IJWTService _jwtService;
         private readonly IPasswordHasher _hashService;
 
@@ -84,7 +83,9 @@ namespace authservice.Controllers
         {
             try
             {
-                var response = await _registerUseCase.Execute(requestObject);
+                var hash = _hashService.Hash(requestObject.Password);
+
+                var response = await _registerUseCase.Execute(requestObject, hash);
 
                 return Ok();
             }

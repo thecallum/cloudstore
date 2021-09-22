@@ -29,7 +29,7 @@ namespace authservice.Gateways
             throw new NotImplementedException();
         }
 
-        public Task<Guid> RegisterUser(User newUser)
+        public Task RegisterUser(User newUser)
         {
             // find user by email
             // if not null, throw UserWithEmailExistsException(), consumed in controller

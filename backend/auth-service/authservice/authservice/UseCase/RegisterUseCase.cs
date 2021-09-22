@@ -1,5 +1,7 @@
 ﻿using authservice.Boundary.Request;
 using authservice.Domain;
+using authservice.Factories;
+using authservice.Gateways;
 using authservice.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,13 +12,22 @@ namespace authservice.UseCase
 {
     public class RegisterUseCase : IRegisterUseCase
     {
-        public Task<Guid> Execute(RegisterRequestObject requestObject)
+        private readonly IUserGateway _userGateway;
+
+        public RegisterUseCase(IUserGateway userGateway)
         {
-            // call userGateway.RegisterUser();
+            _userGateway = userGateway;
+        }
 
-            // return Id
+        public async Task<Guid> Execute(RegisterRequestObject requestObject, string hash)
+        {
+            var newUser = requestObject.ToDomain();
 
-            throw new NotImplementedException();
+            newUser.Hash = hash;
+
+            await _userGateway.RegisterUser(newUser);
+
+            return newUser.Id;
         }
     }
 }
