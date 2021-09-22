@@ -1,4 +1,7 @@
-﻿using authservice.Domain;
+﻿using authservice.Boundary.Request;
+using authservice.Domain;
+using authservice.Factories;
+using authservice.Gateways;
 using authservice.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,14 +12,19 @@ namespace authservice.UseCase
 {
     public class CheckUseCase : ICheckUseCase
     {
-        public Task<User> Execute(string emailAddress)
+        private readonly IUserGateway _userGateway;
+
+        public CheckUseCase(IUserGateway userGateway)
         {
-            // call userGateway.GetUserByEmailAddress
-            // if null, return null
+            _userGateway = userGateway;
+        }
 
-            // return user
+        public async Task<User> Execute(string emailAddress)
+        {
+            var user = await _userGateway.GetUserByEmailAddress(emailAddress).ConfigureAwait(false);
+            if (user == null) return null;
 
-            throw new NotImplementedException();
+            return user.ToDomain();
         }
     }
 }
