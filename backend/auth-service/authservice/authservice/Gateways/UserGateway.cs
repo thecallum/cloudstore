@@ -1,5 +1,8 @@
-﻿using authservice.Domain;
+﻿using Amazon.DynamoDBv2.DataModel;
+using authservice.Domain;
+using authservice.Factories;
 using authservice.Infrastructure;
+using authservice.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,36 +12,37 @@ namespace authservice.Gateways
 {
     public class UserGateway : IUserGateway
     {
-        public Task DeleteUser(string email)
+        private readonly IDynamoDBContext _context;
+
+        public UserGateway(IDynamoDBContext databaseContext)
         {
-            // find user by email
-            // if null, throw UserNotFoundException() consumed in controller
-
-            // delete user
-
-            throw new NotImplementedException();
+            _context = databaseContext;
         }
 
-        public Task<UserDb> GetUserByEmailAddress(string email)
+        public async Task DeleteUser(string email)
         {
-            // find user by email
-            // if null, return null
+            var user = await LoadUser(email);
+            if (user == null) throw new UserNotFoundException(email);
 
-            // return user.ToDomain()
-
-            throw new NotImplementedException();
+            await _context.DeleteAsync<UserDb>(email);
         }
 
-        public Task RegisterUser(User newUser)
+        public async Task<UserDb> GetUserByEmailAddress(string email)
         {
-            // find user by email
-            // if not null, throw UserWithEmailExistsException(), consumed in controller
+            return await LoadUser(email);
+        }
 
-            // save user to database
+        public async Task RegisterUser(User newUser)
+        {
+            var user = await LoadUser(newUser.Email);
+            if (user != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
 
-            // return userId
+            await _context.SaveAsync<UserDb>(newUser.ToDatabase()).ConfigureAwait(false);
+        }
 
-            throw new NotImplementedException();
+        public async Task<UserDb> LoadUser(string email)
+        {
+            return await _context.LoadAsync<UserDb>(email).ConfigureAwait(false);
         }
     }
 }

@@ -10,10 +10,10 @@ namespace authservice.Infrastructure
     public class UserDb
     {
         [DynamoDBHashKey]
-        public Guid Id { get; set; }
-
-        [DynamoDBRangeKey]
         public string Email { get; set; }
+
+        [DynamoDBProperty]
+        public Guid Id { get; set; }
 
         [DynamoDBProperty]
         public string FirstName { get; set; }

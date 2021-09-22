@@ -43,5 +43,17 @@ namespace authservice.Factories
                 Email = requestObject.Email,
             };
         }
+
+        public static UserDb ToDatabase(this User domain)
+        {
+            return new UserDb
+            {
+                Id = domain.Id,
+                FirstName = domain.FirstName,
+                LastName = domain.LastName,
+                Email = domain.Email,
+                Hash = domain.Hash
+            };
+        }
     }
 }
