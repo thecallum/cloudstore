@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using authservice.Gateways;
+using authservice.JWT;
+using authservice.UseCase;
+using authservice.UseCase.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +31,17 @@ namespace authservice
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddScoped<IUserGateway, UserGateway>();
+
+            services.AddScoped<ILoginUseCase, LoginUseCase>();
+            services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+            services.AddScoped<IDeleteUseCase, DeleteUseCase>();
+            services.AddScoped<ICheckUseCase, CheckUseCase>();
+
+            services.AddScoped<IJWTService, JWTService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -51,6 +66,7 @@ namespace authservice
                     await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
             });
+
         }
     }
 }
