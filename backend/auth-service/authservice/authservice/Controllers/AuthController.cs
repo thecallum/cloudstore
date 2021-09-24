@@ -23,20 +23,17 @@ namespace authservice.Controllers
         private readonly ILoginUseCase _loginUseCase;
         private readonly IRegisterUseCase _registerUseCase;
         private readonly IDeleteUseCase _deleteUseCase;
-        private readonly ICheckUseCase _checkUseCase;
 
         public AuthController(
             ILoginUseCase loginUseCase, 
             IRegisterUseCase registerUseCase, 
             IDeleteUseCase deleteUseCase, 
-            ICheckUseCase checkUseCase,
             ITokenService tokenService,
             IPasswordHasher hashService)
         {
             _loginUseCase = loginUseCase;
             _registerUseCase = registerUseCase;
             _deleteUseCase = deleteUseCase;
-            _checkUseCase = checkUseCase;
 
             _tokenService = tokenService;
             _hashService = hashService;

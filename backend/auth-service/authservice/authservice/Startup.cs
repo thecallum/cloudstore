@@ -53,7 +53,6 @@ namespace authservice
             services.AddScoped<ILoginUseCase, LoginUseCase>();
             services.AddScoped<IRegisterUseCase, RegisterUseCase>();
             services.AddScoped<IDeleteUseCase, DeleteUseCase>();
-            services.AddScoped<ICheckUseCase, CheckUseCase>();
 
             services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
             services.AddScoped<IPasswordHasher, PasswordHasher>();
