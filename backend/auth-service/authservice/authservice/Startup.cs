@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
@@ -8,6 +9,7 @@ using authservice.Boundary.Request;
 using authservice.Boundary.Request.Validation;
 using authservice.Encryption;
 using authservice.Gateways;
+using authservice.Infrastructure;
 using authservice.JWT;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;
@@ -27,6 +29,7 @@ using Microsoft.Extensions.Logging;
 
 namespace authservice
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -45,21 +48,37 @@ namespace authservice
                 //...mvc setup...
             }).AddFluentValidation();
 
-            services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
-            services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
+            RegisterValidators(services);
 
-            services.AddScoped<IUserGateway, UserGateway>();
 
-            services.AddScoped<ILoginUseCase, LoginUseCase>();
-            services.AddScoped<IRegisterUseCase, RegisterUseCase>();
-            services.AddScoped<IDeleteUseCase, DeleteUseCase>();
+            services.ConfigureAws();
+
+            RegisterGateways(services);
+            RegisterUseCases(services);
 
             services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
             services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-            ConfigureDynamoDbAsync(services).GetAwaiter().GetResult();
-
         }
+
+        private static void RegisterValidators(IServiceCollection services)
+        {
+            services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
+            services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
+        }
+
+        private static void RegisterGateways(IServiceCollection services)
+        {
+            services.AddScoped<IUserGateway, UserGateway>();
+        }
+
+        private static void RegisterUseCases(IServiceCollection services)
+        {
+            services.AddScoped<ILoginUseCase, LoginUseCase>();
+            services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+            services.AddScoped<IDeleteUseCase, DeleteUseCase>();
+        }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,33 +105,6 @@ namespace authservice
 
         }
 
-        private async Task ConfigureDynamoDbAsync(IServiceCollection services)
-        {
-
-            bool localMode = false;
-            _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out localMode);
-
-            if (localMode)
-            {
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
-                {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" };
-                    return new AmazonDynamoDBClient(clientConfig);
-                });
-            }
-            else
-            {
-
-
-                services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                services.AddAWSService<IAmazonDynamoDB>();
-            }
-
-            services.AddScoped<IDynamoDBContext>(sp =>
-            {
-                var db = sp.GetService<IAmazonDynamoDB>();
-                return new DynamoDBContext(db);
-            });
-        }
+    
     }
 }
