@@ -1,5 +1,5 @@
-﻿using authservice.Boundary.Request;
-using authservice.Domain;
+﻿using System.Threading.Tasks;
+using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Factories;
 using authservice.Infrastructure.Exceptions;
@@ -7,27 +7,25 @@ using authservice.JWT;
 using authservice.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace authservice.Controllers
 {
-
     [ApiController]
     [Route("api/auth")]
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
-        private readonly ITokenService _tokenService;
+        private readonly IDeleteUseCase _deleteUseCase;
         private readonly IPasswordHasher _hashService;
 
         private readonly ILoginUseCase _loginUseCase;
         private readonly IRegisterUseCase _registerUseCase;
-        private readonly IDeleteUseCase _deleteUseCase;
+        private readonly ITokenService _tokenService;
 
         public AuthController(
-            ILoginUseCase loginUseCase, 
-            IRegisterUseCase registerUseCase, 
-            IDeleteUseCase deleteUseCase, 
+            ILoginUseCase loginUseCase,
+            IRegisterUseCase registerUseCase,
+            IDeleteUseCase deleteUseCase,
             ITokenService tokenService,
             IPasswordHasher hashService)
         {
@@ -98,7 +96,7 @@ namespace authservice.Controllers
 
                 return NoContent();
             }
-            catch(UserNotFoundException)
+            catch (UserNotFoundException)
             {
                 return NotFound(payload.Email);
             }
