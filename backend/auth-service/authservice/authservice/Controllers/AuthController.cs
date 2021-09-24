@@ -63,9 +63,8 @@ namespace authservice.Controllers
             var user = await _loginUseCase.Execute(requestObject.Email);
             if (user == null) return NotFound(requestObject.Email);
 
-            var (Verified, NeedsUpgrade) = _hashService.Check(user.Hash, requestObject.Password);
-
-            if (Verified == false) return Unauthorized();
+            var verified = _hashService.Check(user.Hash, requestObject.Password);
+            if (verified == false) return Unauthorized();
 
             var payload = user.ToPayload();
             var token = _jwtService.CreateToken(payload);

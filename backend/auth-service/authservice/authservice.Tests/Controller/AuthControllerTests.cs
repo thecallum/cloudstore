@@ -81,7 +81,7 @@ namespace authservice.Tests.Controller
             _mockLoginUseCase.Setup(x => x.Execute(It.IsAny<string>())).ReturnsAsync(mockUser);
 
             // setup hashservice to return password is bad
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((false, false));
+            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
             // Act
             var result = await _authController.Login(requestObject);
@@ -101,7 +101,7 @@ namespace authservice.Tests.Controller
             _mockLoginUseCase.Setup(x => x.Execute(It.IsAny<string>())).ReturnsAsync(mockUser);
 
             // setup hashservice to return password is valid
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((true, false));
+            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
             // setup jwtService to return custom token
             var tokenToReturn = _fixture.Create<string>();
@@ -170,7 +170,7 @@ namespace authservice.Tests.Controller
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is bad
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((false, false));
+            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
             // Act
             var result = await _authController.DeleteAccount(mockToken);
@@ -187,7 +187,7 @@ namespace authservice.Tests.Controller
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((true, false));
+            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();
@@ -214,7 +214,7 @@ namespace authservice.Tests.Controller
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((true, false));
+            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();

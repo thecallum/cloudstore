@@ -12,32 +12,24 @@ namespace authservice.Encryption
     {
         private const int SaltSize = 16; // 128 bit 
         private const int KeySize = 32; // 256 bit
-
-        public PasswordHasher(HashingOptions options)
-        {
-            Options = options;
-        }
-
-        private HashingOptions Options { get; }
+        private const int Iterations = 1000;
 
         public string Hash(string password)
         {
             using (var algorithm = new Rfc2898DeriveBytes(
               password,
               SaltSize,
-              Options.Iterations,
+              Iterations,
               HashAlgorithmName.SHA256))
             {
                 var key = Convert.ToBase64String(algorithm.GetBytes(KeySize));
                 var salt = Convert.ToBase64String(algorithm.Salt);
 
-                return $"{Options.Iterations}.{salt}.{key}";
+                return $"{Iterations}.{salt}.{key}";
             }
-
-
         }
 
-        public (bool Verified, bool NeedsUpgrade) Check(string hash, string password)
+        public bool Check(string hash, string password)
         {
             var parts = hash.Split('.', 3);
 
@@ -51,8 +43,6 @@ namespace authservice.Encryption
             var salt = Convert.FromBase64String(parts[1]);
             var key = Convert.FromBase64String(parts[2]);
 
-            var needsUpgrade = iterations != Options.Iterations;
-
             using (var algorithm = new Rfc2898DeriveBytes(
               password,
               salt,
@@ -63,13 +53,8 @@ namespace authservice.Encryption
 
                 var verified = keyToCheck.SequenceEqual(key);
 
-                return (verified, needsUpgrade);
+                return verified;
             }
         }
     }
-
-    public sealed class HashingOptions
-    {
-        public int Iterations { get; set; } = 10000;
-    }   
 }
