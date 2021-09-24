@@ -1,19 +1,15 @@
 ﻿using authservice.JWT;
 using AutoFixture;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.JWT
 {
     public class TokenServiceTests
     {
-        private readonly TokenService _tokenService;
         private readonly Fixture _fixture = new Fixture();
         private readonly string _secret;
+        private readonly TokenService _tokenService;
 
         public TokenServiceTests()
         {

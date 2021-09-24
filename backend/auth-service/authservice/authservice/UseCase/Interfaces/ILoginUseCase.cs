@@ -1,8 +1,5 @@
-﻿using authservice.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using authservice.Domain;
 
 namespace authservice.UseCase.Interfaces
 {

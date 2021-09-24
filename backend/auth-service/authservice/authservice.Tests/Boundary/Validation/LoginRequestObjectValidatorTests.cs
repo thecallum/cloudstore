@@ -1,10 +1,7 @@
-﻿using authservice.Boundary.Request;
+﻿using System.Linq;
+using authservice.Boundary.Request;
 using authservice.Boundary.Request.Validation;
 using FluentValidation.TestHelper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.Boundary.Validation

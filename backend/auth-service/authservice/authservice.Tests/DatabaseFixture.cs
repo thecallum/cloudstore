@@ -1,33 +1,18 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
-
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using authservice.Infrastructure;
+﻿using System;
 using System.Net.Http;
-using Microsoft.AspNetCore;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Xunit;
 
 namespace authservice.Tests
 {
     public class DatabaseFixture<TStartup> : IDisposable where TStartup : class
     {
-        public HttpClient Client { get; private set; }
-
-        public IAmazonDynamoDB DynamoDb => _factory.DynamoDb;
-        public IDynamoDBContext DynamoDbContext => _factory.DynamoDbContext;
-
         private const string UserTableName = "User";
 
         private readonly UserMockWebApplicationFactory<TStartup> _factory;
-   
+
         public DatabaseFixture()
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
@@ -35,18 +20,23 @@ namespace authservice.Tests
 
             _factory = new UserMockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
-        }   
-
-        private static void EnsureEnvVarConfigured(string name, string defaultValue)
-        {
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
-                Environment.SetEnvironmentVariable(name, defaultValue);
         }
+
+        public HttpClient Client { get; }
+
+        public IAmazonDynamoDB DynamoDb => _factory.DynamoDb;
+        public IDynamoDBContext DynamoDbContext => _factory.DynamoDbContext;
 
         public void Dispose()
         {
             // cleanup database
             DynamoDb.DeleteTableAsync(UserTableName).GetAwaiter().GetResult();
+        }
+
+        private static void EnsureEnvVarConfigured(string name, string defaultValue)
+        {
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
+                Environment.SetEnvironmentVariable(name, defaultValue);
         }
 
         public async Task ResetDatabase()

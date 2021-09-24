@@ -1,32 +1,24 @@
-﻿using authservice.Boundary.Request;
-using authservice.Controllers;
+﻿using System;
+using System.Threading.Tasks;
+using authservice.Boundary.Request;
 using authservice.Domain;
-using authservice.Encryption;
 using authservice.Gateways;
-using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
-using authservice.JWT;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.UseCase
 {
     public class RegisterUseCaseTests
     {
+        private readonly Fixture _fixture = new Fixture();
+        private readonly Mock<IUserGateway> _mockUserGateway;
 
         private readonly IRegisterUseCase _registerUseCase;
-        private readonly Mock<IUserGateway> _mockUserGateway;
-        private readonly Fixture _fixture = new Fixture();
 
         public RegisterUseCaseTests()
         {
@@ -46,7 +38,8 @@ namespace authservice.Tests.UseCase
             _mockUserGateway.Setup(x => x.RegisterUser(It.IsAny<User>()));
 
             // Act
-            Func<Task<Guid>> func = async () => await _registerUseCase.Execute(mockRequest, mockHash).ConfigureAwait(false);
+            Func<Task<Guid>> func = async () =>
+                await _registerUseCase.Execute(mockRequest, mockHash).ConfigureAwait(false);
 
             // Assert
             await func.Should().NotThrowAsync<UserWithEmailAlreadyExistsException>();
@@ -61,12 +54,15 @@ namespace authservice.Tests.UseCase
 
             var exception = new UserWithEmailAlreadyExistsException(mockRequest.Email);
 
-              _mockUserGateway
-                 .Setup(x => x.RegisterUser(It.IsAny<User>()))
+            _mockUserGateway
+                .Setup(x => x.RegisterUser(It.IsAny<User>()))
                 .ThrowsAsync(exception);
 
             // Act
-            Func<Task<Guid>> func = async () => { return await _registerUseCase.Execute(mockRequest, mockHash).ConfigureAwait(false); };
+            Func<Task<Guid>> func = async () =>
+            {
+                return await _registerUseCase.Execute(mockRequest, mockHash).ConfigureAwait(false);
+            };
 
             // Assert
             await func.Should().ThrowAsync<UserWithEmailAlreadyExistsException>();

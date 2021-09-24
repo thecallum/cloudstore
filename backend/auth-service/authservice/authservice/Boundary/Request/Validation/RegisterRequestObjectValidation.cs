@@ -1,9 +1,5 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 
 namespace authservice.Boundary.Request.Validation
 {
@@ -14,12 +10,14 @@ namespace authservice.Boundary.Request.Validation
             RuleFor(x => x.FirstName)
                 .NotNull()
                 .Length(1, 50)
-                .Must(x => IsOnlyLowerCaseAlphabetical(x)).WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
+                .Must(x => IsOnlyLowerCaseAlphabetical(x))
+                .WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
 
             RuleFor(x => x.LastName)
                 .NotNull()
                 .Length(1, 50)
-                .Must(x => IsOnlyLowerCaseAlphabetical(x)).WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
+                .Must(x => IsOnlyLowerCaseAlphabetical(x))
+                .WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
 
             RuleFor(x => x.Email)
                 .NotNull()
@@ -36,10 +34,9 @@ namespace authservice.Boundary.Request.Validation
         {
             if (value == null) return false;
 
-            string pattern = @"^[a-z]*$";
+            var pattern = @"^[a-z]*$";
 
             return Regex.IsMatch(value, pattern);
         }
     }
-
 }

@@ -1,4 +1,5 @@
-﻿using authservice.Boundary.Request;
+﻿using System.Threading.Tasks;
+using authservice.Boundary.Request;
 using authservice.Controllers;
 using authservice.Domain;
 using authservice.Encryption;
@@ -10,26 +11,21 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.Controller
 {
     public class AuthControllerTests
     {
-        private readonly Mock<ILoginUseCase> _mockLoginUseCase;
-        private readonly Mock<IRegisterUseCase> _mockRegisterUseCase;
-        private readonly Mock<IDeleteUseCase> _mockDeleteUseCase;
-
-        private readonly Mock<ITokenService> _mockJWTService;
-        private readonly Mock<IPasswordHasher> _mockHashService;
-
         private readonly AuthController _authController;
 
         private readonly Fixture _fixture = new Fixture();
+        private readonly Mock<IDeleteUseCase> _mockDeleteUseCase;
+        private readonly Mock<IPasswordHasher> _mockHashService;
+
+        private readonly Mock<ITokenService> _mockJWTService;
+        private readonly Mock<ILoginUseCase> _mockLoginUseCase;
+        private readonly Mock<IRegisterUseCase> _mockRegisterUseCase;
 
         public AuthControllerTests()
         {
@@ -41,15 +37,15 @@ namespace authservice.Tests.Controller
             _mockHashService = new Mock<IPasswordHasher>();
 
             _authController = new AuthController(
-                _mockLoginUseCase.Object, 
-                _mockRegisterUseCase.Object, 
-                _mockDeleteUseCase.Object, 
+                _mockLoginUseCase.Object,
+                _mockRegisterUseCase.Object,
+                _mockDeleteUseCase.Object,
                 _mockJWTService.Object,
                 _mockHashService.Object);
 
             // Ensure the controller can add response headers
-              _authController.ControllerContext = new ControllerContext();
-              _authController.ControllerContext.HttpContext = new DefaultHttpContext();
+            _authController.ControllerContext = new ControllerContext();
+            _authController.ControllerContext.HttpContext = new DefaultHttpContext();
         }
 
         [Fact]
@@ -136,7 +132,6 @@ namespace authservice.Tests.Controller
             // Assert
             result.Should().BeOfType(typeof(ConflictObjectResult));
             (result as ConflictObjectResult).Value.Should().BeEquivalentTo(requestObject.Email);
-
         }
 
         [Fact]
@@ -150,8 +145,8 @@ namespace authservice.Tests.Controller
                 .Setup(x => x.Execute(It.IsAny<RegisterRequestObject>(), It.IsAny<string>()));
 
             _mockHashService
-               .Setup(x => x.Hash(It.IsAny<string>()))
-               .Returns(mockHash);
+                .Setup(x => x.Hash(It.IsAny<string>()))
+                .Returns(mockHash);
 
             // Act
             var result = await _authController.Register(requestObject);
@@ -177,7 +172,7 @@ namespace authservice.Tests.Controller
         }
 
         [Fact]
-        public async Task Delete_WhenUserDoesntExist_Returns404NotFound ()
+        public async Task Delete_WhenUserDoesntExist_Returns404NotFound()
         {
             // Arrange    
             var mockPayload = _fixture.Create<Payload>();

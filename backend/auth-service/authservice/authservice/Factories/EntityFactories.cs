@@ -1,17 +1,15 @@
-﻿using authservice.Boundary.Request;
+﻿using System;
+using authservice.Boundary.Request;
 using authservice.Domain;
 using authservice.Infrastructure;
 using authservice.JWT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace authservice.Factories
 {
     public static class EntityFactories
     {
-        public static Payload ToPayload(this User user) {
+        public static Payload ToPayload(this User user)
+        {
             return new Payload
             {
                 Id = user.Id,
@@ -40,7 +38,7 @@ namespace authservice.Factories
                 Id = Guid.NewGuid(),
                 FirstName = requestObject.FirstName,
                 LastName = requestObject.LastName,
-                Email = requestObject.Email,
+                Email = requestObject.Email
             };
         }
 

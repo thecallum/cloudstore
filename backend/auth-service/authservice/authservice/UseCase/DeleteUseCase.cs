@@ -1,12 +1,6 @@
-﻿using authservice.Boundary.Request;
-using authservice.Domain;
-using authservice.Factories;
+﻿using System.Threading.Tasks;
 using authservice.Gateways;
 using authservice.UseCase.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace authservice.UseCase
 {
@@ -25,4 +19,3 @@ namespace authservice.UseCase
         }
     }
 }
-;

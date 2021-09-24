@@ -1,17 +1,13 @@
-﻿using Amazon.DynamoDBv2;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using authservice.Boundary.Request;
-using authservice.Encryption;
 using authservice.Infrastructure;
 using authservice.JWT;
 using AutoFixture;
 using FluentAssertions;
-using Newtonsoft.Json;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.E2ETests
@@ -19,14 +15,13 @@ namespace authservice.Tests.E2ETests
     [Collection("Database collection")]
     public class CheckTests : IDisposable
     {
-        private readonly Fixture _fixture = new Fixture();
-
         private readonly IAmazonDynamoDB _client;
         private readonly IDynamoDBContext _context;
-
-        private readonly Random _random = new Random();
+        private readonly Fixture _fixture = new Fixture();
 
         private readonly HttpClient _httpClient;
+
+        private readonly Random _random = new Random();
 
         private readonly DatabaseFixture<Startup> _testFixture;
 
@@ -42,17 +37,16 @@ namespace authservice.Tests.E2ETests
             _httpClient = testFixture.Client;
 
             _tokenService = new TokenService(Environment.GetEnvironmentVariable("SECRET"));
-
-        }
-
-        private async Task SetupTestData(UserDb user)
-        {
-            await _context.SaveAsync(user).ConfigureAwait(false);
         }
 
         public void Dispose()
         {
             _testFixture.ResetDatabase().GetAwaiter().GetResult();
+        }
+
+        private async Task SetupTestData(UserDb user)
+        {
+            await _context.SaveAsync(user).ConfigureAwait(false);
         }
 
         [Fact]
@@ -90,7 +84,7 @@ namespace authservice.Tests.E2ETests
 
         private async Task<HttpResponseMessage> CheckRequest(string token)
         {
-            var uri = new Uri($"/api/auth/check", UriKind.Relative);
+            var uri = new Uri("/api/auth/check", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
 

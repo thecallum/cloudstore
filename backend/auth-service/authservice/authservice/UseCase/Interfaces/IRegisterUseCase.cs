@@ -1,9 +1,6 @@
-﻿using authservice.Boundary.Request;
-using authservice.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
+using authservice.Boundary.Request;
 
 namespace authservice.UseCase.Interfaces
 {

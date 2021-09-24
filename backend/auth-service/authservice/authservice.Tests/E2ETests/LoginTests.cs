@@ -1,4 +1,9 @@
-﻿using Amazon.DynamoDBv2;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using authservice.Boundary.Request;
 using authservice.Encryption;
@@ -7,37 +12,28 @@ using authservice.JWT;
 using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
-
 
 namespace authservice.Tests.E2ETests
 {
     [Collection("Database collection")]
     public class LoginTests : IDisposable
     {
-
-        private readonly Fixture _fixture = new Fixture();
-
         private readonly IAmazonDynamoDB _client;
         private readonly IDynamoDBContext _context;
 
-        private readonly Random _random = new Random();
+        private readonly Fixture _fixture = new Fixture();
 
         private readonly HttpClient _httpClient;
 
-        private readonly DatabaseFixture<Startup> _testFixture;
-
         private readonly PasswordHasher _passwordHasher;
+
+        private readonly Random _random = new Random();
+
+        private readonly DatabaseFixture<Startup> _testFixture;
 
         public LoginTests(DatabaseFixture<Startup> testFixture)
         {
-
-
             _client = testFixture.DynamoDb;
             _context = testFixture.DynamoDbContext;
 
@@ -48,21 +44,21 @@ namespace authservice.Tests.E2ETests
             _passwordHasher = new PasswordHasher();
         }
 
-        private async Task SetupTestData(UserDb user)
-        {
-            await _context.SaveAsync(user).ConfigureAwait(false);
-        }
-
         public void Dispose()
         {
             _testFixture.ResetDatabase().GetAwaiter().GetResult();
+        }
+
+        private async Task SetupTestData(UserDb user)
+        {
+            await _context.SaveAsync(user).ConfigureAwait(false);
         }
 
         [Fact]
         public async Task Login_WhenRequestObjectIsInvalid_ReturnsBadRequest()
         {
             // Arrange
-            var invalidRequest = (LoginRequestObject)null;
+            var invalidRequest = (LoginRequestObject) null;
 
             // Act
             var response = await LoginRequest(invalidRequest);
@@ -153,7 +149,7 @@ namespace authservice.Tests.E2ETests
 
         private async Task<HttpResponseMessage> LoginRequest(LoginRequestObject request)
         {
-            var uri = new Uri($"/api/auth/login", UriKind.Relative);
+            var uri = new Uri("/api/auth/login", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
@@ -162,7 +158,5 @@ namespace authservice.Tests.E2ETests
 
             return response;
         }
-
-
     }
 }

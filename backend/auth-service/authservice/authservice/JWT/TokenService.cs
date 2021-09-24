@@ -1,8 +1,8 @@
-﻿using JWT;
+﻿using System;
+using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
 using Newtonsoft.Json;
-using System;
 
 namespace authservice.JWT
 {
@@ -27,8 +27,8 @@ namespace authservice.JWT
             return token;
         }
 
-         public Payload ValidateToken(string token)
-         {
+        public Payload ValidateToken(string token)
+        {
             try
             {
                 IJsonSerializer serializer = new JsonNetSerializer();
@@ -38,7 +38,7 @@ namespace authservice.JWT
                 IJwtAlgorithm algorithm = new HMACSHA256Algorithm(); // symmetric
                 IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder, algorithm);
 
-                var json = decoder.Decode(token, _secret, verify: true);
+                var json = decoder.Decode(token, _secret, true);
 
                 var payload = JsonConvert.DeserializeObject<Payload>(json);
 
@@ -48,6 +48,6 @@ namespace authservice.JWT
             {
                 return null;
             }
-         }
+        }
     }
 }

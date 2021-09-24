@@ -1,18 +1,14 @@
 ﻿using authservice.Encryption;
 using AutoFixture;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.Encryption
 {
     public class PasswordHasherTests
     {
-        private readonly PasswordHasher _passwordHasher;
         private readonly Fixture _fixture = new Fixture();
+        private readonly PasswordHasher _passwordHasher;
 
         public PasswordHasherTests()
         {

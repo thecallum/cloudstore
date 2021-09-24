@@ -1,25 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-
-using Xunit;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
-
+using Amazon.Lambda.TestUtilities;
 using Newtonsoft.Json;
-
-using authservice;
-
+using Xunit;
 
 namespace authservice.Tests
 {
     public class ValuesControllerTests
     {
-
-
         [Fact]
         public async Task TestGet()
         {
@@ -35,7 +24,5 @@ namespace authservice.Tests
             Assert.True(response.MultiValueHeaders.ContainsKey("Content-Type"));
             Assert.Equal("application/json; charset=utf-8", response.MultiValueHeaders["Content-Type"][0]);
         }
-
-
     }
 }

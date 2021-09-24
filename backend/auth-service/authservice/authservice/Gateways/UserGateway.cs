@@ -1,12 +1,9 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DataModel;
 using authservice.Domain;
 using authservice.Factories;
 using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace authservice.Gateways
 {
@@ -37,7 +34,7 @@ namespace authservice.Gateways
             var user = await LoadUser(newUser.Email);
             if (user != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
 
-            await _context.SaveAsync<UserDb>(newUser.ToDatabase()).ConfigureAwait(false);
+            await _context.SaveAsync(newUser.ToDatabase()).ConfigureAwait(false);
         }
 
         public async Task<UserDb> LoadUser(string email)

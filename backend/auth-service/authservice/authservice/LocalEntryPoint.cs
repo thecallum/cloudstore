@@ -1,13 +1,10 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace authservice
 {
     /// <summary>
-    /// The Main function can be used to run the ASP.NET Core application locally using the Kestrel webserver.
+    ///     The Main function can be used to run the ASP.NET Core application locally using the Kestrel webserver.
     /// </summary>
     public class LocalEntryPoint
     {
@@ -16,11 +13,10 @@ namespace authservice
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+        }
     }
 }

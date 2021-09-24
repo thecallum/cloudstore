@@ -1,22 +1,12 @@
-﻿using authservice.Boundary.Request;
-using authservice.Controllers;
-using authservice.Domain;
-using authservice.Encryption;
+﻿using System;
+using System.Threading.Tasks;
 using authservice.Gateways;
-using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
-using authservice.JWT;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.UseCase
@@ -24,8 +14,8 @@ namespace authservice.Tests.UseCase
     public class DeleteUseCaseTests
     {
         private readonly IDeleteUseCase _deleteUseCase;
-        private readonly Mock<IUserGateway> _mockUserGateway;
         private readonly Fixture _fixture = new Fixture();
+        private readonly Mock<IUserGateway> _mockUserGateway;
 
         public DeleteUseCaseTests()
         {
@@ -43,8 +33,8 @@ namespace authservice.Tests.UseCase
             var exception = new UserNotFoundException(mockEmail);
 
             _mockUserGateway
-               .Setup(x => x.DeleteUser(It.IsAny<string>()))
-              .ThrowsAsync(exception);
+                .Setup(x => x.DeleteUser(It.IsAny<string>()))
+                .ThrowsAsync(exception);
 
             // Act
             Func<Task> func = async () => { await _deleteUseCase.Execute(mockEmail).ConfigureAwait(false); };
@@ -59,7 +49,6 @@ namespace authservice.Tests.UseCase
             // Arrange
             var mockEmail = _fixture.Create<string>();
 
-            
 
             // Act
             Func<Task> func = async () => { await _deleteUseCase.Execute(mockEmail).ConfigureAwait(false); };

@@ -1,31 +1,20 @@
-﻿using authservice.Boundary.Request;
-using authservice.Controllers;
-using authservice.Domain;
-using authservice.Encryption;
+﻿using System.Threading.Tasks;
 using authservice.Gateways;
 using authservice.Infrastructure;
-using authservice.Infrastructure.Exceptions;
-using authservice.JWT;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.UseCase
 {
     public class LoginUseCaseTests
     {
+        private readonly Fixture _fixture = new Fixture();
         private readonly ILoginUseCase _loginUseCase;
         private readonly Mock<IUserGateway> _mockUserGateway;
-        private readonly Fixture _fixture = new Fixture();
 
         public LoginUseCaseTests()
         {

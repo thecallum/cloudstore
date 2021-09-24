@@ -1,4 +1,6 @@
-﻿using Amazon.DynamoDBv2;
+﻿using System;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using authservice.Domain;
 using authservice.Gateways;
@@ -6,8 +8,6 @@ using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
 using AutoFixture;
 using FluentAssertions;
-using System;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace authservice.Tests.Gateway
@@ -15,10 +15,9 @@ namespace authservice.Tests.Gateway
     [Collection("Database collection")]
     public class UserGatewayTests : IDisposable
     {
-        private readonly Fixture _fixture = new Fixture();
-
         private readonly IAmazonDynamoDB _client;
         private readonly IDynamoDBContext _context;
+        private readonly Fixture _fixture = new Fixture();
 
         private readonly UserGateway _gateway;
         private readonly Random _random = new Random();
