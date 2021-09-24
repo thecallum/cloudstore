@@ -55,7 +55,7 @@ namespace authservice
             services.AddScoped<IDeleteUseCase, DeleteUseCase>();
             services.AddScoped<ICheckUseCase, CheckUseCase>();
 
-            services.AddTransient<IJWTService>(x => new JWTService(Environment.GetEnvironmentVariable("SECRET")));
+            services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
             services.AddScoped<IPasswordHasher, PasswordHasher>();
 
             ConfigureDynamoDbAsync(services).GetAwaiter().GetResult();

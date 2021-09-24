@@ -1,6 +1,6 @@
 ﻿namespace authservice.JWT
 {
-    public interface IJWTService
+    public interface ITokenService
     {
         string CreateToken(Payload payload);
         Payload ValidateToken(string token);

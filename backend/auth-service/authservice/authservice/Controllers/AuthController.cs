@@ -5,18 +5,8 @@ using authservice.Factories;
 using authservice.Infrastructure.Exceptions;
 using authservice.JWT;
 using authservice.UseCase.Interfaces;
-using JWT;
-using JWT.Algorithms;
-using JWT.Exceptions;
-using JWT.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace authservice.Controllers
@@ -27,7 +17,7 @@ namespace authservice.Controllers
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
-        private readonly IJWTService _jwtService;
+        private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _hashService;
 
         private readonly ILoginUseCase _loginUseCase;
@@ -40,7 +30,7 @@ namespace authservice.Controllers
             IRegisterUseCase registerUseCase, 
             IDeleteUseCase deleteUseCase, 
             ICheckUseCase checkUseCase,
-            IJWTService jwtService,
+            ITokenService tokenService,
             IPasswordHasher hashService)
         {
             _loginUseCase = loginUseCase;
@@ -48,7 +38,7 @@ namespace authservice.Controllers
             _deleteUseCase = deleteUseCase;
             _checkUseCase = checkUseCase;
 
-            _jwtService = jwtService;
+            _tokenService = tokenService;
             _hashService = hashService;
         }
 
@@ -67,7 +57,7 @@ namespace authservice.Controllers
             if (verified == false) return Unauthorized();
 
             var payload = user.ToPayload();
-            var token = _jwtService.CreateToken(payload);
+            var token = _tokenService.CreateToken(payload);
             Response.Headers.Add(HeaderConstants.AuthToken, token);
 
             return Ok();
@@ -102,7 +92,7 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAccount([FromHeader] string token)
         {
-            var payload = _jwtService.ValidateToken(token);
+            var payload = _tokenService.ValidateToken(token);
             if (payload == null) return Unauthorized();
 
             try
@@ -124,7 +114,7 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CheckAuth([FromHeader] string token)
         {
-            var payload = _jwtService.ValidateToken(token);
+            var payload = _tokenService.ValidateToken(token);
             if (payload == null) return Unauthorized();
 
             return Ok();

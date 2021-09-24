@@ -1,28 +1,16 @@
-﻿using authservice.Domain;
-using authservice.Encryption;
-using JWT;
+﻿using JWT;
 using JWT.Algorithms;
-using JWT.Exceptions;
 using JWT.Serializers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace authservice.JWT
 {
-
-    public class JWTService : IJWTService
+    public class TokenService : ITokenService
     {
         private readonly string _secret;
 
-        public JWTService(string secret)
+        public TokenService(string secret)
         {
             _secret = secret;
         }

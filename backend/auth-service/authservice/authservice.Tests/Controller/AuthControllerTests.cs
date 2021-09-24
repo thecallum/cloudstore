@@ -25,7 +25,7 @@ namespace authservice.Tests.Controller
         private readonly Mock<IDeleteUseCase> _mockDeleteUseCase;
         private readonly Mock<ICheckUseCase> _mockCheckUseCase;
 
-        private readonly Mock<IJWTService> _mockJWTService;
+        private readonly Mock<ITokenService> _mockJWTService;
         private readonly Mock<IPasswordHasher> _mockHashService;
 
         private readonly AuthController _authController;
@@ -39,7 +39,7 @@ namespace authservice.Tests.Controller
             _mockDeleteUseCase = new Mock<IDeleteUseCase>();
             _mockCheckUseCase = new Mock<ICheckUseCase>();
 
-            _mockJWTService = new Mock<IJWTService>();
+            _mockJWTService = new Mock<ITokenService>();
             _mockHashService = new Mock<IPasswordHasher>();
 
             _authController = new AuthController(
