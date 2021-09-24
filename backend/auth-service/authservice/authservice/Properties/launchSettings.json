@@ -12,6 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "SECRET": "poiujfpsodjfpsdfjhsaghjg34khjg34jhk5g3k4hj5g3hj4g5j34hg5",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
@@ -25,9 +26,9 @@
     },
     "Mock Lambda Test Tool": {
       "commandName": "Executable",
+      "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-3.1.exe",
       "commandLineArgs": "--port 5050",
-      "workingDirectory": ".\\bin\\$(Configuration)\\netcoreapp3.1",
-      "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-3.1.exe"
+      "workingDirectory": ".\\bin\\$(Configuration)\\netcoreapp3.1"
     }
   }
 }

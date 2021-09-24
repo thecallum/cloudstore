@@ -2,10 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using authservice.Boundary.Request;
+using authservice.Boundary.Request.Validation;
+using authservice.Encryption;
 using authservice.Gateways;
 using authservice.JWT;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +22,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
+
 
 namespace authservice
 {
@@ -32,6 +41,13 @@ namespace authservice
         {
             services.AddControllers();
 
+            services.AddMvc(setup => {
+                //...mvc setup...
+            }).AddFluentValidation();
+
+            services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
+            services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
+
             services.AddScoped<IUserGateway, UserGateway>();
 
             services.AddScoped<ILoginUseCase, LoginUseCase>();
@@ -39,8 +55,14 @@ namespace authservice
             services.AddScoped<IDeleteUseCase, DeleteUseCase>();
             services.AddScoped<ICheckUseCase, CheckUseCase>();
 
-            services.AddScoped<IJWTService, JWTService>();
-            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddTransient<IJWTService>(x => new JWTService(Environment.GetEnvironmentVariable("SECRET")));
+            services.AddTransient<IPasswordHasher>(x =>
+            {
+                var options = new HashingOptions();
+                return new PasswordHasher(options);
+            });
+
+            ConfigureDynamoDbAsync(services).GetAwaiter().GetResult();
 
         }
 
@@ -67,6 +89,35 @@ namespace authservice
                 });
             });
 
+        }
+
+        private async Task ConfigureDynamoDbAsync(IServiceCollection services)
+        {
+
+            bool localMode = false;
+            _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out localMode);
+
+            if (localMode)
+            {
+                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                {
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" };
+                    return new AmazonDynamoDBClient(clientConfig);
+                });
+            }
+            else
+            {
+
+
+                services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+                services.AddAWSService<IAmazonDynamoDB>();
+            }
+
+            services.AddScoped<IDynamoDBContext>(sp =>
+            {
+                var db = sp.GetService<IAmazonDynamoDB>();
+                return new DynamoDBContext(db);
+            });
         }
     }
 }
