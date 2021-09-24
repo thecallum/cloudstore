@@ -1,0 +1,162 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService.Tests\\DocumentService.Tests.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService.Tests\\DocumentService.Tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService.Tests\\DocumentService.Tests.csproj",
+        "projectName": "DocumentService.Tests",
+        "projectPath": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService.Tests\\DocumentService.Tests.csproj",
+        "packagesPath": "C:\\Users\\callum.macpherson_ha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService.Tests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\callum.macpherson_ha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {
+              "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\DocumentService.csproj": {
+                "projectPath": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\DocumentService.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "AWSSDK.Extensions.NETCore.Setup": {
+              "target": "Package",
+              "version": "[3.3.101, )"
+            },
+            "Amazon.Lambda.APIGatewayEvents": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
+            "Amazon.Lambda.Core": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            },
+            "Amazon.Lambda.TestUtilities": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[15.5.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.3.1, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.3.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\DocumentService.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\DocumentService.csproj",
+        "projectName": "DocumentService",
+        "projectPath": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\DocumentService.csproj",
+        "packagesPath": "C:\\Users\\callum.macpherson_ha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\callum.macpherson_ha\\Documents\\Playground\\cloudstore\\backend\\document-service\\DocumentService\\DocumentService\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\callum.macpherson_ha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "Amazon.Lambda.AspNetCoreServer": {
+              "target": "Package",
+              "version": "[5.3.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
