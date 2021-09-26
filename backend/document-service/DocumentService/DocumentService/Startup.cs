@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentService.Gateways;
+using DocumentService.Infrastructure;
+using DocumentService.UseCase;
+using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -27,6 +31,16 @@ namespace DocumentService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.ConfigureAws();
+
+            services.AddScoped<IDocumentGateway, DocumentGateway>();
+            services.AddScoped<IS3Gateway, S3Gateway>();
+
+            services.AddScoped<IUploadDocumentUseCase, UploadDocumentUseCase>();
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
