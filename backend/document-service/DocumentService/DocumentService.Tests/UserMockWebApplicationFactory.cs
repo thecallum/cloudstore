@@ -12,6 +12,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using DocumentService.Infrastructure;
 using Amazon.DynamoDBv2.Model;
+using Amazon.S3.Model;
 
 namespace DocumentService.Tests
 {
@@ -31,17 +32,6 @@ namespace DocumentService.Tests
 
             builder.ConfigureServices(services =>
             {
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
-                {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" };
-                    return new AmazonDynamoDBClient(clientConfig);
-                });
-
-                services.AddScoped<IAmazonS3>(x =>
-                {
-                    return new AmazonS3Client();
-                });
-
                 services.ConfigureAws();
 
                 var serviceProvider = services.BuildServiceProvider();
@@ -50,6 +40,13 @@ namespace DocumentService.Tests
                 S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
                 EnsureTableExist();
+
+                S3Client.PutBucketAsync(new PutBucketRequest
+                {
+                    BucketName = "uploadfromcs",
+
+                }).GetAwaiter().GetResult();
+
             });
         }
 
@@ -60,7 +57,7 @@ namespace DocumentService.Tests
             {
                 CreateDocumentTable().GetAwaiter().GetResult();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // table exists
             }
@@ -94,7 +91,7 @@ namespace DocumentService.Tests
                     new KeySchemaElement
                     {
                         AttributeName = "id",
-                        KeyType = "RANGE" //Sort key
+                        KeyType = "Range" //Sort key
                     }
                 },
                 ProvisionedThroughput = new ProvisionedThroughput

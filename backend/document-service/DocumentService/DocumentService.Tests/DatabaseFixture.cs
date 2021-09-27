@@ -32,7 +32,14 @@ namespace DocumentService.Tests
         public void Dispose()
         {
             // cleanup database
-            DynamoDb.DeleteTableAsync(DocumentTableName).GetAwaiter().GetResult();
+            try
+            {
+                DynamoDb.DeleteTableAsync(DocumentTableName).GetAwaiter().GetResult();
+            } 
+            catch(Exception)
+            {
+
+            }
         }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
@@ -43,8 +50,16 @@ namespace DocumentService.Tests
 
         public async Task ResetDatabase()
         {
-            await DynamoDb.DeleteTableAsync(DocumentTableName);
-            await _factory.CreateDocumentTable();
+            try
+            {
+                await DynamoDb.DeleteTableAsync(DocumentTableName);
+                await _factory.CreateDocumentTable();
+            }
+            catch (Exception)
+            {
+
+            }
+           
         }
     }
 

@@ -18,7 +18,7 @@ namespace DocumentService.Infrastructure
             if (localMode)
                 services.AddSingleton<IAmazonDynamoDB>(sp =>
                 {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:8000" };
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:4566" };
                     return new AmazonDynamoDBClient(clientConfig);
                 });
             else
@@ -32,7 +32,8 @@ namespace DocumentService.Infrastructure
 
             services.AddScoped<IAmazonS3>(x =>
             {
-                return new AmazonS3Client();
+                var config = new AmazonS3Config { ServiceURL = "http://localhost:4566", ForcePathStyle = true };
+                return new AmazonS3Client(config);
             });
         }
     }
