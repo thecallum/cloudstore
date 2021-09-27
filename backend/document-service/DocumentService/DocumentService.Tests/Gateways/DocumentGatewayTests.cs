@@ -53,10 +53,10 @@ namespace DocumentService.Tests.Gateways
             _testFixture.ResetDatabase().GetAwaiter().GetResult();
         }
 
-        //private async Task SetupTestData(DocumentDb document)
-        //{
-        //    await _context.SaveAsync(document).ConfigureAwait(false);
-        //}
+        private async Task SetupTestData(DocumentDb document)
+        {
+            await _context.SaveAsync(document).ConfigureAwait(false);
+        }
 
         [Fact]
         public async Task SaveDocument_WhenCalled_InsertsDocumentIntoDatabase()
@@ -75,5 +75,44 @@ namespace DocumentService.Tests.Gateways
             databaseResponse.S3Location.Should().Be(mockDocument.S3Location);
             databaseResponse.FileSize.Should().Be(mockDocument.FileSize);
         }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            // Act 
+            var response = await _gateway.GetAllDocuments(userId);
+
+            // Assert
+            response.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsList()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            var numberOfDocuments = _random.Next(2, 5);
+
+            var mockDocuments = _fixture
+                .Build<DocumentDb>()
+                .With(x => x.UserId, userId)
+                .CreateMany(numberOfDocuments);
+
+            foreach(var document in mockDocuments)
+            {
+                await SetupTestData(document);
+            }
+
+            // Act 
+            var response = await _gateway.GetAllDocuments(userId);
+
+            // Assert
+            response.Should().HaveCount(numberOfDocuments);
+        }
     }
 }
+

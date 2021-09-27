@@ -2,6 +2,7 @@
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Controllers;
+using DocumentService.Domain;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
@@ -19,13 +20,17 @@ namespace DocumentService.Tests.Controllers
     {
         private readonly DocumentController _documentController;
         private readonly Mock<IUploadDocumentUseCase> _mockUploadDocumentUseCase;
+        private readonly Mock<IGetAllDocumentsUseCase> _mockGetAllDocumentsUseCase;
 
         private readonly Fixture _fixture = new Fixture();
+        private readonly Random _random = new Random();
+
         public DocumentControllerTests()
         {
             _mockUploadDocumentUseCase = new Mock<IUploadDocumentUseCase>();
+            _mockGetAllDocumentsUseCase = new Mock<IGetAllDocumentsUseCase>();
 
-            _documentController = new DocumentController(_mockUploadDocumentUseCase.Object);
+            _documentController = new DocumentController(_mockUploadDocumentUseCase.Object, _mockGetAllDocumentsUseCase.Object);
         }
 
         [Fact]
@@ -88,6 +93,50 @@ namespace DocumentService.Tests.Controllers
             ((response as CreatedResult).Value as UploadDocumentResponse).Name.Should().Be(uploadDocumentResponse.Name);
             ((response as CreatedResult).Value as UploadDocumentResponse).S3Location.Should().Be(uploadDocumentResponse.S3Location);
             ((response as CreatedResult).Value as UploadDocumentResponse).DocumentId.Should().Be(uploadDocumentResponse.DocumentId);
+        }
+
+        // GetAllDocuments
+
+        // no documents
+        // multiple documents
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsGetAllDocumentsResponse()
+        {
+            // Arrange
+            var useCaseResponse = _fixture.CreateMany<Document>(0);
+
+            _mockGetAllDocumentsUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _documentController.GetAllDocuments();
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
+            ((response as OkObjectResult).Value as GetAllDocumentsResponse).Documents.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsGetAllDocumentsResponse()
+        {
+            // Arrange
+            var numberOfDocuments = _random.Next(2, 5);
+            var useCaseResponse = _fixture.CreateMany<Document>(numberOfDocuments);
+
+            _mockGetAllDocumentsUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _documentController.GetAllDocuments();
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
+            ((response as OkObjectResult).Value as GetAllDocumentsResponse).Documents.Should().HaveCount(numberOfDocuments);
         }
     }
 }

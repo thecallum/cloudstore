@@ -20,5 +20,17 @@ namespace DocumentService.Factories
                 S3Location = domain.S3Location
             };
         }
+
+        public static Document ToDomain(this DocumentDb entity)
+        {
+            return new Document
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                UserId = entity.UserId,
+                FileSize = entity.FileSize,
+                S3Location = entity.S3Location
+            };
+        }
     }
 }

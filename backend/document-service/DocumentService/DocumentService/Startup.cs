@@ -38,6 +38,7 @@ namespace DocumentService
             services.AddScoped<IS3Gateway, S3Gateway>();
 
             services.AddScoped<IUploadDocumentUseCase, UploadDocumentUseCase>();
+            services.AddScoped<IGetAllDocumentsUseCase, GetAllDocumentsUseCase>();
 
 
 

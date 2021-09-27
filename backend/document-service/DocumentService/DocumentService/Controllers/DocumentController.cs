@@ -19,9 +19,12 @@ namespace DocumentService.Controllers
         private readonly Guid _userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
 
         private readonly IUploadDocumentUseCase _uploadDocumentUseCase;
-        public DocumentController(IUploadDocumentUseCase uploadDocumentUseCase)
+        private readonly IGetAllDocumentsUseCase _getAllDocumentsUseCase;
+
+        public DocumentController(IUploadDocumentUseCase uploadDocumentUseCase, IGetAllDocumentsUseCase getAllDocumentsUseCase)
         {
             _uploadDocumentUseCase = uploadDocumentUseCase;
+            _getAllDocumentsUseCase = getAllDocumentsUseCase;
         }
 
         [Route("upload")]
@@ -51,5 +54,17 @@ namespace DocumentService.Controllers
                 throw;
             }
         }
-    }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(GetAllDocumentsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllDocuments()
+        {
+            var documents = await _getAllDocumentsUseCase.Execute(_userId);
+
+            var response = new GetAllDocumentsResponse { Documents = documents.ToList() };
+
+            return Ok(response);
+        }
+     }
 }
