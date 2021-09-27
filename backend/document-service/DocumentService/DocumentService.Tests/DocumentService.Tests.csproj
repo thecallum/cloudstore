@@ -31,4 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DocumentService\DocumentService.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
 </Project>

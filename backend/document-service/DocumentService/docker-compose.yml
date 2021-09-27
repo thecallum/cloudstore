@@ -1,0 +1,30 @@
+version: "3.2"
+services:
+  document-service-tests:
+    image: document-service-tests
+    build:
+      context: .
+      dockerfile: DocumentService.Tests\Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - DynamoDb_LocalMode=true
+      - AWS_REGION=eu-west-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - Localstack_URL=http://localstack:4566
+    links:
+      - localstack
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - 127.0.0.1:4566:4566
+    environment:
+      - SERVICES=s3,dynamodb
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - ./.localstack:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -16,13 +16,24 @@ namespace DocumentService.Infrastructure
             _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out localMode);
 
             if (localMode)
+            {
                 services.AddSingleton<IAmazonDynamoDB>(sp =>
                 {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:4566" };
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL") };
                     return new AmazonDynamoDBClient(clientConfig);
                 });
+
+                services.AddScoped<IAmazonS3>(x =>
+                {
+                    var config = new AmazonS3Config { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL"), ForcePathStyle = true };
+                    return new AmazonS3Client(config);
+                });
+            }
             else
+            {
                 services.TryAddAWSService<IAmazonDynamoDB>();
+                services.TryAddAWSService<IAmazonS3>();
+            }
 
             services.AddScoped<IDynamoDBContext>(sp =>
             {
@@ -30,11 +41,7 @@ namespace DocumentService.Infrastructure
                 return new DynamoDBContext(db);
             });
 
-            services.AddScoped<IAmazonS3>(x =>
-            {
-                var config = new AmazonS3Config { ServiceURL = "http://localhost:4566", ForcePathStyle = true };
-                return new AmazonS3Client(config);
-            });
+            
         }
     }
 }
