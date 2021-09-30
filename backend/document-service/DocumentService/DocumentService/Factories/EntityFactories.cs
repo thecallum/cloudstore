@@ -1,4 +1,5 @@
-﻿using DocumentService.Domain;
+﻿using DocumentService.Boundary.Request;
+using DocumentService.Domain;
 using DocumentService.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,6 @@ namespace DocumentService.Factories
             };
         }
 
-        // Convert To CRUD Directory Model.
         public static DirectoryDb ToDatabase(this Directory domain)
         {
             return new DirectoryDb
@@ -42,6 +42,17 @@ namespace DocumentService.Factories
                 DirectoryId = domain.DirectoryId,
                 Name = domain.Name,
                 ParentDirectoryId = domain.ParentDirectoryId
+            };
+        }
+
+        public static Directory ToDomain(this CreateDirectoryRequest request, Guid userId)
+        {
+            return new Directory
+            {
+                UserId = userId,
+                DirectoryId = Guid.NewGuid(),
+                Name = request.Name,
+                ParentDirectoryId = (request.ParentDirectoryId ?? userId)
             };
         }
     }

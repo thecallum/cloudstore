@@ -19,7 +19,7 @@ namespace DocumentService.Tests.Helpers
         {
             var filePath = Path.Combine(_testDataDirectory, fileName);
 
-            using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.CreateNew)))
+            using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create)))
             {
                 sw.Write(new char[fileSize]);
             }

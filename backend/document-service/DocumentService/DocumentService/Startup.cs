@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Request.Validation;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
 using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -30,18 +34,26 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(setup => {
+                //...mvc setup...
+            }).AddFluentValidation();
+
+            services.AddTransient<IValidator<CreateDirectoryRequest>, CreateDirectoryRequestValidator>();
+            services.AddTransient<IValidator<RenameDirectoryRequest>, RenameDirectoryRequestValidator>();
+
             services.AddControllers();
 
             services.ConfigureAws();
 
             services.AddScoped<IDocumentGateway, DocumentGateway>();
+            services.AddScoped<IDirectoryGateway, DirectoryGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
 
             services.AddScoped<IUploadDocumentUseCase, UploadDocumentUseCase>();
             services.AddScoped<IGetAllDocumentsUseCase, GetAllDocumentsUseCase>();
-
-
-
+            services.AddScoped<ICreateDirectoryUseCase, CreateDirectoryUseCase>();
+            services.AddScoped<IRenameDirectoryUseCase, RenameDirectoryUseCase>();
+            services.AddScoped<IDeleteDirectoryUseCase, DeleteDirectoryUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
