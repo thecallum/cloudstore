@@ -19,13 +19,15 @@ namespace DocumentService.Infrastructure
             {
                 services.AddSingleton<IAmazonDynamoDB>(sp =>
                 {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL") };
+                   // var clientConfig = new AmazonDynamoDBConfig { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL") };
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://localhost:4566" };
                     return new AmazonDynamoDBClient(clientConfig);
                 });
 
                 services.AddScoped<IAmazonS3>(x =>
                 {
-                    var config = new AmazonS3Config { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL"), ForcePathStyle = true };
+                  //  var config = new AmazonS3Config { ServiceURL = Environment.GetEnvironmentVariable("Localstack_URL"), ForcePathStyle = true };
+                    var config = new AmazonS3Config { ServiceURL = "http://localhost:4566", ForcePathStyle = true };
                     return new AmazonS3Client(config);
                 });
             }

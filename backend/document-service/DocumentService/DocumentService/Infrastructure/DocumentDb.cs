@@ -13,7 +13,7 @@ namespace DocumentService.Infrastructure
         public Guid UserId { get; set; }
 
         [DynamoDBRangeKey]
-        public Guid Id { get; set; }
+        public Guid DocumentId { get; set; }
 
         [DynamoDBProperty]
         public string Name { get; set; }

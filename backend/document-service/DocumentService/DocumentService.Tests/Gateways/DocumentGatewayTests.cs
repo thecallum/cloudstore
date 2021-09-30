@@ -1,61 +1,22 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.S3;
-using Amazon.S3.Model;
-using AutoFixture;
-using DocumentService.Boundary.Request;
-using DocumentService.Boundary.Response;
+﻿using AutoFixture;
 using DocumentService.Domain;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
-using DocumentService.UseCase;
-using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
-using Moq;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Tests.Gateways
 {
-    [Collection("Database collection")]
-    public class DocumentGatewayTests : IDisposable
+    public class DocumentGatewayTests : BaseIntegrationTest
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
-        private readonly Fixture _fixture = new Fixture();
-
         private readonly DocumentGateway _gateway;
-        private readonly Random _random = new Random();
-
-        private readonly DatabaseFixture<Startup> _testFixture;
 
         public DocumentGatewayTests(DatabaseFixture<Startup> testFixture)
+            : base(testFixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
-
             _gateway = new DocumentGateway(_context);
-
-            _testFixture = testFixture;
-        }
-
-        public void Dispose()
-        {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
-        }
-
-        private async Task SetupTestData(DocumentDb document)
-        {
-            await _context.SaveAsync(document).ConfigureAwait(false);
         }
 
         [Fact]
@@ -74,6 +35,8 @@ namespace DocumentService.Tests.Gateways
             databaseResponse.Name.Should().Be(mockDocument.Name);
             databaseResponse.S3Location.Should().Be(mockDocument.S3Location);
             databaseResponse.FileSize.Should().Be(mockDocument.FileSize);
+
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(mockDocument.UserId, mockDocument.Id));
         }
 
         [Fact]
@@ -99,13 +62,10 @@ namespace DocumentService.Tests.Gateways
 
             var mockDocuments = _fixture
                 .Build<DocumentDb>()
-                .With(x => x.UserId, userId)
-                .CreateMany(numberOfDocuments);
+               .With(x => x.UserId, userId)
+               .CreateMany(numberOfDocuments);
 
-            foreach(var document in mockDocuments)
-            {
-                await SetupTestData(document);
-            }
+            await SetupTestData(mockDocuments);
 
             // Act 
             var response = await _gateway.GetAllDocuments(userId);

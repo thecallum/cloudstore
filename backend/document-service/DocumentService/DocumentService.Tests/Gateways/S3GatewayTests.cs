@@ -1,54 +1,32 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using AutoFixture;
 using DocumentService.Boundary.Request;
-using DocumentService.Boundary.Response;
-using DocumentService.Domain;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
-using DocumentService.Tests.Helpers;
-using DocumentService.UseCase;
-using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
-using Moq;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Tests.Gateways
 {
-    [Collection("Database collection")]
-    public class S3GatewayTests : IDisposable
+    public class S3GatewayTests : BaseIntegrationTest
     {
-        private readonly Fixture _fixture = new Fixture();
         private readonly IAmazonS3 _s3Client;
         private IS3Gateway _s3Gateway;
 
         private readonly string _validFilePath;
         private readonly string _tooLargeFilePath;
-        public S3GatewayTests(DatabaseFixture<Startup> testFixture)
-        {
-            string workingDirectory = Environment.CurrentDirectory;
-            string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 
-            _validFilePath = TestHelpers.CreateTestFile("validfile.txt", 200);
-            _tooLargeFilePath = TestHelpers.CreateTestFile("tooLargeFile.txt", 1073741825);
+        public S3GatewayTests(DatabaseFixture<Startup> testFixture)
+            : base(testFixture)
+        {
+            _validFilePath = testFixture.ValidFilePath;
+            _tooLargeFilePath = testFixture.TooLargeFilePath;
 
             _s3Client = testFixture.S3Client;
             _s3Gateway = new S3Gateway(_s3Client);
-
-            // Need to update test to use AWS localstack
-        }
-        public void Dispose()
-        {
         }
 
         [Fact]
@@ -101,6 +79,7 @@ namespace DocumentService.Tests.Gateways
 
             await VerifyDocumentUploadedToS3(userId, documentId);
         }
+
         private async Task VerifyDocumentUploadedToS3(Guid userId, Guid documentId)
         {
             // test file exists

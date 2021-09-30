@@ -8,11 +8,18 @@ namespace DocumentService.Tests.Helpers
 {
     public static class TestHelpers
     {
-        public static string CreateTestFile(string fileName, int fileSize)
-        {
-            var filePath = Path.Combine(GetTestDataDirectoryPath(), fileName);
+        private static readonly string _testDataDirectory;
 
-            using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
+        static TestHelpers()
+        {
+            _testDataDirectory = GetTestDataDirectoryPath();
+        }
+
+        public static string GetFilePath(string fileName, int fileSize)
+        {
+            var filePath = Path.Combine(_testDataDirectory, fileName);
+
+            using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.CreateNew)))
             {
                 sw.Write(new char[fileSize]);
             }

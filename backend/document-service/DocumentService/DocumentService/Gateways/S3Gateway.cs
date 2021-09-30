@@ -54,7 +54,7 @@ namespace DocumentService.Gateways
             }
             catch (Exception ex)
             {
-                if (ex is FileNotFoundException || ex is DirectoryNotFoundException)
+                if (ex is FileNotFoundException || ex is System.IO.DirectoryNotFoundException)
                 {
                     throw new InvalidFilePathException();
                 }

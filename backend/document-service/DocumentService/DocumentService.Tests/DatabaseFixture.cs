@@ -1,6 +1,7 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.S3;
+using DocumentService.Tests.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +19,34 @@ namespace DocumentService.Tests
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
 
+
+          
+
+
             _factory = new UserMockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
+
+            ResetDatabase().GetAwaiter().GetResult();
+
+        }
+
+        private async Task ResetDatabase()
+        {
+            var tables = await DynamoDb.ListTablesAsync();
+
+
+            if (tables.TableNames.Contains("Document"))
+            {
+                await DynamoDb.DeleteTableAsync("Document");
+            }
+
+            if (tables.TableNames.Contains("Directory"))
+            {
+                await DynamoDb.DeleteTableAsync("Directory");
+            }
+
+            await DatabaseBuilder.CreateDocumentTable(DynamoDb);
+            await DatabaseBuilder.CreateDirectoryTable(DynamoDb);
         }
 
         public HttpClient Client { get; }
@@ -29,37 +56,24 @@ namespace DocumentService.Tests
 
         public IAmazonS3 S3Client => _factory.S3Client;
 
+
+        public string ValidFilePath => _factory.ValidFilePath;
+        public string TooLargeFilePath => _factory.TooLargeFilePath;
+
         public void Dispose()
         {
             // cleanup database
-            try
-            {
-                DynamoDb.DeleteTableAsync(DocumentTableName).GetAwaiter().GetResult();
-            } 
-            catch(Exception)
-            {
+            
+            
+           //   DeleteAllTables().GetAwaiter().GetResult();
 
-            }
+            
         }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
                 Environment.SetEnvironmentVariable(name, defaultValue);
-        }
-
-        public async Task ResetDatabase()
-        {
-            try
-            {
-                await DynamoDb.DeleteTableAsync(DocumentTableName);
-                await _factory.CreateDocumentTable();
-            }
-            catch (Exception)
-            {
-
-            }
-           
         }
     }
 

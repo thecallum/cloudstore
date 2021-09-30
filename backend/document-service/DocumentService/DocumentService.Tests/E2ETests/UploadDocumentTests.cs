@@ -1,67 +1,27 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using AutoFixture;
-using DocumentService.Boundary.Request;
+﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
-using DocumentService.Controllers;
 using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
-using DocumentService.Tests.Helpers;
-using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Tests.E2ETests
 {
-    [Collection("Database collection")]
-    public class UploadDocumentTests : IDisposable
+    public class UploadDocumentTests : BaseIntegrationTest
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
-        private readonly Fixture _fixture = new Fixture();
-
-        private readonly HttpClient _httpClient;
-
-        private readonly Random _random = new Random();
-
-        private readonly DatabaseFixture<Startup> _testFixture;
-
-        private readonly string _validFilePath;
-        private readonly string _tooLargeFilePath;
+        private string _validFilePath;
+        private string _tooLargeFilePath;
 
         public UploadDocumentTests(DatabaseFixture<Startup> testFixture)
+            : base(testFixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
-
-            _testFixture = testFixture;
-
-            _httpClient = testFixture.Client;
-
-            _validFilePath = TestHelpers.CreateTestFile("validfile.txt", 200);
-            _tooLargeFilePath = TestHelpers.CreateTestFile("tooLargeFile.txt", 1073741825);
-        }
-        public void Dispose()
-        {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
-        }
-
-        private async Task SetupTestData(DocumentDb document)
-        {
-            await _context.SaveAsync(document).ConfigureAwait(false);
+            _validFilePath = testFixture.ValidFilePath;
+            _tooLargeFilePath = testFixture.TooLargeFilePath;
         }
 
         [Fact]
@@ -84,10 +44,9 @@ namespace DocumentService.Tests.E2ETests
         public async Task UploadDocument_WhenFileTooLarge_ReturnsBadRequest()
         {
             // Arrange
-
             var mockRequest = new UploadDocumentRequest
             {
-                FilePath = _tooLargeFilePath
+                FilePath = _tooLargeFilePath,
             };
 
             // Act
@@ -95,6 +54,7 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
         }
 
         [Fact]
@@ -134,6 +94,7 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.S3Location.Should().Be(expectedS3Location);
             databaseResponse.FileSize.Should().Be(200);
 
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, databaseResponse.DocumentId));
         }
 
         private async Task<HttpResponseMessage> UploadDocumentRequest(UploadDocumentRequest request)
@@ -146,17 +107,6 @@ namespace DocumentService.Tests.E2ETests
             var response = await _httpClient.PostAsync(uri, data).ConfigureAwait(false);
 
             return response;
-        }
-
-        private JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
     }
 }

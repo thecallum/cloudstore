@@ -13,6 +13,8 @@ using Amazon.DynamoDBv2.DataModel;
 using DocumentService.Infrastructure;
 using Amazon.DynamoDBv2.Model;
 using Amazon.S3.Model;
+using DocumentService.Tests.Infrastructure;
+using DocumentService.Tests.Helpers;
 
 namespace DocumentService.Tests
 {
@@ -24,6 +26,9 @@ namespace DocumentService.Tests
         public IDynamoDBContext DynamoDbContext { get; private set; }
 
         public IAmazonS3 S3Client { get; private set; }
+
+        public string ValidFilePath { get; private set; }
+        public string TooLargeFilePath { get; private set; }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -39,70 +44,55 @@ namespace DocumentService.Tests
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
                 S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
-                EnsureTableExist();
+               // EnsureTableExist().GetAwaiter().GetResult();
+                EnsureBucketExists();
+                CreateTestFiles();
+            });
+        }
 
+        private void CreateTestFiles()
+        {
+            TooLargeFilePath = TestHelpers.GetFilePath("tooLargeFile.txt", 1073741825);
+            ValidFilePath = TestHelpers.GetFilePath("validfile.txt", 200);
+        }
+
+        private void EnsureBucketExists()
+        {
+            try
+            {
                 S3Client.PutBucketAsync(new PutBucketRequest
                 {
                     BucketName = "uploadfromcs",
 
                 }).GetAwaiter().GetResult();
-
-            });
-        }
-
-        private void EnsureTableExist()
-        {
-            // initialise data in the test database
-            try
-            {
-                CreateDocumentTable().GetAwaiter().GetResult();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // table exists
             }
         }
 
-        public async Task CreateDocumentTable()
+        private async Task EnsureTableExist()
         {
-            var request = new CreateTableRequest
-            {
-                TableName = DocumentTableName,
-                AttributeDefinitions = new List<AttributeDefinition>
-                {
-                    new AttributeDefinition
-                    {
-                        AttributeName = "userId",
-                        AttributeType = "S"
-                    },
-                    new AttributeDefinition
-                    {
-                        AttributeName = "id",
-                        AttributeType = "S"
-                    }
-                },
-                KeySchema = new List<KeySchemaElement>
-                {
-                    new KeySchemaElement
-                    {
-                        AttributeName = "userId",
-                        KeyType = "HASH" //Partition key
-                    },
-                    new KeySchemaElement
-                    {
-                        AttributeName = "id",
-                        KeyType = "Range" //Sort key
-                    }
-                },
-                ProvisionedThroughput = new ProvisionedThroughput
-                {
-                    ReadCapacityUnits = 2,
-                    WriteCapacityUnits = 2
-                }
-            };
+            var tables = await DynamoDb.ListTablesAsync();
 
-            await DynamoDb.CreateTableAsync(request).ConfigureAwait(false);
+            var taskList = new List<Task>();
+
+            if (tables.TableNames.Contains("Document"))
+            {
+                await DynamoDb.DeleteTableAsync("Document");
+            }
+
+            if (tables.TableNames.Contains("Directory"))
+            {
+                await DynamoDb.DeleteTableAsync("Directory");
+            }
+
+            taskList.Add(DatabaseBuilder.CreateDocumentTable(DynamoDb));
+            taskList.Add(DatabaseBuilder.CreateDirectoryTable(DynamoDb));
+
+
+            await Task.WhenAll(taskList);
         }
     }
-
 }

@@ -1,63 +1,20 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using AutoFixture;
-using DocumentService.Boundary.Request;
+﻿using AutoFixture;
 using DocumentService.Boundary.Response;
-using DocumentService.Controllers;
 using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
-using DocumentService.Tests.Helpers;
-using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Tests.E2ETests
 {
-    [Collection("Database collection")]
-    public class GetAllDocumentsE2ETests : IDisposable
+    public class GetAllDocumentsE2ETests : BaseIntegrationTest
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
-        private readonly Fixture _fixture = new Fixture();
-
-        private readonly HttpClient _httpClient;
-
-        private readonly Random _random = new Random();
-
-        private readonly DatabaseFixture<Startup> _testFixture;
-
         public GetAllDocumentsE2ETests(DatabaseFixture<Startup> testFixture)
+            : base(testFixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
-
-            _testFixture = testFixture;
-
-            _httpClient = testFixture.Client;
-
-
-        }
-        public void Dispose()
-        {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
-        }
-
-        private async Task SetupTestData(DocumentDb document)
-        {
-            await _context.SaveAsync(document).ConfigureAwait(false);
         }
 
         [Fact]
@@ -90,10 +47,7 @@ namespace DocumentService.Tests.E2ETests
                 .With(x => x.UserId, userId)
                 .CreateMany(numberOfDocuments);
 
-            foreach (var document in mockDocuments)
-            {
-                await SetupTestData(document);
-            }
+            await SetupTestData(mockDocuments);
 
             // Act
             var response = await GetAllDocumentsRequest();
@@ -108,7 +62,6 @@ namespace DocumentService.Tests.E2ETests
             uploadDocumentResponse.Documents.Should().HaveCount(numberOfDocuments);
         }
 
-
         private async Task<HttpResponseMessage> GetAllDocumentsRequest()
         {
             var uri = new Uri("/api/document", UriKind.Relative);
@@ -119,17 +72,6 @@ namespace DocumentService.Tests.E2ETests
             var response = await _httpClient.GetAsync(uri).ConfigureAwait(false);
 
             return response;
-        }
-
-        private JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
     }
 }

@@ -24,7 +24,8 @@ services:
     environment:
       - SERVICES=s3,dynamodb
       - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
+      - LS_LOG=trace
+    #  - DATA_DIR=/tmp/localstack/data
     volumes:
       - ./.localstack:/tmp/localstack
       - /var/run/docker.sock:/var/run/docker.sock
