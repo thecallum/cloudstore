@@ -18,7 +18,8 @@ namespace DocumentService.Factories
                 Name = domain.Name,
                 UserId = domain.UserId,
                 FileSize = domain.FileSize,
-                S3Location = domain.S3Location
+                S3Location = domain.S3Location,
+                DirectoryId = domain.DirectoryId
             };
         }
 
@@ -30,7 +31,8 @@ namespace DocumentService.Factories
                 Name = entity.Name,
                 UserId = entity.UserId,
                 FileSize = entity.FileSize,
-                S3Location = entity.S3Location
+                S3Location = entity.S3Location,
+                DirectoryId = entity.DirectoryId
             };
         }
 
@@ -53,6 +55,19 @@ namespace DocumentService.Factories
                 DirectoryId = Guid.NewGuid(),
                 Name = request.Name,
                 ParentDirectoryId = (request.ParentDirectoryId ?? userId)
+            };
+        }
+
+        public static Document ToDomain(this UploadDocumentRequest request, Guid userId, Guid documentId, DocumentUploadResponse response)
+        {
+            return new Document
+            {
+                Id = documentId,
+                UserId = userId,
+                Name = response.DocumentName,
+                FileSize = response.FileSize,
+                S3Location = response.S3Location,
+                DirectoryId = (request.DirectoryId ?? userId)
             };
         }
     }

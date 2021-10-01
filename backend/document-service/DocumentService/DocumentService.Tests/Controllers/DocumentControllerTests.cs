@@ -34,6 +34,30 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
+        public async Task UploadDocument_WhenDirectoryNotFound_ReturnsNotFoundResponse()
+        {
+            // Arrange
+            var mockRequest = new UploadDocumentRequest
+            {
+                DirectoryId = Guid.NewGuid(),
+                FilePath = ""
+            };
+
+            var exception = new DirectoryNotFoundException();
+
+            _mockUploadDocumentUseCase
+                .Setup(x => x.Execute(It.IsAny<UploadDocumentRequest>(), It.IsAny<Guid>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _documentController.UploadDocument(mockRequest);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(mockRequest.DirectoryId);
+        }
+
+        [Fact]
         public async Task UploadDocument_WhenInvalidFilePathException_ReturnsBadRequest()
         {
             // Arrange
@@ -94,11 +118,6 @@ namespace DocumentService.Tests.Controllers
             ((response as CreatedResult).Value as UploadDocumentResponse).S3Location.Should().Be(uploadDocumentResponse.S3Location);
             ((response as CreatedResult).Value as UploadDocumentResponse).DocumentId.Should().Be(uploadDocumentResponse.DocumentId);
         }
-
-        // GetAllDocuments
-
-        // no documents
-        // multiple documents
 
         [Fact]
         public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsGetAllDocumentsResponse()

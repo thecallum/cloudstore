@@ -12,5 +12,6 @@ namespace DocumentService.Gateways
         Task DeleteDirectory(Guid directoryId, Guid userId);
         Task RenameDirectory(string newName, Guid directoryId, Guid userId);
         Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null);
+        Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId);
     }
 }

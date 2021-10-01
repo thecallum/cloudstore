@@ -22,14 +22,52 @@ namespace DocumentService.Tests.UseCase
         private readonly IUploadDocumentUseCase _uploadDocumentUseCase;
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
+        private readonly Mock<IDirectoryGateway> _mockDirectoryGateway;
 
         private readonly Fixture _fixture = new Fixture();
         public UploadDocumentUseCaseTests()
         {
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
+            _mockDirectoryGateway = new Mock<IDirectoryGateway>();
 
-            _uploadDocumentUseCase = new UploadDocumentUseCase(_mockS3Gateway.Object, _mockDocumentGateway.Object);
+            _uploadDocumentUseCase = new UploadDocumentUseCase(_mockS3Gateway.Object, _mockDocumentGateway.Object, _mockDirectoryGateway.Object);
+        }
+
+        [Fact]
+        public async Task UploadDocument_WhenDirectoryNotFound_ThrowsException()
+        {
+            // Arrange
+            var mockRequest = _fixture.Create<UploadDocumentRequest>();
+            var userId = Guid.NewGuid();
+
+            _mockDirectoryGateway
+                .Setup(x => x.CheckDirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+
+            // Act
+            Func<Task<UploadDocumentResponse>> func = async () => await _uploadDocumentUseCase.Execute(mockRequest, userId);
+
+            // Assert
+            await func.Should().ThrowAsync<DirectoryNotFoundException>();
+        }
+
+        [Fact]
+        public async Task UploadDocument_WhenDirectoryExists_NoExceptionThrown()
+        {
+            // Arrange
+            var mockRequest = _fixture.Create<UploadDocumentRequest>();
+            var userId = Guid.NewGuid();
+
+            _mockDirectoryGateway
+                .Setup(x => x.CheckDirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            // Act
+            Func<Task<UploadDocumentResponse>> func = async () => await _uploadDocumentUseCase.Execute(mockRequest, userId);
+
+            // Assert
+            await func.Should().NotThrowAsync<DirectoryNotFoundException>();
         }
 
         [Fact]
@@ -38,6 +76,10 @@ namespace DocumentService.Tests.UseCase
             // Arrange
             var mockRequest = _fixture.Create<UploadDocumentRequest>();
             var userId = Guid.NewGuid();
+
+            _mockDirectoryGateway
+                .Setup(x => x.CheckDirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
 
             var exception = new InvalidFilePathException();
 
@@ -61,6 +103,10 @@ namespace DocumentService.Tests.UseCase
             var mockRequest = _fixture.Create<UploadDocumentRequest>();
             var userId = Guid.NewGuid();
 
+            _mockDirectoryGateway
+                .Setup(x => x.CheckDirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
             var exception = new FileTooLargeException();
 
             _mockS3Gateway
@@ -82,6 +128,10 @@ namespace DocumentService.Tests.UseCase
             // Arrange
             var mockRequest = _fixture.Create<UploadDocumentRequest>();
             var userId = Guid.NewGuid();
+
+            _mockDirectoryGateway
+                .Setup(x => x.CheckDirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
 
             var documentUploadResponse = _fixture.Create<DocumentUploadResponse>();
 

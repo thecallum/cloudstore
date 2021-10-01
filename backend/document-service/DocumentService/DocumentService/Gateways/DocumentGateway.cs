@@ -22,14 +22,6 @@ namespace DocumentService.Gateways
         {
             var documentList = new List<DocumentDb>();
 
-            //try
-            //{
-
-            //} catch(Exception e)
-            //{
-
-            //}
-
             var search = _context.QueryAsync<DocumentDb>(userId);
 
             do

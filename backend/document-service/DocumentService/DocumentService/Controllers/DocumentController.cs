@@ -31,6 +31,7 @@ namespace DocumentService.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(UploadDocumentResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // directory not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UploadDocument([FromBody] UploadDocumentRequest request)
         {
@@ -39,12 +40,17 @@ namespace DocumentService.Controllers
                 var response = await _uploadDocumentUseCase.Execute(request, _userId);
 
                 // not sure what this will be yet
-                var documentLocation = $"{response.DocumentId}";
+                var documentLocation = response.DocumentId.ToString();
 
                 return Created(documentLocation, response);
             }
             catch (Exception ex)
             {
+                if (ex is DirectoryNotFoundException)
+                {
+                    return NotFound((Guid)request.DirectoryId);
+                }    
+
                 if (ex is InvalidFilePathException || ex is FileTooLargeException)
                 {
                     return BadRequest();
@@ -54,6 +60,13 @@ namespace DocumentService.Controllers
                 throw;
             }
         }
+
+        // new tests
+
+        // Upload document e2e tests
+
+
+        // ( Need Factory Tests )
 
         [HttpGet]
         [ProducesResponseType(typeof(GetAllDocumentsResponse), StatusCodes.Status200OK)]

@@ -22,6 +22,13 @@ namespace DocumentService.Gateways
             _context = databaseContext;
         }
 
+        public async Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId)
+        {
+            var existingDirectory = await LoadDirectory(directoryId, userId);
+
+            return existingDirectory != null;
+        }
+
         public async Task CreateDirectory(Directory directory)
         {
             await _context.SaveAsync<DirectoryDb>(directory.ToDatabase());

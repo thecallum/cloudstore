@@ -2,6 +2,7 @@
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Net;
@@ -9,19 +10,37 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using AutoFixture;
 
 namespace DocumentService.Tests.E2ETests
 {
-    public class UploadDocumentTests : BaseIntegrationTest
+    public class UploadDocumentE2ETests : BaseIntegrationTest
     {
         private string _validFilePath;
         private string _tooLargeFilePath;
 
-        public UploadDocumentTests(DatabaseFixture<Startup> testFixture)
+        public UploadDocumentE2ETests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
         {
             _validFilePath = testFixture.ValidFilePath;
             _tooLargeFilePath = testFixture.TooLargeFilePath;
+        }
+
+        [Fact]
+        public async Task UploadDocument_WhenDirectoryDoesntExist_ReturnsNotFound()
+        {
+            // Arrange
+            var mockRequest = new UploadDocumentRequest
+            {
+                FilePath = "nonExistantFile.txt",
+                DirectoryId = Guid.NewGuid()
+            };
+
+            // Act
+            var response = await UploadDocumentRequest(mockRequest);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -30,7 +49,8 @@ namespace DocumentService.Tests.E2ETests
             // Arrange
             var mockRequest = new UploadDocumentRequest
             {
-                FilePath = "nonExistantFile.txt"
+                FilePath = "nonExistantFile.txt",
+                DirectoryId = null
             };
 
             // Act
@@ -47,6 +67,7 @@ namespace DocumentService.Tests.E2ETests
             var mockRequest = new UploadDocumentRequest
             {
                 FilePath = _tooLargeFilePath,
+                DirectoryId = null
             };
 
             // Act
@@ -54,16 +75,16 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
         }
 
         [Fact]
-        public async Task UploadDocument_WhenValid_ReturnsUploadDocumentResponse()
+        public async Task UploadDocument_WhenDirectoryIdIsNull_SetsDirectoryIdAsUserId()
         {
             // Arrange
             var mockRequest = new UploadDocumentRequest
             {
-                FilePath = _validFilePath
+                FilePath = _validFilePath,
+                DirectoryId = null
             };
 
             // Act
@@ -93,6 +114,52 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.Name.Should().Be(expectedFileName);
             databaseResponse.S3Location.Should().Be(expectedS3Location);
             databaseResponse.FileSize.Should().Be(200);
+            databaseResponse.DirectoryId.Should().Be(userId);
+
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, databaseResponse.DocumentId));
+        }
+
+        [Fact]
+        public async Task UploadDocument_WhenDirectoryIdIsNotNull_SetsDirectoryIdDirectoryId()
+        {
+            // Arrange
+            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
+
+            var mockDirectory = _fixture.Build<DirectoryDb>().With(x => x.UserId, userId).Create();
+            await SetupTestData(mockDirectory);
+
+            var mockRequest = new UploadDocumentRequest
+            {
+                FilePath = _validFilePath,
+                DirectoryId = mockDirectory.DirectoryId
+            };
+
+            // Act
+            var response = await UploadDocumentRequest(mockRequest);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+
+            // test contents of response
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<UploadDocumentResponse>(responseContent, CreateJsonOptions());
+
+            var expectedS3Location = $"{userId}/{uploadDocumentResponse.DocumentId}";
+            var expectedFileName = "validfile.txt";
+
+            uploadDocumentResponse.Name.Should().Be(expectedFileName);
+            uploadDocumentResponse.S3Location.Should().Be(expectedS3Location);
+
+            // will be set intoken
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(userId, uploadDocumentResponse.DocumentId);
+            databaseResponse.Should().NotBeNull();
+
+            databaseResponse.UserId.Should().Be(userId);
+            databaseResponse.Name.Should().Be(expectedFileName);
+            databaseResponse.S3Location.Should().Be(expectedS3Location);
+            databaseResponse.FileSize.Should().Be(200);
+            databaseResponse.DirectoryId.Should().Be(mockDirectory.DirectoryId);
 
             _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, databaseResponse.DocumentId));
         }

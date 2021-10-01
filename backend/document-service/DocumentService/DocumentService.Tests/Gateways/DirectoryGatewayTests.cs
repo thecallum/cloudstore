@@ -183,5 +183,34 @@ namespace DocumentService.Tests.Gateways
             // Assert
             response.Should().HaveCount(numberOfDirectoriesChildDirectory);
         }
+
+        [Fact]
+        public async Task CheckDirectoryExists_WhenItDoesntExist_ReturnsFalse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var directoryId = Guid.NewGuid();
+
+            // Act 
+            var response = await _gateway.CheckDirectoryExists(directoryId, userId);
+
+            // Assert
+            response.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task CheckDirectoryExists_WhenItExists_ReturnsTrue()
+        {
+            // Arrange
+            var directory = _fixture.Create<DirectoryDb>();
+
+            await SetupTestData(directory);
+
+            // Act 
+            var response = await _gateway.CheckDirectoryExists(directory.DirectoryId, directory.UserId);
+
+            // Assert
+            response.Should().BeTrue();
+        }
     }
 }

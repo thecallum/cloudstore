@@ -8,5 +8,6 @@ namespace DocumentService.Boundary.Request
     public class UploadDocumentRequest
     {
         public string FilePath { get; set; }
+        public Guid? DirectoryId { get; set; } = null;
     }
 }

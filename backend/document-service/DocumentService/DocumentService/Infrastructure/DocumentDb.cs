@@ -16,6 +16,9 @@ namespace DocumentService.Infrastructure
         public Guid DocumentId { get; set; }
 
         [DynamoDBProperty]
+        public Guid DirectoryId { get; set; }
+
+        [DynamoDBProperty]
         public string Name { get; set; }
 
         [DynamoDBProperty]
