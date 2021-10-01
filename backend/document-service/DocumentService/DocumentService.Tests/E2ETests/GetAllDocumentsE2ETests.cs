@@ -1,10 +1,13 @@
 ﻿using AutoFixture;
+using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure;
 using FluentAssertions;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -18,17 +21,33 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsEmptyList()
+        public async Task GetAllDocuments_WhenDirectoryDoesntExist_ReturnsNotFound()
         {
             // Arrange
+            var query = new GetAllDocumentsQuery
+            {
+                DirectoryId = Guid.NewGuid()
+            };
 
             // Act
-            var response = await GetAllDocumentsRequest();
+            var response = await GetAllDocumentsRequest(query);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsNoDocuments()
+        {
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+
+            // Act
+            var response = await GetAllDocumentsRequest(query);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            // test contents of response
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
 
@@ -36,21 +55,23 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsList()
+        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsManyDocuments()
         {
             // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
             var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
 
             var numberOfDocuments = _random.Next(2, 5);
             var mockDocuments = _fixture
                 .Build<DocumentDb>()
                 .With(x => x.UserId, userId)
+                .With(x => x.DirectoryId, userId)
                 .CreateMany(numberOfDocuments);
 
             await SetupTestData(mockDocuments);
 
             // Act
-            var response = await GetAllDocumentsRequest();
+            var response = await GetAllDocumentsRequest(query);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -62,16 +83,62 @@ namespace DocumentService.Tests.E2ETests
             uploadDocumentResponse.Documents.Should().HaveCount(numberOfDocuments);
         }
 
-        private async Task<HttpResponseMessage> GetAllDocumentsRequest()
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDirectoriesExist_ReturnsNoDirectories()
         {
-            var uri = new Uri("/api/document", UriKind.Relative);
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
 
-            //var json = JsonConvert.SerializeObject(request);
-           // var data = new StringContent(json, Encoding.UTF8, "application/json");
+            // Act
+            var response = await GetAllDocumentsRequest(query);
 
-            var response = await _httpClient.GetAsync(uri).ConfigureAwait(false);
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            return response;
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+
+            uploadDocumentResponse.Directories.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenManyDirectoriesExist_ReturnsManyDirectories()
+        {
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
+
+            var numberOfDirectories = _random.Next(2, 5);
+            var mockDirectories = _fixture
+                .Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, userId)
+                .CreateMany(numberOfDirectories);
+
+            await SetupTestData(mockDirectories);
+
+            // Act
+            var response = await GetAllDocumentsRequest(query);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // test contents of response
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+
+            uploadDocumentResponse.Directories.Should().HaveCount(numberOfDirectories);
+        }
+
+        private async Task<HttpResponseMessage> GetAllDocumentsRequest(GetAllDocumentsQuery query)
+        {
+            var url = "/api/document";
+
+            if (query.DirectoryId != null)  url += $"?directoryId={query.DirectoryId}";
+
+            var uri = new Uri(url, UriKind.Relative);
+
+            return await _httpClient.GetAsync(uri).ConfigureAwait(false);
         }
     }
 }

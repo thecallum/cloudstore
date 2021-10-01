@@ -61,23 +61,23 @@ namespace DocumentService.Controllers
             }
         }
 
-        // new tests
-
-        // Upload document e2e tests
-
-
-        // ( Need Factory Tests )
 
         [HttpGet]
         [ProducesResponseType(typeof(GetAllDocumentsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // directory not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllDocuments()
+        public async Task<IActionResult> GetAllDocuments([FromQuery] GetAllDocumentsQuery query)
         {
-            var documents = await _getAllDocumentsUseCase.Execute(_userId);
+            try
+            {
+                var response = await _getAllDocumentsUseCase.Execute(_userId, query);
+                return Ok(response);
 
-            var response = new GetAllDocumentsResponse { Documents = documents.ToList() };
-
-            return Ok(response);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return NotFound(query.DirectoryId);
+            }
         }
      }
 }

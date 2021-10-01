@@ -16,8 +16,8 @@ namespace DocumentService.Tests.E2ETests
 {
     public class UploadDocumentE2ETests : BaseIntegrationTest
     {
-        private string _validFilePath;
-        private string _tooLargeFilePath;
+        private readonly string _validFilePath;
+        private readonly string _tooLargeFilePath;
 
         public UploadDocumentE2ETests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)

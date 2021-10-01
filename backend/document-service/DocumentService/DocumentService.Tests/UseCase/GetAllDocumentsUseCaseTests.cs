@@ -21,6 +21,7 @@ namespace DocumentService.Tests.UseCase
     {
         private readonly IGetAllDocumentsUseCase _getAllDocumentsUseCase;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
+        private readonly Mock<IDirectoryGateway> _mockDirectoryGateway;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Random _random = new Random();
@@ -28,32 +29,56 @@ namespace DocumentService.Tests.UseCase
         public GetAllDocumentsUseCaseTests()
         {
             _mockDocumentGateway = new Mock<IDocumentGateway>();
+            _mockDirectoryGateway = new Mock<IDirectoryGateway>();
 
-            _getAllDocumentsUseCase = new GetAllDocumentsUseCase(_mockDocumentGateway.Object);
+            _getAllDocumentsUseCase = new GetAllDocumentsUseCase(_mockDocumentGateway.Object, _mockDirectoryGateway.Object);
         }
 
+        [Fact]
+        public async Task GetAllDocuments_WhenDirectoryDoesntExist_ThrowsException()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var query = _fixture.Create<GetAllDocumentsQuery>();
 
-        // no documents, return empty list
+            var exception = new DirectoryNotFoundException();
 
-        // many documents - return list
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            Func<Task<GetAllDocumentsResponse>> func = async () => await _getAllDocumentsUseCase.Execute(userId, query);
+
+            // Assert
+            await func.Should().ThrowAsync<DirectoryNotFoundException>();
+        }
+
 
         [Fact]
         public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsEmptyList()
         {
             // Arrange
             var userId = Guid.NewGuid();
+            var query = _fixture.Create<GetAllDocumentsQuery>();
 
-            var gatewayResponse = _fixture.CreateMany<DocumentDb>(0);
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(0);
 
             _mockDocumentGateway
-                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>()))
-                .ReturnsAsync(gatewayResponse);
+                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(documentGatewayResponse);
+
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(directoryGatewayResponse);
 
             // Act
-            var response = await _getAllDocumentsUseCase.Execute(userId);
+            var response = await _getAllDocumentsUseCase.Execute(userId, query);
 
             // Assert
-            response.Should().HaveCount(0);
+            response.Documents.Should().HaveCount(0);
         }
 
         [Fact]
@@ -61,19 +86,79 @@ namespace DocumentService.Tests.UseCase
         {
             // Arrange
             var userId = Guid.NewGuid();
+            var query = _fixture.Create<GetAllDocumentsQuery>();
 
             var numberOfDocuments = _random.Next(2, 5);
-            var gatewayResponse = _fixture.CreateMany<DocumentDb>(numberOfDocuments);
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(numberOfDocuments);
 
             _mockDocumentGateway
-                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>()))
-                .ReturnsAsync(gatewayResponse);
+                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(documentGatewayResponse);
+
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(directoryGatewayResponse);
 
             // Act
-            var response = await _getAllDocumentsUseCase.Execute(userId);
+            var response = await _getAllDocumentsUseCase.Execute(userId, query);
 
             // Assert
-            response.Should().HaveCount(numberOfDocuments);
+            response.Documents.Should().HaveCount(numberOfDocuments);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDirectoriesExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var query = _fixture.Create<GetAllDocumentsQuery>();
+
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(0);
+
+            _mockDocumentGateway
+                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(documentGatewayResponse);
+
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(directoryGatewayResponse);
+
+            // Act
+            var response = await _getAllDocumentsUseCase.Execute(userId, query);
+
+            // Assert
+            response.Directories.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenMultipleDirectoriesExist_ReturnsList()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var query = _fixture.Create<GetAllDocumentsQuery>();
+
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(0);
+
+            _mockDocumentGateway
+                .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(documentGatewayResponse);
+
+            var numberOfDirectories = _random.Next(2, 5);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(numberOfDirectories);
+
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .ReturnsAsync(directoryGatewayResponse);
+
+            // Act
+            var response = await _getAllDocumentsUseCase.Execute(userId, query);
+
+            // Assert
+            response.Directories.Should().HaveCount(numberOfDirectories);
         }
     }
 }

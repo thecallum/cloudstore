@@ -14,7 +14,7 @@ namespace DocumentService.Tests.Gateways
     public class S3GatewayTests : BaseIntegrationTest
     {
         private readonly IAmazonS3 _s3Client;
-        private IS3Gateway _s3Gateway;
+        private readonly IS3Gateway _s3Gateway;
 
         private readonly string _validFilePath;
         private readonly string _tooLargeFilePath;

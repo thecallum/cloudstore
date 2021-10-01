@@ -63,6 +63,7 @@ namespace DocumentService.Tests.Gateways
             var mockDocuments = _fixture
                 .Build<DocumentDb>()
                .With(x => x.UserId, userId)
+               .With(x => x.DirectoryId, userId)
                .CreateMany(numberOfDocuments);
 
             await SetupTestData(mockDocuments);
@@ -72,6 +73,42 @@ namespace DocumentService.Tests.Gateways
 
             // Assert
             response.Should().HaveCount(numberOfDocuments);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenDirectoryIdNotNull_ReturnsDocumentsWithinDirectory()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            var mockDirectory = _fixture.Build<DirectoryDb>()
+                                    .With(x => x.UserId, userId)
+                                    .Create();
+
+            await SetupTestData(mockDirectory);
+
+            // add one document to root
+            var mockRootDocument = _fixture.Build<DocumentDb>()
+                                        .With(x => x.UserId, userId)
+                                        .With(x => x.DirectoryId, userId)
+                                        .Create();
+
+            await SetupTestData(mockRootDocument);
+
+            // add two docuents to directory
+            var mockDocumentsInDirectory = _fixture.Build<DocumentDb>()
+                                       .With(x => x.UserId, userId)
+                                       .With(x => x.DirectoryId, mockDirectory.DirectoryId)
+                                       .CreateMany(2);
+
+            await SetupTestData(mockDocumentsInDirectory);
+
+            // Act
+            var response = await _gateway.GetAllDocuments(userId, mockDirectory.DirectoryId);
+
+            // Assert
+
+            response.Should().HaveCount(2);
         }
     }
 }

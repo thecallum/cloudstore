@@ -18,11 +18,18 @@ namespace DocumentService.Gateways
             _context = databaseContext;
         }
 
-        public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId)
+        public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null)
         {
             var documentList = new List<DocumentDb>();
 
-            var search = _context.QueryAsync<DocumentDb>(userId);
+            var selectedDirectoryId = (directoryId != null) ? (Guid)directoryId : userId;
+
+            var config = new DynamoDBOperationConfig
+            {
+                IndexName = "DirectoryId_Name",
+            };
+
+            var search = _context.QueryAsync<DocumentDb>(selectedDirectoryId, config);
 
             do
             {

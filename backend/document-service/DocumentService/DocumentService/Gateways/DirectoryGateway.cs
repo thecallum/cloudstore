@@ -44,6 +44,14 @@ namespace DocumentService.Gateways
 
         public async Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null)
         {
+            // If looking for directories within another directory, 
+            // must check that parent directory exists
+            if (parentDirectoryId != null)
+            {
+                var directoryExists = await CheckDirectoryExists((Guid)parentDirectoryId, userId);
+                if (directoryExists == false) throw new DirectoryNotFoundException();
+            }
+
             var directoryList = new List<DirectoryDb>();
 
             // default directory cannot be null, because we cant distinguish between accounts.

@@ -120,17 +120,42 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsGetAllDocumentsResponse()
+        public async Task GetAllDocuments_WhenDirectoryDoesntExist_ReturnsNotFound()
         {
             // Arrange
-            var useCaseResponse = _fixture.CreateMany<Document>(0);
+            var query = new GetAllDocumentsQuery { DirectoryId = Guid.NewGuid() };
+
+            var exception = new DirectoryNotFoundException();
 
             _mockGetAllDocumentsUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDocumentsQuery>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _documentController.GetAllDocuments(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.DirectoryId);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsNoDocuments()
+        {
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+
+            var useCaseResponse = new GetAllDocumentsResponse
+            {
+                Documents = new List<Document>()
+            };
+
+            _mockGetAllDocumentsUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDocumentsQuery>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _documentController.GetAllDocuments();
+            var response = await _documentController.GetAllDocuments(query);
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
@@ -139,23 +164,79 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsGetAllDocumentsResponse()
+        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsManyDocuments()
         {
             // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+
             var numberOfDocuments = _random.Next(2, 5);
-            var useCaseResponse = _fixture.CreateMany<Document>(numberOfDocuments);
+
+            var useCaseResponse = new GetAllDocumentsResponse
+            {
+                Documents = _fixture.CreateMany<Document>(numberOfDocuments).ToList()
+            };
 
             _mockGetAllDocumentsUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDocumentsQuery>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _documentController.GetAllDocuments();
+            var response = await _documentController.GetAllDocuments(query);
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
             ((response as OkObjectResult).Value as GetAllDocumentsResponse).Documents.Should().HaveCount(numberOfDocuments);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenNoDirectoriesExist_ReturnsNoDirectories()
+        {
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+
+            var useCaseResponse = new GetAllDocumentsResponse
+            {
+                Directories = new List<Directory>()
+            };
+
+            _mockGetAllDocumentsUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDocumentsQuery>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _documentController.GetAllDocuments(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
+            ((response as OkObjectResult).Value as GetAllDocumentsResponse).Directories.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDocuments_WhenManyDirectoriesExist_ReturnsManyDirectories()
+        {
+            // Arrange
+            var query = new GetAllDocumentsQuery { DirectoryId = null };
+
+            var numberOfDirectories = _random.Next(2, 5);
+
+            var useCaseResponse = new GetAllDocumentsResponse
+            {
+                Directories = _fixture.CreateMany<Directory>(numberOfDirectories).ToList()
+            };
+
+            _mockGetAllDocumentsUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDocumentsQuery>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _documentController.GetAllDocuments(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
+            ((response as OkObjectResult).Value as GetAllDocumentsResponse).Directories.Should().HaveCount(numberOfDirectories);
         }
     }
 }

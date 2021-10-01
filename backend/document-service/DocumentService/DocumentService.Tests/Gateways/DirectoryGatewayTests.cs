@@ -111,14 +111,28 @@ namespace DocumentService.Tests.Gateways
         }
 
         [Fact]
-        public async Task GetAllDirectories_WhenNoneExist_ReturnsEmptyList()
+        public  async Task GetAllDirectories_WhenParentDirectoryDoesntExist_ThrowsException()
         {
             // Arrange
             var userId = Guid.NewGuid();
             var parentDirectoryId = Guid.NewGuid();
 
+            // Act
+            Func<Task> func = async () => await _gateway.GetAllDirectories(userId, parentDirectoryId);
+
+            // Assert
+            await func.Should().ThrowAsync<DirectoryNotFoundException>();
+        }
+
+        [Fact]
+        public async Task GetAllDirectories_WhenNoneExist_ReturnsEmptyList()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+
             // Act 
-            var response = await _gateway.GetAllDirectories(userId, parentDirectoryId);
+            var response = await _gateway.GetAllDirectories(userId);
 
             // Assert
             response.Should().HaveCount(0);
@@ -159,7 +173,12 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var childParentDirectoryId = Guid.NewGuid();
+
+            var mockDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .Create();
+
+            await SetupTestData(mockDirectory);
 
             var numberOfDirectoriesInRootDirectory = _random.Next(2, 5);
             var numberOfDirectoriesChildDirectory = numberOfDirectoriesInRootDirectory + 1;
@@ -170,7 +189,7 @@ namespace DocumentService.Tests.Gateways
                                                 .CreateMany(numberOfDirectoriesInRootDirectory);
 
             var directoriesInChildDirectory = _fixture.Build<DirectoryDb>()
-                                              .With(x => x.ParentDirectoryId, childParentDirectoryId)
+                                              .With(x => x.ParentDirectoryId, mockDirectory.DirectoryId)
                                               .With(x => x.UserId, userId)
                                               .CreateMany(numberOfDirectoriesChildDirectory);
 
@@ -178,7 +197,7 @@ namespace DocumentService.Tests.Gateways
             await SetupTestData(directoriesInChildDirectory);
 
             // Act 
-            var response = await _gateway.GetAllDirectories(userId, childParentDirectoryId);
+            var response = await _gateway.GetAllDirectories(userId, mockDirectory.DirectoryId);
 
             // Assert
             response.Should().HaveCount(numberOfDirectoriesChildDirectory);

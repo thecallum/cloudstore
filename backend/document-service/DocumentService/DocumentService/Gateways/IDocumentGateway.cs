@@ -10,6 +10,6 @@ namespace DocumentService.Gateways
     public interface IDocumentGateway
     {
         Task SaveDocument(Document document);
-        Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId);
+        Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null);
     }
 }

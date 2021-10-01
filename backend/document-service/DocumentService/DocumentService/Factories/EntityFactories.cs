@@ -36,6 +36,17 @@ namespace DocumentService.Factories
             };
         }
 
+        public static Directory ToDomain(this DirectoryDb entity)
+        {
+            return new Directory
+            {
+                DirectoryId = entity.DirectoryId,
+                ParentDirectoryId = entity.ParentDirectoryId,
+                UserId = entity.UserId,
+                Name = entity.Name
+            };
+        }
+
         public static DirectoryDb ToDatabase(this Directory domain)
         {
             return new DirectoryDb

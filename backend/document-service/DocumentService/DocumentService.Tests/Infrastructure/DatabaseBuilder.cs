@@ -25,6 +25,16 @@ namespace DocumentService.Tests.Infrastructure
                     {
                         AttributeName = "documentId",
                         AttributeType = "S"
+                    },
+                    new AttributeDefinition
+                    {
+                        AttributeName = "name",
+                        AttributeType = "S"
+                    },
+                    new AttributeDefinition
+                    {
+                        AttributeName = "directoryId",
+                        AttributeType = "S"
                     }
                 },
                 KeySchema = new List<KeySchemaElement>
@@ -44,6 +54,35 @@ namespace DocumentService.Tests.Infrastructure
                 {
                     ReadCapacityUnits = 2,
                     WriteCapacityUnits = 2
+                }
+            };
+
+            request.GlobalSecondaryIndexes = new List<GlobalSecondaryIndex>
+            {
+                new GlobalSecondaryIndex
+                {
+                    IndexName = "DirectoryId_Name",
+                    Projection = new Projection {
+                        ProjectionType = ProjectionType.ALL
+                    },
+                    KeySchema = new List<KeySchemaElement>
+                    {
+                        new KeySchemaElement
+                        {
+                            AttributeName = "directoryId",
+                            KeyType = "HASH"
+                        },
+                        new KeySchemaElement
+                        {
+                            AttributeName = "name",
+                            KeyType = "RANGE"
+                        }
+                    },
+                    ProvisionedThroughput = new ProvisionedThroughput
+                    {
+                        ReadCapacityUnits = 2,
+                        WriteCapacityUnits = 2
+                    }
                 }
             };
 
