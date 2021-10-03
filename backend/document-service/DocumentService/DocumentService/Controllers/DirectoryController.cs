@@ -74,9 +74,21 @@ namespace DocumentService.Controllers
                 await _delteDirectoryUseCase.Execute(query, _userId);
                 return Ok();
             }
-            catch (DirectoryNotFoundException)
+            catch(Exception e)
             {
-                return NotFound(query.Id);
+                if (e is DirectoryNotFoundException)
+                {
+                    return NotFound(query.DirectoryId);
+
+                }
+
+                if (e is DirectoryContainsDocumentsException || e is DirectoryContainsChildDirectoriesException)
+                {
+                    return BadRequest();
+                }
+
+                // any unknown exception
+                throw e;
             }
         }
     }

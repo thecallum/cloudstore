@@ -53,6 +53,7 @@ namespace DocumentService.Tests.Gateways
             await func.Should().ThrowAsync<DirectoryNotFoundException>();
         }
 
+
         [Fact]
         public async Task DeleteDirectory_WhenValid_DeletesDirectoryFromDatabase()
         {
@@ -130,7 +131,6 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var userId = Guid.NewGuid();
 
-
             // Act 
             var response = await _gateway.GetAllDirectories(userId);
 
@@ -149,14 +149,14 @@ namespace DocumentService.Tests.Gateways
             var numberOfDirectoriesChildDirectory = numberOfDirectoriesInRootDirectory + 1;
 
             var directoriesInRootDirectory = _fixture.Build<DirectoryDb>()
-                                                .With(x => x.ParentDirectoryId, userId)
-                                                .With(x => x.UserId, userId)
-                                                .CreateMany(numberOfDirectoriesInRootDirectory);
+                .With(x => x.ParentDirectoryId, userId)
+                .With(x => x.UserId, userId)
+                .CreateMany(numberOfDirectoriesInRootDirectory);
 
             var directoriesInChildDirectory = _fixture.Build<DirectoryDb>()
-                                              .With(x => x.ParentDirectoryId, childParentDirectoryId)
-                                              .With(x => x.UserId, userId)
-                                              .CreateMany(numberOfDirectoriesChildDirectory);
+                .With(x => x.ParentDirectoryId, childParentDirectoryId)
+                .With(x => x.UserId, userId)
+                .CreateMany(numberOfDirectoriesChildDirectory);
 
             await SetupTestData(directoriesInRootDirectory);
             await SetupTestData(directoriesInChildDirectory);
@@ -184,14 +184,14 @@ namespace DocumentService.Tests.Gateways
             var numberOfDirectoriesChildDirectory = numberOfDirectoriesInRootDirectory + 1;
 
             var directoriesInRootDirectory = _fixture.Build<DirectoryDb>()
-                                                .With(x => x.ParentDirectoryId, userId)
-                                                .With(x => x.UserId, userId)
-                                                .CreateMany(numberOfDirectoriesInRootDirectory);
+                .With(x => x.ParentDirectoryId, userId)
+                .With(x => x.UserId, userId)
+                .CreateMany(numberOfDirectoriesInRootDirectory);
 
             var directoriesInChildDirectory = _fixture.Build<DirectoryDb>()
-                                              .With(x => x.ParentDirectoryId, mockDirectory.DirectoryId)
-                                              .With(x => x.UserId, userId)
-                                              .CreateMany(numberOfDirectoriesChildDirectory);
+                .With(x => x.ParentDirectoryId, mockDirectory.DirectoryId)
+                .With(x => x.UserId, userId)
+                .CreateMany(numberOfDirectoriesChildDirectory);
 
             await SetupTestData(directoriesInRootDirectory);
             await SetupTestData(directoriesInChildDirectory);
@@ -227,6 +227,53 @@ namespace DocumentService.Tests.Gateways
 
             // Act 
             var response = await _gateway.CheckDirectoryExists(directory.DirectoryId, directory.UserId);
+
+            // Assert
+            response.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ContainsChildDirectories_WhenFalse_ReturnsFalse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            var parentDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, userId)
+                .Create();
+
+            await SetupTestData(parentDirectory);
+
+            // Act
+            var response = await _gateway.ContainsChildDirectories(parentDirectory.DirectoryId, userId);
+
+            // Assert
+            response.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ContainsChildDirectories_WhenTrue_ReturnsTrue()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+
+            var parentDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, userId)
+                .Create();
+
+            await SetupTestData(parentDirectory);
+
+            var childDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, parentDirectory.DirectoryId)
+                .Create();
+
+            await SetupTestData(childDirectory);
+
+            // Act
+            var response = await _gateway.ContainsChildDirectories(parentDirectory.DirectoryId, userId);
 
             // Assert
             response.Should().BeTrue();

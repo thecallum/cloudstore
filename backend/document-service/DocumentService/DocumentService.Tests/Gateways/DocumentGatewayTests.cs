@@ -110,6 +110,41 @@ namespace DocumentService.Tests.Gateways
 
             response.Should().HaveCount(2);
         }
+
+        [Fact]
+        public async Task DirectoryContainsDocuments_WhenFalse_ReturnsFalse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var directoryId = Guid.NewGuid();
+
+            // Act
+            var response = await _gateway.DirectoryContainsFiles(userId, directoryId);
+
+            // Assert
+            response.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task DirectoryContainsDocuments_WhenTrue_ReturnsTrue()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var directoryId = Guid.NewGuid();
+
+            var document = _fixture.Build<DocumentDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.DirectoryId, userId)
+                .Create();
+
+            await SetupTestData(document);
+
+            // Act
+            var response = await _gateway.DirectoryContainsFiles(userId, directoryId);
+
+            // Assert
+            response.Should().BeFalse();
+        }
     }
 }
 

@@ -104,7 +104,45 @@ namespace DocumentService.Tests.Controllers
 
             // Assert
             response.Should().BeOfType(typeof(NotFoundObjectResult));
-            (response as NotFoundObjectResult).Value.Should().Be(query.Id);
+            (response as NotFoundObjectResult).Value.Should().Be(query.DirectoryId);
+        }
+
+        [Fact]
+        public async Task Delete_WhenDirectoryContainsDocuments_ThrowsException()
+        {
+            // Arrange
+            var query = _fixture.Create<DeleteDirectoryQuery>();
+
+            var exception = new DirectoryContainsDocumentsException();
+
+            _mockDeleteDirectoryUseCase
+                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _directoryController.DeleteDirectory(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public async Task Delete_WhenDirectoryContainsChildDirectories_ThrowsException()
+        {
+            // Arrange
+            var query = _fixture.Create<DeleteDirectoryQuery>();
+
+            var exception = new DirectoryContainsChildDirectoriesException();
+
+            _mockDeleteDirectoryUseCase
+                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _directoryController.DeleteDirectory(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(BadRequestResult));
         }
 
         [Fact]

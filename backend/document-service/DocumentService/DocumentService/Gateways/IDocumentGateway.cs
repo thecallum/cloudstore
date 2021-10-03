@@ -11,5 +11,6 @@ namespace DocumentService.Gateways
     {
         Task SaveDocument(Document document);
         Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null);
+        Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId);
     }
 }

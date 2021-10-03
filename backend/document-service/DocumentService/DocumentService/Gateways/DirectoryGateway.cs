@@ -29,9 +29,16 @@ namespace DocumentService.Gateways
             return existingDirectory != null;
         }
 
+        public async Task<bool> ContainsChildDirectories(Guid directoryId, Guid userId)
+        {
+            var directories = await GetAllDirectories(userId, directoryId);
+
+            return directories.Count() > 0;
+        }
+
         public async Task CreateDirectory(Directory directory)
         {
-            await _context.SaveAsync<DirectoryDb>(directory.ToDatabase());
+            await _context.SaveAsync(directory.ToDatabase());
         }
 
         public async Task DeleteDirectory(Guid directoryId, Guid userId)
@@ -82,7 +89,7 @@ namespace DocumentService.Gateways
 
             existingDirectory.Name = newName;
 
-            await _context.SaveAsync<DirectoryDb>(existingDirectory);
+            await _context.SaveAsync(existingDirectory);
         }
 
         private async Task<DirectoryDb> LoadDirectory(Guid directoryId, Guid userId)

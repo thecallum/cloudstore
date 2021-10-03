@@ -20,6 +20,13 @@ namespace DocumentService.Gateways
             _context = databaseContext;
         }
 
+        public async Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId)
+        {
+            var documents = await GetAllDocuments(userId, directoryId);
+
+            return documents.Count() > 0;
+        }
+
         public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null)
         {
             var documentList = new List<DocumentDb>();

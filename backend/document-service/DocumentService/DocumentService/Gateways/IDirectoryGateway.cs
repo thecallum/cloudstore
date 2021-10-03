@@ -13,5 +13,6 @@ namespace DocumentService.Gateways
         Task RenameDirectory(string newName, Guid directoryId, Guid userId);
         Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null);
         Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId);
+        Task<bool> ContainsChildDirectories(Guid directoryId, Guid userId);
     }
 }

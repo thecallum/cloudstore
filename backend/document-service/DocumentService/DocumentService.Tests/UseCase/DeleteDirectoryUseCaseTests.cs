@@ -21,17 +21,19 @@ namespace DocumentService.Tests.UseCase
     {
         private readonly DeleteDirectoryUseCase _useCase;
         private readonly Mock<IDirectoryGateway> _mockDirectoryGateway;
+        private readonly Mock<IDocumentGateway> _mockDocumentGateway;
 
         private readonly Fixture _fixture = new Fixture();
         public DeleteDirectoryUseCaseTests()
         {
             _mockDirectoryGateway = new Mock<IDirectoryGateway>();
+            _mockDocumentGateway = new Mock<IDocumentGateway>();
 
-            _useCase = new DeleteDirectoryUseCase(_mockDirectoryGateway.Object);
+            _useCase = new DeleteDirectoryUseCase(_mockDirectoryGateway.Object, _mockDocumentGateway.Object);
         }
 
         [Fact]
-        public async Task Rename_WhenDirectoryNotFound_ThrowsException()
+        public async Task Delete_WhenDirectoryNotFound_ThrowsException()
         {
             // Arrange
             var query = _fixture.Create<DeleteDirectoryQuery>();
@@ -51,7 +53,47 @@ namespace DocumentService.Tests.UseCase
         }
 
         [Fact]
-        public async Task Rename_WhenValid_CallsGateway()
+        public async Task Delete_WhenDirectoryContainsDocuments_ThrowsException()
+        {
+            // Arrange
+            var query = _fixture.Create<DeleteDirectoryQuery>();
+            var userId = Guid.NewGuid();
+
+            _mockDocumentGateway
+                .Setup(x => x.DirectoryContainsFiles(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            // Act
+            Func<Task> func = async () => await _useCase.Execute(query, userId);
+
+            // Assert
+            await func.Should().ThrowAsync<DirectoryContainsDocumentsException>();
+        }
+
+        [Fact]
+        public async Task Delete_WhenDirectoryContainsChildDirectories_ThrowsException()
+        {
+            // Arrange
+            var query = _fixture.Create<DeleteDirectoryQuery>();
+            var userId = Guid.NewGuid();
+
+            _mockDocumentGateway
+                .Setup(x => x.DirectoryContainsFiles(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+
+            _mockDirectoryGateway
+                .Setup(x => x.ContainsChildDirectories(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(true);
+
+            // Act
+            Func<Task> func = async () => await _useCase.Execute(query, userId);
+
+            // Assert
+            await func.Should().ThrowAsync<DirectoryContainsChildDirectoriesException>();
+        }
+
+        [Fact]
+        public async Task Delete_WhenValid_CallsGateway()
         {
             // Arrange
             var query = _fixture.Create<DeleteDirectoryQuery>();

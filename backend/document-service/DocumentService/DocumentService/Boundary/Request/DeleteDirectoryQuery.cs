@@ -9,6 +9,6 @@ namespace DocumentService.Boundary.Request
     public class DeleteDirectoryQuery
     {
         [FromRoute(Name = "id")]
-        public Guid Id { get; set; }
+        public Guid DirectoryId { get; set; }
     }
 }

@@ -39,6 +39,54 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
+        public async Task Delete_WhenDirectoryContainsDocuments_ReturnsBadRequest()
+        {
+            // Arrange
+            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
+            var directoryId = Guid.NewGuid();
+
+            var document = _fixture.Build<DocumentDb>()
+                            .With(x => x.UserId, userId)
+                            .With(x => x.DirectoryId, directoryId)
+                            .Create();
+
+            await SetupTestData(document);
+
+            // Act
+            var response = await DeleteDirectoryRequest(directoryId);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task Delete_WhenDirectoryContainsChildDirectories_ReturnsBadRequest()
+        {
+            // Arrange
+            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
+
+            var parentDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, userId)
+                .Create();
+
+            await SetupTestData(parentDirectory);
+
+            var childDirectory = _fixture.Build<DirectoryDb>()
+                .With(x => x.UserId, userId)
+                .With(x => x.ParentDirectoryId, parentDirectory.DirectoryId)
+                .Create();
+
+            await SetupTestData(childDirectory);
+
+            // Act
+            var response = await DeleteDirectoryRequest(parentDirectory.DirectoryId);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
         public async Task DeleteDirectory_WhenValid_ShouldRemoveDirectoryFromDatabase()
         {
             // Arrange
