@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using DocumentService.Domain;
 using DocumentService.Factories;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Document = DocumentService.Domain.Document;
 
 namespace DocumentService.Gateways
 {
@@ -30,6 +32,27 @@ namespace DocumentService.Gateways
             };
 
             var search = _context.QueryAsync<DocumentDb>(selectedDirectoryId, config);
+
+            //var queryConfig = new QueryOperationConfig
+            //{
+            //    IndexName = "DirectoryId_Name",
+            //    Limit = 2,
+            //    Select = SelectValues.AllAttributes,
+            //    //Filter = new QueryFilter("directoryId", QueryOperator.Equal, selectedDirectoryId),
+
+            //    PaginationToken = null,
+            //    KeyExpression = new Expression
+            //    {
+            //        ExpressionStatement = "directoryId = :directoryId"
+            //    },
+            //};
+
+            //// queryConfig.KeyExpression.ExpressionAttributeNames.Add("directoryId", $"\"S\": \"{selectedDirectoryId}\"");
+            //queryConfig.KeyExpression.ExpressionAttributeValues.Add(":directoryId", $"{selectedDirectoryId}");
+
+            //// Add(":directoryId", selectedDirectoryId.ToString());
+
+            //var search = _context.FromQueryAsync<DocumentDb>(queryConfig);
 
             do
             {
