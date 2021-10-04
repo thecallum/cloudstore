@@ -62,5 +62,17 @@ namespace DocumentService.Gateways
                 throw ex;
             }
         }
+
+        public string GetDocumentPresignedUrl(string key)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = _bucketName,
+                Expires = DateTime.UtcNow.AddMinutes(20),
+                Key = key
+            };
+
+            return _amazonS3.GetPreSignedURL(request);
+        }
     }
 }

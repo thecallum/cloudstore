@@ -54,6 +54,7 @@ namespace DocumentService
             services.AddScoped<ICreateDirectoryUseCase, CreateDirectoryUseCase>();
             services.AddScoped<IRenameDirectoryUseCase, RenameDirectoryUseCase>();
             services.AddScoped<IDeleteDirectoryUseCase, DeleteDirectoryUseCase>();
+            services.AddScoped<IGetDocumentLinkUseCase, GetDocumentLinkUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

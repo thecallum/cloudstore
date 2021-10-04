@@ -21,6 +21,7 @@ namespace DocumentService.Tests.Controllers
         private readonly DocumentController _documentController;
         private readonly Mock<IUploadDocumentUseCase> _mockUploadDocumentUseCase;
         private readonly Mock<IGetAllDocumentsUseCase> _mockGetAllDocumentsUseCase;
+        private readonly Mock<IGetDocumentLinkUseCase> _mockGetDocumentLinkUseCase;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Random _random = new Random();
@@ -29,8 +30,12 @@ namespace DocumentService.Tests.Controllers
         {
             _mockUploadDocumentUseCase = new Mock<IUploadDocumentUseCase>();
             _mockGetAllDocumentsUseCase = new Mock<IGetAllDocumentsUseCase>();
+            _mockGetDocumentLinkUseCase = new Mock<IGetDocumentLinkUseCase>();
 
-            _documentController = new DocumentController(_mockUploadDocumentUseCase.Object, _mockGetAllDocumentsUseCase.Object);
+            _documentController = new DocumentController(
+                _mockUploadDocumentUseCase.Object, 
+                _mockGetAllDocumentsUseCase.Object,
+                _mockGetDocumentLinkUseCase.Object);
         }
 
         [Fact]
@@ -237,6 +242,45 @@ namespace DocumentService.Tests.Controllers
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDocumentsResponse));
             ((response as OkObjectResult).Value as GetAllDocumentsResponse).Directories.Should().HaveCount(numberOfDirectories);
+        }
+
+        [Fact]
+        public async Task GetDocumentLink_WhenDocumentNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            var query = _fixture.Create<GetDocumentLinkQuery>();
+
+            var exception = new DocumentNotFoundException();
+
+            _mockGetDocumentLinkUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _documentController.GetDocumentLink(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.DocumentId);
+        }
+
+        [Fact]
+        public async Task GetDocumentLink_WhenValid_ReturnsGetDocumentResponse()
+        {
+            // Arrange
+            var query = _fixture.Create<GetDocumentLinkQuery>();
+            var useCaseResponse = _fixture.Create<string>();
+
+            _mockGetDocumentLinkUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _documentController.GetDocumentLink(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            ((response as OkObjectResult).Value as GetDocumentLinkResponse).DocumentLink.Should().Be(useCaseResponse);
         }
     }
 }

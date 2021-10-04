@@ -20,11 +20,16 @@ namespace DocumentService.Controllers
 
         private readonly IUploadDocumentUseCase _uploadDocumentUseCase;
         private readonly IGetAllDocumentsUseCase _getAllDocumentsUseCase;
+        private readonly IGetDocumentLinkUseCase _getDocumentLinkUseCase;
 
-        public DocumentController(IUploadDocumentUseCase uploadDocumentUseCase, IGetAllDocumentsUseCase getAllDocumentsUseCase)
+        public DocumentController(
+            IUploadDocumentUseCase uploadDocumentUseCase,
+            IGetAllDocumentsUseCase getAllDocumentsUseCase,
+            IGetDocumentLinkUseCase getDocumentLinkUseCase)
         {
             _uploadDocumentUseCase = uploadDocumentUseCase;
             _getAllDocumentsUseCase = getAllDocumentsUseCase;
+            _getDocumentLinkUseCase = getDocumentLinkUseCase;
         }
 
         [Route("upload")]
@@ -79,5 +84,47 @@ namespace DocumentService.Controllers
                 return NotFound(query.DirectoryId);
             }
         }
-     }
+
+
+        public async Task<IActionResult> DeleteDocument()
+        {
+            // in usecase
+
+            // check document exists (DB)
+
+            // delete from s3
+
+            // delete from database
+
+            // return ok
+
+            // catch documentNotFoundException
+
+
+            throw new NotImplementedException();
+        }
+
+        [Route("{documentId}")]
+        [HttpGet]
+        [ProducesResponseType(typeof(GetDocumentLinkResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] 
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> GetDocumentLink([FromRoute] GetDocumentLinkQuery query)
+        {
+            try
+            {
+                var link = await _getDocumentLinkUseCase.Execute(_userId, query.DocumentId);
+
+                var response = new GetDocumentLinkResponse { DocumentLink = link };
+
+                return Ok(response);
+            } 
+            catch(DocumentNotFoundException)
+            {
+                return NotFound(query.DocumentId);
+            }
+        }
+    }
 }

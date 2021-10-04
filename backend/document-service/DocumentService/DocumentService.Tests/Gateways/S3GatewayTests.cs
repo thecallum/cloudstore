@@ -6,8 +6,10 @@ using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using FluentAssertions;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
+using AutoFixture;
 
 namespace DocumentService.Tests.Gateways
 {
@@ -18,6 +20,8 @@ namespace DocumentService.Tests.Gateways
 
         private readonly string _validFilePath;
         private readonly string _tooLargeFilePath;
+
+        private readonly string _bucketName = "uploadfromcs";
 
         public S3GatewayTests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
@@ -78,6 +82,37 @@ namespace DocumentService.Tests.Gateways
             response.FileSize.Should().Be(200);
 
             await VerifyDocumentUploadedToS3(userId, documentId);
+        }
+
+        [Fact]
+        public async Task GetDocumentPresignedUrl_WhenCalled_ReturnsValidUrl()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            await UploadDocumentToS3(key, _validFilePath);
+
+            // Act
+            var response = _s3Gateway.GetDocumentPresignedUrl(key);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.Should().Contain("AWSAccessKeyId");
+        }
+
+        private async Task UploadDocumentToS3(string key, string filePath)
+        {
+            using (FileStream inputStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                var s3Request = new PutObjectRequest()
+                {
+                    InputStream = inputStream,
+                    BucketName = _bucketName,
+                    Key = key
+                };
+
+                await _s3Client.PutObjectAsync(s3Request);
+            }
         }
 
         private async Task VerifyDocumentUploadedToS3(Guid userId, Guid documentId)

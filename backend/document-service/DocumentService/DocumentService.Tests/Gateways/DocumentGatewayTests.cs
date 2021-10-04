@@ -145,6 +145,35 @@ namespace DocumentService.Tests.Gateways
             // Assert
             response.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task GetDocumentById_WhenDocumentDoesntExist_ReturnsNull()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var documentId = Guid.NewGuid();
+
+            // Act
+            var response = await _gateway.GetDocumentById(userId, documentId);
+
+            // Assert
+            response.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetDocumentById_WhenDocumentExists_ReturnsDocument()
+        {
+            // Arrange
+            var document = _fixture.Create<DocumentDb>();
+            await SetupTestData(document);
+
+            // Act
+            var response = await _gateway.GetDocumentById(document.UserId, document.DocumentId);
+
+            // Assert
+            response.Should().BeOfType(typeof(DocumentDb));
+            response.S3Location.Should().Be(document.S3Location);
+            response.Name.Should().Be(document.Name);
+        }
     }
 }
-

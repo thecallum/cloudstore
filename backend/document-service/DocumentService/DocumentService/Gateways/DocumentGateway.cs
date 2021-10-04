@@ -73,6 +73,11 @@ namespace DocumentService.Gateways
             return documentList;
         }
 
+        public async Task<DocumentDb> GetDocumentById(Guid userId, Guid documentId)
+        {
+            return await _context.LoadAsync<DocumentDb>(userId, documentId);
+        }
+
         public async Task SaveDocument(Document document)
         {
             await _context.SaveAsync(document.ToDatabase());

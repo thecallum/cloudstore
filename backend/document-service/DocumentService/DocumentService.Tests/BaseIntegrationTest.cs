@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.S3;
 using AutoFixture;
 using DocumentService.Infrastructure;
 using System;
@@ -17,6 +18,7 @@ namespace DocumentService.Tests
     {
         protected readonly IAmazonDynamoDB _client;
         protected readonly IDynamoDBContext _context;
+        protected readonly IAmazonS3 _s3Client;
 
         protected readonly DatabaseFixture<Startup> _testFixture;
         protected readonly HttpClient _httpClient;
@@ -32,6 +34,8 @@ namespace DocumentService.Tests
 
             _testFixture = testFixture;
             _httpClient = testFixture.Client;
+
+            _s3Client = testFixture.S3Client;
         }
 
         public void Dispose()
