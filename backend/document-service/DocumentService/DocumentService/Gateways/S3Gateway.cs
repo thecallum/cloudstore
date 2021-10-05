@@ -74,5 +74,17 @@ namespace DocumentService.Gateways
 
             return _amazonS3.GetPreSignedURL(request);
         }
+
+        public async Task DeleteDocument(string key)
+        {
+
+            var request = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = key
+            };
+
+            await _amazonS3.DeleteObjectAsync(request);
+        }
     }
 }

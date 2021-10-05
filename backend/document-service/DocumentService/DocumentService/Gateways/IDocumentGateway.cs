@@ -13,5 +13,6 @@ namespace DocumentService.Gateways
         Task<DocumentDb> GetDocumentById(Guid userId, Guid documentId);
         Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null);
         Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId);
+        Task<DocumentDb> DeleteDocument(Guid userId, Guid documentId);
     }
 }

@@ -21,15 +21,18 @@ namespace DocumentService.Controllers
         private readonly IUploadDocumentUseCase _uploadDocumentUseCase;
         private readonly IGetAllDocumentsUseCase _getAllDocumentsUseCase;
         private readonly IGetDocumentLinkUseCase _getDocumentLinkUseCase;
+        private readonly IDeleteDocumentUseCase _deleteDocumentUseCase;
 
         public DocumentController(
             IUploadDocumentUseCase uploadDocumentUseCase,
             IGetAllDocumentsUseCase getAllDocumentsUseCase,
-            IGetDocumentLinkUseCase getDocumentLinkUseCase)
+            IGetDocumentLinkUseCase getDocumentLinkUseCase,
+            IDeleteDocumentUseCase deleteDocumentUseCase)
         {
             _uploadDocumentUseCase = uploadDocumentUseCase;
             _getAllDocumentsUseCase = getAllDocumentsUseCase;
             _getDocumentLinkUseCase = getDocumentLinkUseCase;
+            _deleteDocumentUseCase = deleteDocumentUseCase;
         }
 
         [Route("upload")]
@@ -85,23 +88,24 @@ namespace DocumentService.Controllers
             }
         }
 
-
-        public async Task<IActionResult> DeleteDocument()
+        [Route("{documentId}")]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteDocument([FromRoute] DeleteDocumentRequest request)
         {
-            // in usecase
+            try
+            {
+                await _deleteDocumentUseCase.Execute(_userId, request.DocumentId);
 
-            // check document exists (DB)
+                return NoContent();
 
-            // delete from s3
-
-            // delete from database
-
-            // return ok
-
-            // catch documentNotFoundException
-
-
-            throw new NotImplementedException();
+            } catch(DocumentNotFoundException)
+            {
+                return NotFound(request.DocumentId);
+            }
         }
 
         [Route("{documentId}")]
@@ -110,7 +114,6 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)] 
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
         public async Task<IActionResult> GetDocumentLink([FromRoute] GetDocumentLinkQuery query)
         {
             try

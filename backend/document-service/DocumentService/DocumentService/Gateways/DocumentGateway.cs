@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.Model;
 using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Infrastructure;
+using DocumentService.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,16 @@ namespace DocumentService.Gateways
         public DocumentGateway(IDynamoDBContext databaseContext)
         {
             _context = databaseContext;
+        }
+
+        public async Task<DocumentDb> DeleteDocument(Guid userId, Guid documentId)
+        {
+            var existingDocument = await GetDocumentById(userId, documentId);
+            if (existingDocument == null) throw new DocumentNotFoundException();
+
+            await _context.DeleteAsync<DocumentDb>(userId, documentId);
+
+            return existingDocument;
         }
 
         public async Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId)

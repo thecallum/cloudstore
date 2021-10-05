@@ -22,6 +22,7 @@ namespace DocumentService.Tests.Controllers
         private readonly Mock<IUploadDocumentUseCase> _mockUploadDocumentUseCase;
         private readonly Mock<IGetAllDocumentsUseCase> _mockGetAllDocumentsUseCase;
         private readonly Mock<IGetDocumentLinkUseCase> _mockGetDocumentLinkUseCase;
+        private readonly Mock<IDeleteDocumentUseCase> _mockDeleteDocumentUseCase;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Random _random = new Random();
@@ -31,11 +32,13 @@ namespace DocumentService.Tests.Controllers
             _mockUploadDocumentUseCase = new Mock<IUploadDocumentUseCase>();
             _mockGetAllDocumentsUseCase = new Mock<IGetAllDocumentsUseCase>();
             _mockGetDocumentLinkUseCase = new Mock<IGetDocumentLinkUseCase>();
+            _mockDeleteDocumentUseCase = new Mock<IDeleteDocumentUseCase>();
 
             _documentController = new DocumentController(
                 _mockUploadDocumentUseCase.Object, 
                 _mockGetAllDocumentsUseCase.Object,
-                _mockGetDocumentLinkUseCase.Object);
+                _mockGetDocumentLinkUseCase.Object,
+                _mockDeleteDocumentUseCase.Object);
         }
 
         [Fact]
@@ -281,6 +284,39 @@ namespace DocumentService.Tests.Controllers
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
             ((response as OkObjectResult).Value as GetDocumentLinkResponse).DocumentLink.Should().Be(useCaseResponse);
+        }
+
+        [Fact]
+        public async Task DeleteDocument_WhenDocumentDoesntExist_ReturnsNotFound()
+        {
+            // Arrange
+            var request = _fixture.Create<DeleteDocumentRequest>();
+
+            var exception = new DocumentNotFoundException();
+
+            _mockDeleteDocumentUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _documentController.DeleteDocument(request);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(request.DocumentId);
+        }
+
+        [Fact]
+        public async Task DeleteDocument_WhenDocumentFound_ReturnsNoContentResponse()
+        {
+            // Arrange
+            var request = _fixture.Create<DeleteDocumentRequest>();
+
+            // Act
+            var response = await _documentController.DeleteDocument(request);
+
+            // Assert
+            response.Should().BeOfType(typeof(NoContentResult));
         }
     }
 }

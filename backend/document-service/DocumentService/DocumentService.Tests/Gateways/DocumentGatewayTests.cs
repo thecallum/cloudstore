@@ -2,6 +2,7 @@
 using DocumentService.Domain;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
+using DocumentService.Infrastructure.Exceptions;
 using FluentAssertions;
 using System;
 using System.Threading.Tasks;
@@ -174,6 +175,38 @@ namespace DocumentService.Tests.Gateways
             response.Should().BeOfType(typeof(DocumentDb));
             response.S3Location.Should().Be(document.S3Location);
             response.Name.Should().Be(document.Name);
+        }
+
+        [Fact]
+        public async Task DeleteDocument_WhenDoesntExist_ThrowsException()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var documentId = Guid.NewGuid();
+
+            // Act
+            Func<Task<DocumentDb>> func = async () => await _gateway.DeleteDocument(userId, documentId);
+
+            // Assert
+
+            await func.Should().ThrowAsync<DocumentNotFoundException>();
+        }
+
+        [Fact]
+        public async Task DeleteDocument_WhenItExists_RemovesDocumentFromDatabase()
+        {
+            // Arrange
+            var document = _fixture.Create<DocumentDb>();
+            await SetupTestData(document);
+
+            // Act
+            var response = await _gateway.DeleteDocument(document.UserId, document.DocumentId);
+
+            // Assert
+            response.DocumentId.Should().Be(document.DocumentId);
+
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(document.UserId, document.DocumentId);
+            databaseResponse.Should().BeNull();
         }
     }
 }

@@ -11,5 +11,6 @@ namespace DocumentService.Gateways
     {
         Task<DocumentUploadResponse> UploadDocument(UploadDocumentRequest request, Guid documentId, Guid userId);
         string GetDocumentPresignedUrl(string key);
+        Task DeleteDocument(string key);
     }
 }

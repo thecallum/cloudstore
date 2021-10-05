@@ -100,6 +100,21 @@ namespace DocumentService.Tests.Gateways
             response.Should().Contain("AWSAccessKeyId");
         }
 
+        [Fact]
+        public async Task DeleteDocument_WhenCalled_DeletesDocument()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            await UploadDocumentToS3(key, _validFilePath);
+
+            // Act
+            await _s3Gateway.DeleteDocument(key);
+
+            // Assert
+            await VerifyDocumentDeletedFromS3(key);
+        }
+
         private async Task UploadDocumentToS3(string key, string filePath)
         {
             using (FileStream inputStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -130,6 +145,26 @@ namespace DocumentService.Tests.Gateways
             } catch(Exception)
             {
                 throw new Exception("Document Metadata could lot be loaded from s3");
+            }
+        }
+
+        private async Task VerifyDocumentDeletedFromS3(string key)
+        {
+            var request = new GetObjectMetadataRequest
+            {
+                BucketName = "uploadfromcs",
+                Key = key
+            };
+
+            try
+            {
+                await _s3Client.GetObjectMetadataAsync(request);
+
+                throw new Exception("Document still found in s3");
+            }
+            catch (Exception)
+            {
+                // should throw error
             }
         }
     }
