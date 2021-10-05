@@ -61,23 +61,31 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.Map("/document-service", mainApp =>
             {
-                app.UseDeveloperExceptionPage();
-            }
 
-            app.UseHttpsRedirection();
+            
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapGet("/", async context =>
+                if (env.IsDevelopment())
                 {
-                    await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
+                    mainApp.UseDeveloperExceptionPage();
+                }
+
+                mainApp.UseHttpsRedirection();
+
+                mainApp.UseRouting();
+
+                mainApp.UseAuthorization();
+
+
+                mainApp.UseEndpoints(endpoints =>
+                {
+
+                    endpoints.MapControllers();
+                    endpoints.MapGet("/", async context =>
+                    {
+                        await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
+                    });
                 });
             });
         }
