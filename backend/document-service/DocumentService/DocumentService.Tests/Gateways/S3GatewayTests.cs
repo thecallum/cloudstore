@@ -10,18 +10,18 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 using AutoFixture;
+using DocumentService.Tests.Helpers;
 
 namespace DocumentService.Tests.Gateways
 {
     public class S3GatewayTests : BaseIntegrationTest
     {
-        private readonly IAmazonS3 _s3Client;
         private readonly IS3Gateway _s3Gateway;
 
         private readonly string _validFilePath;
         private readonly string _tooLargeFilePath;
 
-        private readonly string _bucketName = "uploadfromcs";
+        private readonly S3TestHelper _s3TestHelper;
 
         public S3GatewayTests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
@@ -29,8 +29,8 @@ namespace DocumentService.Tests.Gateways
             _validFilePath = testFixture.ValidFilePath;
             _tooLargeFilePath = testFixture.TooLargeFilePath;
 
-            _s3Client = testFixture.S3Client;
             _s3Gateway = new S3Gateway(_s3Client);
+            _s3TestHelper = new S3TestHelper(_s3Client);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace DocumentService.Tests.Gateways
             response.S3Location.Should().Be($"{userId}/{documentId}");
             response.FileSize.Should().Be(200);
 
-            await VerifyDocumentUploadedToS3(userId, documentId);
+            await _s3TestHelper.VerifyDocumentUploadedToS3($"{userId}/{documentId}");
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var key = _fixture.Create<string>();
 
-            await UploadDocumentToS3(key, _validFilePath);
+            await _s3TestHelper.UploadDocumentToS3(key, _validFilePath);
 
             // Act
             var response = _s3Gateway.GetDocumentPresignedUrl(key);
@@ -106,66 +106,13 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var key = _fixture.Create<string>();
 
-            await UploadDocumentToS3(key, _validFilePath);
+            await _s3TestHelper.UploadDocumentToS3(key, _validFilePath);
 
             // Act
             await _s3Gateway.DeleteDocument(key);
 
             // Assert
-            await VerifyDocumentDeletedFromS3(key);
-        }
-
-        private async Task UploadDocumentToS3(string key, string filePath)
-        {
-            using (FileStream inputStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                var s3Request = new PutObjectRequest()
-                {
-                    InputStream = inputStream,
-                    BucketName = _bucketName,
-                    Key = key
-                };
-
-                await _s3Client.PutObjectAsync(s3Request);
-            }
-        }
-
-        private async Task VerifyDocumentUploadedToS3(Guid userId, Guid documentId)
-        {
-            // test file exists
-            var request = new GetObjectMetadataRequest
-            {
-                BucketName = "uploadfromcs",
-                Key = $"{userId}/{documentId}"
-            };
-
-            try
-            {
-                await _s3Client.GetObjectMetadataAsync(request);
-            } catch(Exception)
-            {
-                throw new Exception("Document Metadata could lot be loaded from s3");
-            }
-        }
-
-        private async Task VerifyDocumentDeletedFromS3(string key)
-        {
-            var request = new GetObjectMetadataRequest
-            {
-                BucketName = "uploadfromcs",
-                Key = key
-            };
-
-            try
-            {
-                await _s3Client.GetObjectMetadataAsync(request);
-
-                throw new Exception("Document still found in s3");
-            }
-            catch (Exception)
-            {
-                // should throw error
-            }
+            await _s3TestHelper.VerifyDocumentDeletedFromS3(key);
         }
     }
 }
