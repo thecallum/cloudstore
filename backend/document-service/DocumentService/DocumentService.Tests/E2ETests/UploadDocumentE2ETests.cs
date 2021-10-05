@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using AutoFixture;
+using Amazon.S3.Model;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -116,7 +117,10 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.DirectoryId.Should().Be(userId);
 
+            var expectedDocumentKey = $"{userId}/{uploadDocumentResponse.DocumentId}";
+
             _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, databaseResponse.DocumentId));
+            _cleanup.Add(async () => await DeleteDocumentFromS3(expectedDocumentKey));
         }
 
         [Fact]
@@ -161,7 +165,61 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.DirectoryId.Should().Be(mockDirectory.DirectoryId);
 
+            var expectedDocumentKey = $"{userId}/{uploadDocumentResponse.DocumentId}";
+
             _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, databaseResponse.DocumentId));
+            _cleanup.Add(async () => await DeleteDocumentFromS3(expectedDocumentKey));
+        }
+
+        [Fact]
+        public async Task UploadDocument_WhenValid_UploadsDocumentToS3()
+        {
+            // Arrange
+            var mockRequest = new UploadDocumentRequest
+            {
+                FilePath = _validFilePath,
+                DirectoryId = null
+            };
+
+            // Act
+            var response = await UploadDocumentRequest(mockRequest);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+
+
+            // test contents of response
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<UploadDocumentResponse>(responseContent, CreateJsonOptions());
+
+            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
+
+            var expectedDocumentKey = $"{userId}/{uploadDocumentResponse.DocumentId}";
+
+            await VerifyDocumentUploadedToS3(expectedDocumentKey);
+
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(userId, uploadDocumentResponse.DocumentId));
+            _cleanup.Add(async () => await DeleteDocumentFromS3(expectedDocumentKey));
+        }
+
+        private async Task VerifyDocumentUploadedToS3(string key)
+        {
+            // test file exists
+            var request = new GetObjectMetadataRequest
+            {
+                BucketName = "uploadfromcs",
+                Key = key
+            };
+
+            try
+            {
+                await _s3Client.GetObjectMetadataAsync(request);
+            }
+            catch (Exception)
+            {
+                throw new Exception("Document Metadata could lot be loaded from s3");
+            }
         }
 
         private async Task<HttpResponseMessage> UploadDocumentRequest(UploadDocumentRequest request)
@@ -174,6 +232,18 @@ namespace DocumentService.Tests.E2ETests
             var response = await _httpClient.PostAsync(uri, data).ConfigureAwait(false);
 
             return response;
+        }
+
+        public async Task DeleteDocumentFromS3(string key)
+        {
+
+            var request = new DeleteObjectRequest
+            {
+                BucketName = "uploadfromcs",
+                Key = key
+            };
+
+            await _s3Client.DeleteObjectAsync(request);
         }
     }
 }
