@@ -4,8 +4,10 @@ using DocumentService.Boundary.Response;
 using DocumentService.Controllers;
 using DocumentService.Domain;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Tests.Helpers;
 using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -39,6 +41,10 @@ namespace DocumentService.Tests.Controllers
                 _mockRenameDirectoryUseCase.Object, 
                 _mockDeleteDirectoryUseCase.Object,
                 _mockGetAllDirectoriesUseCase.Object);
+
+            _directoryController.ControllerContext = new ControllerContext();
+            _directoryController.ControllerContext.HttpContext = new DefaultHttpContext();
+            _directoryController.ControllerContext.HttpContext.Items["user"] = ContextHelper.CreateUser();
         }
 
         [Fact]

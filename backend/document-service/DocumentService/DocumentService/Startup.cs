@@ -6,6 +6,7 @@ using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Request.Validation;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
+using DocumentService.Middleware;
 using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
 using FluentValidation;
@@ -85,6 +86,7 @@ namespace DocumentService
 
                 mainApp.UseAuthorization();
 
+                mainApp.UseTokenMiddleware();
 
                 mainApp.UseEndpoints(endpoints =>
                 {
@@ -94,6 +96,7 @@ namespace DocumentService
                     {
                         await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                     });
+
                 });
             });
         }

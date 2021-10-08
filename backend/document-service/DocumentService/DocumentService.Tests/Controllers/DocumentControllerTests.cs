@@ -4,8 +4,10 @@ using DocumentService.Boundary.Response;
 using DocumentService.Controllers;
 using DocumentService.Domain;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Tests.Helpers;
 using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -42,6 +44,10 @@ namespace DocumentService.Tests.Controllers
                 _mockGetDocumentUploadLinkUseCase.Object,
                 _mockValidateUploadedDocumentUseCase.Object, 
                 _mockDeleteDocumentUseCase.Object);
+
+            _documentController.ControllerContext = new ControllerContext();
+            _documentController.ControllerContext.HttpContext = new DefaultHttpContext();
+            _documentController.ControllerContext.HttpContext.Items["user"] = ContextHelper.CreateUser();
         }
 
         [Fact]

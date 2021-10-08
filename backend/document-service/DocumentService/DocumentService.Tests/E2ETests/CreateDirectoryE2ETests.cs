@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
 using DocumentService.Infrastructure;
+using DocumentService.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -20,7 +22,6 @@ namespace DocumentService.Tests.E2ETests
         public CreateDirectoryE2ETests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
         {
-
         }
 
         [Theory]
@@ -56,28 +57,32 @@ namespace DocumentService.Tests.E2ETests
 
             var responseId = Guid.Parse(response.Headers.Location.ToString());
 
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(userId, responseId);
+            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_userId, responseId);
             databaseResponse.Should().NotBeNull();
 
-            databaseResponse.UserId.Should().Be(userId);
+            databaseResponse.UserId.Should().Be(_userId);
             databaseResponse.Name.Should().Be(request.Name);
             databaseResponse.ParentDirectoryId.Should().Be((Guid) request.ParentDirectoryId);
 
-            _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(userId, responseId));
+            _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(_userId, responseId));
         }
 
         private async Task<HttpResponseMessage> CreateDirectoryRequest(CreateDirectoryRequest request)
         {
-            var uri = new Uri("/document-service/api/directory/", UriKind.Relative);
+            // setup request
+            var uri = new Uri($"/document-service/api/directory/", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Post, uri);
+            message.Method = HttpMethod.Post;
+            message.Headers.Add("authorizationToken", _token);
 
-            var json = JsonConvert.SerializeObject(request);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(uri, data).ConfigureAwait(false);
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return response;
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
     }
 }

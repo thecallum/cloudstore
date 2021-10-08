@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
 using DocumentService.Infrastructure;
+using DocumentService.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,11 +20,9 @@ namespace DocumentService.Tests.E2ETests
 {
     public class DeleteDirectoryE2ETests : BaseIntegrationTest
     {
-
         public DeleteDirectoryE2ETests(DatabaseFixture<Startup> testFixture)
            : base(testFixture)
         {
-
         }
 
         [Fact]
@@ -42,11 +42,10 @@ namespace DocumentService.Tests.E2ETests
         public async Task Delete_WhenDirectoryContainsDocuments_ReturnsBadRequest()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
             var directoryId = Guid.NewGuid();
 
             var document = _fixture.Build<DocumentDb>()
-                            .With(x => x.UserId, userId)
+                            .With(x => x.UserId, _userId)
                             .With(x => x.DirectoryId, directoryId)
                             .Create();
 
@@ -63,17 +62,15 @@ namespace DocumentService.Tests.E2ETests
         public async Task Delete_WhenDirectoryContainsChildDirectories_ReturnsBadRequest()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
             var parentDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
-                .With(x => x.ParentDirectoryId, userId)
+                .With(x => x.UserId, _userId)
+                .With(x => x.ParentDirectoryId, _userId)
                 .Create();
 
             await SetupTestData(parentDirectory);
 
             var childDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
+                .With(x => x.UserId, _userId)
                 .With(x => x.ParentDirectoryId, parentDirectory.DirectoryId)
                 .Create();
 
@@ -90,10 +87,8 @@ namespace DocumentService.Tests.E2ETests
         public async Task DeleteDirectory_WhenValid_ShouldRemoveDirectoryFromDatabase()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
             var mockDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
+                .With(x => x.UserId, _userId)
                 .Create();
 
             await SetupTestData(mockDirectory);
@@ -104,18 +99,26 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(userId, mockDirectory.DirectoryId);
+            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_userId, mockDirectory.DirectoryId);
 
             databaseResponse.Should().BeNull();
         }
 
         private async Task<HttpResponseMessage> DeleteDirectoryRequest(Guid id)
         {
+            // setup request
             var uri = new Uri($"/document-service/api/directory/{id}", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
+            message.Method = HttpMethod.Delete;
+            message.Headers.Add("authorizationToken", _token);
 
-            var response = await _httpClient.DeleteAsync(uri).ConfigureAwait(false);
 
-            return response;
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
     }
 }

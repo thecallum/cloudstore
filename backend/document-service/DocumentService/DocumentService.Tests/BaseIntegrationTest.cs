@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.S3;
 using AutoFixture;
 using DocumentService.Infrastructure;
+using DocumentService.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -27,6 +28,9 @@ namespace DocumentService.Tests
         protected readonly Random _random = new Random();
         protected readonly List<Action> _cleanup = new List<Action>();
 
+        protected readonly Guid _userId;
+        protected readonly string _token;
+
         public BaseIntegrationTest(DatabaseFixture<Startup> testFixture)
         {
             _client = testFixture.DynamoDb;
@@ -36,6 +40,9 @@ namespace DocumentService.Tests
             _httpClient = testFixture.Client;
 
             _s3Client = testFixture.S3Client;
+
+            _userId = Guid.NewGuid();
+            _token = ContextHelper.CreateToken(_userId);
         }
 
         public void Dispose()

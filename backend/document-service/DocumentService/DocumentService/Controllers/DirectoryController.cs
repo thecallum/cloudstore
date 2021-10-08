@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Middleware;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,6 @@ namespace DocumentService.Controllers
     [ApiController]
     public class DirectoryController : ControllerBase
     {
-        // Will be taken from request token
-        private readonly Guid _userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
         private readonly ICreateDirectoryUseCase _createDirectoryUseCase;
         private readonly IRenameDirectoryUseCase _renameDirectoryUseCase;
         private readonly IDeleteDirectoryUseCase _delteDirectoryUseCase;
@@ -41,7 +39,9 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateDirectory([FromBody] CreateDirectoryRequest request)
         {
-            var directoryId = await _createDirectoryUseCase.Execute(request, _userId);
+            var user = (Payload)HttpContext.Items["user"];
+
+            var directoryId = await _createDirectoryUseCase.Execute(request, user.Id);
 
             return Created(directoryId.ToString(), null);
         }
@@ -54,9 +54,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RenameDirectory([FromRoute] RenameDirectoryQuery query, [FromBody] RenameDirectoryRequest request)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                await _renameDirectoryUseCase.Execute(query, request, _userId);
+                await _renameDirectoryUseCase.Execute(query, request, user.Id);
                 return Ok();
             } catch(DirectoryNotFoundException)
             {
@@ -72,9 +74,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDirectory([FromRoute] DeleteDirectoryQuery query)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                await _delteDirectoryUseCase.Execute(query, _userId);
+                await _delteDirectoryUseCase.Execute(query, user.Id);
                 return Ok();
             }
             catch(Exception e)
@@ -102,9 +106,11 @@ namespace DocumentService.Controllers
 
         public async Task<IActionResult> GetAllDirectories([FromQuery] GetAllDirectoriesQuery query)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                var response = await _getAllDirectoriesUseCase.Execute(_userId, query);
+                var response = await _getAllDirectoriesUseCase.Execute(user.Id, query);
                 return Ok(response);
 
             }

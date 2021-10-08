@@ -22,7 +22,6 @@ namespace DocumentService.Tests.Gateways
         private readonly IS3Gateway _s3Gateway;
 
         private readonly string _validFilePath;
-        private readonly string _tooLargeFilePath;
 
         private readonly S3TestHelper _s3TestHelper;
 
@@ -30,7 +29,6 @@ namespace DocumentService.Tests.Gateways
             : base(testFixture)
         {
             _validFilePath = testFixture.ValidFilePath;
-            _tooLargeFilePath = testFixture.TooLargeFilePath;
 
             _s3Gateway = new S3Gateway(_s3Client);
             _s3TestHelper = new S3TestHelper(_s3Client);

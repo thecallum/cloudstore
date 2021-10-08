@@ -2,11 +2,13 @@
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure;
+using DocumentService.Tests.Helpers;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,13 +44,12 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var query = new GetAllDocumentsQuery { DirectoryId = null };
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
 
             var numberOfDocuments = _random.Next(2, 5);
             var mockDocuments = _fixture
                 .Build<DocumentDb>()
-                .With(x => x.UserId, userId)
-                .With(x => x.DirectoryId, userId)
+                .With(x => x.UserId, _userId)
+                .With(x => x.DirectoryId, _userId)
                 .CreateMany(numberOfDocuments);
 
             await SetupTestData(mockDocuments);
@@ -67,13 +68,20 @@ namespace DocumentService.Tests.E2ETests
 
         private async Task<HttpResponseMessage> GetAllDocumentsRequest(GetAllDocumentsQuery query)
         {
-            var url = "/document-service/api/document";
+            // setup request
+            var uri = new Uri($"/document-service/api/document/", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Get, uri);
+            message.Method = HttpMethod.Get;
+            message.Headers.Add("authorizationToken", _token);
 
-            if (query.DirectoryId != null)  url += $"?directoryId={query.DirectoryId}";
+           // message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
-            var uri = new Uri(url, UriKind.Relative);
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return await _httpClient.GetAsync(uri).ConfigureAwait(false);
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
     }
 }

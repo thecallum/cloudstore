@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
 using DocumentService.Infrastructure;
+using DocumentService.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -17,15 +19,15 @@ namespace DocumentService.Tests.E2ETests
 {
     public class RenameDirectoryE2ETests : BaseIntegrationTest
     {
+        private readonly Guid _userId;
+        private readonly string _token;
+
         public RenameDirectoryE2ETests(DatabaseFixture<Startup> testFixture)
            : base(testFixture)
         {
-
+            _userId = Guid.NewGuid();
+            _token = ContextHelper.CreateToken(_userId);
         }
-
-        // invalid name
-        // directory doesnt exist
-        // valid
 
         [Fact]
         public async Task RenameDirectory_WhenDirectoryDoesntExist_ReturnsNotFound()
@@ -47,10 +49,8 @@ namespace DocumentService.Tests.E2ETests
         public async Task RenameDirectory(string name)
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
             var mockDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
+                .With(x => x.UserId, _userId)
                 .Create();
 
             await SetupTestData(mockDirectory);
@@ -68,10 +68,8 @@ namespace DocumentService.Tests.E2ETests
         public async Task RenameDirectory_WhenValid_ShouldCreateDirectoryInDatabase()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
             var mockDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
+                .With(x => x.UserId, _userId)
                 .Create();
 
             await SetupTestData(mockDirectory);
@@ -86,7 +84,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(userId, mockDirectory.DirectoryId);
+            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_userId, mockDirectory.DirectoryId);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Name.Should().Be(request.Name);
@@ -94,14 +92,20 @@ namespace DocumentService.Tests.E2ETests
 
         private async Task<HttpResponseMessage> RenameDirectoryRequest(Guid id, RenameDirectoryRequest request)
         {
+            // setup request
             var uri = new Uri($"/document-service/api/directory/{id}", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Patch, uri);
+            message.Method = HttpMethod.Patch;
+            message.Headers.Add("authorizationToken", _token);
 
-            var json = JsonConvert.SerializeObject(request);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PatchAsync(uri, data).ConfigureAwait(false);
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return response;
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
     }
 }

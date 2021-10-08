@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Middleware;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,6 @@ namespace DocumentService.Controllers
     [ApiController]
     public class DocumentController : ControllerBase
     {
-        // Will be taken from request token
-        private readonly Guid _userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
         private readonly IGetAllDocumentsUseCase _getAllDocumentsUseCase;
         private readonly IGetDocumentDownloadLinkUseCase _getDocumentDownloadLinkUseCase;
         private readonly IDeleteDocumentUseCase _deleteDocumentUseCase;
@@ -46,7 +44,9 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetDocumentUploadLink()
         {
-            var response = _getDocumentUploadLinkUseCase.Execute(_userId);
+            var user = (Payload)HttpContext.Items["user"];
+
+            var response = _getDocumentUploadLinkUseCase.Execute(user.Id);
 
             return Ok(response);
         }
@@ -58,7 +58,9 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ValidateUploadedDocument([FromRoute] ValidateUploadedDocumentQuery query, [FromBody] ValidateUploadedDocumentRequest request)
         {
-            var document = await _validateUploadedDocumentUseCase.Execute(_userId, query.DocumentId, request);
+            var user = (Payload)HttpContext.Items["user"];
+
+            var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
             if (document == null) return NotFound(query.DocumentId);
 
             return Created($"/document-service/api/document/{query.DocumentId}", document);
@@ -70,9 +72,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllDocuments([FromQuery] GetAllDocumentsQuery query)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                var response = await _getAllDocumentsUseCase.Execute(_userId, query);
+                var response = await _getAllDocumentsUseCase.Execute(user.Id, query);
                 return Ok(response);
 
             }
@@ -90,9 +94,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDocument([FromRoute] DeleteDocumentRequest request)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                await _deleteDocumentUseCase.Execute(_userId, request.DocumentId);
+                await _deleteDocumentUseCase.Execute(user.Id, request.DocumentId);
 
                 return NoContent();
 
@@ -111,9 +117,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDocumentDownloadLink([FromRoute] GetDocumentLinkQuery query)
         {
+            var user = (Payload)HttpContext.Items["user"];
+
             try
             {
-                var link = await _getDocumentDownloadLinkUseCase.Execute(_userId, query.DocumentId);
+                var link = await _getDocumentDownloadLinkUseCase.Execute(user.Id, query.DocumentId);
 
                 var response = new GetDocumentLinkResponse { DocumentLink = link };
 

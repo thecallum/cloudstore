@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Amazon.S3.Model;
 using DocumentService.Tests.Helpers;
+using System.Net.Http.Headers;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -47,9 +48,7 @@ namespace DocumentService.Tests.E2ETests
         public async Task DeleteDocument_WhenDocumentFound_ReturnsNoContentResponse()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
-            var document = _fixture.Build<DocumentDb>().With(x => x.UserId, userId).Create();
+            var document = _fixture.Build<DocumentDb>().With(x => x.UserId, _userId).Create();
             await SetupTestData(document);
 
             await _s3TestHelper.UploadDocumentToS3(document.S3Location, _validFilePath);
@@ -60,7 +59,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(userId, document.DocumentId);
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, document.DocumentId);
             databaseResponse.Should().BeNull();
 
             await _s3TestHelper.VerifyDocumentDeletedFromS3(document.S3Location);
@@ -68,11 +67,20 @@ namespace DocumentService.Tests.E2ETests
 
         private async Task<HttpResponseMessage> DeleteDocumentRequest(Guid documentId)
         {
+            // setup request
             var uri = new Uri($"/document-service/api/document/{documentId}", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Delete, uri);
+            message.Method = HttpMethod.Delete;
+            message.Headers.Add("authorizationToken", _token);
 
-            var response = await _httpClient.DeleteAsync(uri).ConfigureAwait(false);
 
-            return response;
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
+
         }
     }
 }

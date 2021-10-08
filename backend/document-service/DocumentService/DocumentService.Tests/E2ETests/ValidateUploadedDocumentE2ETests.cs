@@ -13,22 +13,19 @@ using FluentAssertions;
 using System.Net;
 using DocumentService.Domain;
 using DocumentService.Infrastructure;
+using System.Net.Http.Headers;
 
 namespace DocumentService.Tests.E2ETests
 {
     public class ValidateUploadedDocumentE2ETests : BaseIntegrationTest
     {
         private readonly string _validFilePath;
-        private readonly string _tooLargeFilePath;
-
         private readonly S3TestHelper _s3TestHelper;
 
         public ValidateUploadedDocumentE2ETests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
         {
             _validFilePath = testFixture.ValidFilePath;
-            _tooLargeFilePath = testFixture.TooLargeFilePath;
-
             _s3TestHelper = new S3TestHelper(_s3Client);
         }
 
@@ -36,8 +33,6 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenDocumentDoesntExist_ReturnsNull()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                             .With(x => x.DirectoryId, Guid.NewGuid())
@@ -54,9 +49,8 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenDocumentExists_ReturnsDocument()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
             var documentId = Guid.NewGuid();
-            var key = $"{userId}/{documentId}";
+            var key = $"{_userId}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                             .With(x => x.DirectoryId, Guid.NewGuid())
@@ -76,20 +70,19 @@ namespace DocumentService.Tests.E2ETests
 
             responseContent.Should().NotBeNull();
             responseContent.Id.Should().Be(documentId);
-            responseContent.UserId.Should().Be(userId);
+            responseContent.UserId.Should().Be(_userId);
             responseContent.DirectoryId.Should().Be((Guid)request.DirectoryId);
             responseContent.FileSize.Should().Be(200);
             responseContent.Name.Should().Be(request.FileName);
-            responseContent.S3Location.Should().Be($"{userId}/{documentId}");
+            responseContent.S3Location.Should().Be($"{_userId}/{documentId}");
         }
 
         [Fact]
         public async Task WhenDocumentExists_MovesDocumentToStoreDirectory()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
             var documentId = Guid.NewGuid();
-            var key = $"{userId}/{documentId}";
+            var key = $"{_userId}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -109,9 +102,8 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenCalled_InsertsDocumentIntoDatabase()
         {
             // Arrange
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
             var documentId = Guid.NewGuid();
-            var key = $"{userId}/{documentId}";
+            var key = $"{_userId}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -123,27 +115,33 @@ namespace DocumentService.Tests.E2ETests
             var response = await ValidateUploadedDocumentRequest(documentId, request);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(userId, documentId).ConfigureAwait(false);
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, documentId).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.DocumentId.Should().Be(documentId);
-            databaseResponse.UserId.Should().Be(userId);
+            databaseResponse.UserId.Should().Be(_userId);
             databaseResponse.DirectoryId.Should().Be((Guid)request.DirectoryId);
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.Name.Should().Be(request.FileName);
-            databaseResponse.S3Location.Should().Be($"{userId}/{documentId}");
+            databaseResponse.S3Location.Should().Be($"{_userId}/{documentId}");
         }
 
         private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request)
         {
+            // setup request
             var uri = new Uri($"document-service/api/document/validate/{documentId}", UriKind.Relative);
+            var message = new HttpRequestMessage(HttpMethod.Post, uri);
+            message.Method = HttpMethod.Post;
+            message.Headers.Add("authorizationToken", _token);
 
-            var json = JsonConvert.SerializeObject(request);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(uri, data).ConfigureAwait(false);
+            // call request
+            _httpClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            return response;
+            return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
     }
 }
