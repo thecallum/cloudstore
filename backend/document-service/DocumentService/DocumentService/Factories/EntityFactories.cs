@@ -69,17 +69,17 @@ namespace DocumentService.Factories
             };
         }
 
-        public static Document ToDomain(this UploadDocumentRequest request, Guid userId, Guid documentId, DocumentUploadResponse response)
-        {
-            return new Document
-            {
-                Id = documentId,
-                UserId = userId,
-                Name = response.DocumentName,
-                FileSize = response.FileSize,
-                S3Location = response.S3Location,
-                DirectoryId = (request.DirectoryId ?? userId)
-            };
-        }
+        //public static Document ToDomain(this UploadDocumentRequest request, Guid userId, Guid documentId, DocumentUploadResponse response)
+        //{
+        //    return new Document
+        //    {
+        //        Id = documentId,
+        //        UserId = userId,
+        //        Name = response.DocumentName,
+        //        FileSize = response.FileSize,
+        //        S3Location = response.S3Location,
+        //        DirectoryId = (request.DirectoryId ?? userId)
+        //    };
+        //}
     }
 }

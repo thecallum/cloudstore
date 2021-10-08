@@ -45,17 +45,27 @@ namespace DocumentService
 
             services.ConfigureAws();
 
+            SetupGateways(services);
+            SetupUseCases(services);
+        }
+
+        private void SetupGateways(IServiceCollection services)
+        {
             services.AddScoped<IDocumentGateway, DocumentGateway>();
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
+        }
 
-            services.AddScoped<IUploadDocumentUseCase, UploadDocumentUseCase>();
+        private void SetupUseCases(IServiceCollection services)
+        {
             services.AddScoped<IGetAllDocumentsUseCase, GetAllDocumentsUseCase>();
             services.AddScoped<ICreateDirectoryUseCase, CreateDirectoryUseCase>();
             services.AddScoped<IRenameDirectoryUseCase, RenameDirectoryUseCase>();
             services.AddScoped<IDeleteDirectoryUseCase, DeleteDirectoryUseCase>();
-            services.AddScoped<IGetDocumentLinkUseCase, GetDocumentLinkUseCase>();
+            services.AddScoped<IGetDocumentDownloadLinkUseCase, GetDocumentDownloadLinkUseCase>();
             services.AddScoped<IDeleteDocumentUseCase, DeleteDocumentUseCase>();
+            services.AddScoped<IGetDocumentUploadLinkUseCase, GetDocumentUploadLinkUseCase>();
+            services.AddScoped<IValidateUploadedDocumentUseCase, ValidateUploadedDocumentUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -63,9 +73,6 @@ namespace DocumentService
         {
             app.Map("/document-service", mainApp =>
             {
-
-            
-
                 if (env.IsDevelopment())
                 {
                     mainApp.UseDeveloperExceptionPage();

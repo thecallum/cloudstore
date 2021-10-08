@@ -17,24 +17,24 @@ using Xunit;
 
 namespace DocumentService.Tests.UseCase
 {
-    public class GetDocumentLinkUseCaseTests
+    public class GetDocumentDownloadLinkUseCaseTests
     {
-        private readonly IGetDocumentLinkUseCase _getDocumentLinkUseCase;
+        private readonly IGetDocumentDownloadLinkUseCase _getDocumentDownloadLinkUseCase;
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
 
         private readonly Fixture _fixture = new Fixture();
 
-        public GetDocumentLinkUseCaseTests()
+        public GetDocumentDownloadLinkUseCaseTests()
         {
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
 
-            _getDocumentLinkUseCase = new GetDocumentLinkUseCase(_mockS3Gateway.Object, _mockDocumentGateway.Object);
+            _getDocumentDownloadLinkUseCase = new GetDocumentDownloadLinkUseCase(_mockS3Gateway.Object, _mockDocumentGateway.Object);
         }
 
         [Fact]
-        public async Task GetDocumentLink_WhenDocumentNotFound_ThrowsException()
+        public async Task WhenDocumentNotFound_ThrowsException()
         {
             // Arrange
             var userId = Guid.NewGuid();
@@ -45,14 +45,14 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync((DocumentDb) null);
 
             // Act
-            Func<Task<string>> func = async () => await _getDocumentLinkUseCase.Execute(userId, documentId);
+            Func<Task<string>> func = async () => await _getDocumentDownloadLinkUseCase.Execute(userId, documentId);
 
             // Assert
             await func.Should().ThrowAsync<DocumentNotFoundException>();
         }
 
         [Fact]
-        public async Task GetDocumentLink_WhenDocumentFound_CallsGateway()
+        public async Task WhenDocumentFound_CallsGateway()
         {
             // Arrange
             var userId = Guid.NewGuid();
@@ -65,10 +65,10 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(document);
 
             // Act
-            var response = await _getDocumentLinkUseCase.Execute(userId, documentId);
+            var response = await _getDocumentDownloadLinkUseCase.Execute(userId, documentId);
 
             // Assert
-            _mockS3Gateway.Verify(x => x.GetDocumentPresignedUrl(document.S3Location), Times.Once);
+            _mockS3Gateway.Verify(x => x.GetDocumentDownloadPresignedUrl(document.S3Location, It.IsAny<string>()), Times.Once);
         }
     }
 }

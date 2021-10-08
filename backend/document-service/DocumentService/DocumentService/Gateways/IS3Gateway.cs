@@ -9,8 +9,10 @@ namespace DocumentService.Gateways
 {
     public interface IS3Gateway
     {
-        Task<DocumentUploadResponse> UploadDocument(UploadDocumentRequest request, Guid documentId, Guid userId);
-        string GetDocumentPresignedUrl(string key);
+        string GetDocumentDownloadPresignedUrl(string key, string fileName);
+        string GetDocumentUploadPresignedUrl(string key);
+        Task<DocumentUploadResponse> ValidateUploadedDocument(string key);
+        Task MoveDocumentToStoreDirectory(string key);
         Task DeleteDocument(string key);
     }
 }

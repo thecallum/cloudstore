@@ -94,7 +94,7 @@ namespace DocumentService.Tests.E2ETests
 
         private async Task<HttpResponseMessage> RenameDirectoryRequest(Guid id, RenameDirectoryRequest request)
         {
-            var uri = new Uri($"/api/directory/{id}", UriKind.Relative);
+            var uri = new Uri($"/document-service/api/directory/{id}", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

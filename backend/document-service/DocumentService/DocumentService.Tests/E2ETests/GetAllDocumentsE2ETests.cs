@@ -48,10 +48,9 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
 
-            uploadDocumentResponse.Documents.Should().HaveCount(0);
+            responseContent.Documents.Should().HaveCount(0);
         }
 
         [Fact]
@@ -77,10 +76,9 @@ namespace DocumentService.Tests.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             // test contents of response
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
 
-            uploadDocumentResponse.Documents.Should().HaveCount(numberOfDocuments);
+            responseContent.Documents.Should().HaveCount(numberOfDocuments);
         }
 
         [Fact]
@@ -95,10 +93,9 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
 
-            uploadDocumentResponse.Directories.Should().HaveCount(0);
+            responseContent.Directories.Should().HaveCount(0);
         }
 
         [Fact]
@@ -124,15 +121,14 @@ namespace DocumentService.Tests.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             // test contents of response
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var uploadDocumentResponse = System.Text.Json.JsonSerializer.Deserialize<GetAllDocumentsResponse>(responseContent, CreateJsonOptions());
+            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
 
-            uploadDocumentResponse.Directories.Should().HaveCount(numberOfDirectories);
+            responseContent.Directories.Should().HaveCount(numberOfDirectories);
         }
 
         private async Task<HttpResponseMessage> GetAllDocumentsRequest(GetAllDocumentsQuery query)
         {
-            var url = "/api/document";
+            var url = "/document-service/api/document";
 
             if (query.DirectoryId != null)  url += $"?directoryId={query.DirectoryId}";
 

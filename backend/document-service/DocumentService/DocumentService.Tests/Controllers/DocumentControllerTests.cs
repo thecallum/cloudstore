@@ -19,9 +19,10 @@ namespace DocumentService.Tests.Controllers
     public class DocumentControllerTests
     {
         private readonly DocumentController _documentController;
-        private readonly Mock<IUploadDocumentUseCase> _mockUploadDocumentUseCase;
+        private readonly Mock<IGetDocumentUploadLinkUseCase> _mockGetDocumentUploadLinkUseCase;
+        private readonly Mock<IValidateUploadedDocumentUseCase> _mockValidateUploadedDocumentUseCase;
         private readonly Mock<IGetAllDocumentsUseCase> _mockGetAllDocumentsUseCase;
-        private readonly Mock<IGetDocumentLinkUseCase> _mockGetDocumentLinkUseCase;
+        private readonly Mock<IGetDocumentDownloadLinkUseCase> _mockGetDocumentDownloadLinkUseCase;
         private readonly Mock<IDeleteDocumentUseCase> _mockDeleteDocumentUseCase;
 
         private readonly Fixture _fixture = new Fixture();
@@ -29,102 +30,18 @@ namespace DocumentService.Tests.Controllers
 
         public DocumentControllerTests()
         {
-            _mockUploadDocumentUseCase = new Mock<IUploadDocumentUseCase>();
+            _mockGetDocumentUploadLinkUseCase = new Mock<IGetDocumentUploadLinkUseCase>();
+            _mockValidateUploadedDocumentUseCase = new Mock<IValidateUploadedDocumentUseCase>();
             _mockGetAllDocumentsUseCase = new Mock<IGetAllDocumentsUseCase>();
-            _mockGetDocumentLinkUseCase = new Mock<IGetDocumentLinkUseCase>();
+            _mockGetDocumentDownloadLinkUseCase = new Mock<IGetDocumentDownloadLinkUseCase>();
             _mockDeleteDocumentUseCase = new Mock<IDeleteDocumentUseCase>();
 
             _documentController = new DocumentController(
-                _mockUploadDocumentUseCase.Object, 
                 _mockGetAllDocumentsUseCase.Object,
-                _mockGetDocumentLinkUseCase.Object,
+                _mockGetDocumentDownloadLinkUseCase.Object,
+                _mockGetDocumentUploadLinkUseCase.Object,
+                _mockValidateUploadedDocumentUseCase.Object, 
                 _mockDeleteDocumentUseCase.Object);
-        }
-
-        [Fact]
-        public async Task UploadDocument_WhenDirectoryNotFound_ReturnsNotFoundResponse()
-        {
-            // Arrange
-            var mockRequest = new UploadDocumentRequest
-            {
-                DirectoryId = Guid.NewGuid(),
-                FilePath = ""
-            };
-
-            var exception = new DirectoryNotFoundException();
-
-            _mockUploadDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<UploadDocumentRequest>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _documentController.UploadDocument(mockRequest);
-
-            // Assert
-            response.Should().BeOfType(typeof(NotFoundObjectResult));
-            (response as NotFoundObjectResult).Value.Should().Be(mockRequest.DirectoryId);
-        }
-
-        [Fact]
-        public async Task UploadDocument_WhenInvalidFilePathException_ReturnsBadRequest()
-        {
-            // Arrange
-            var mockRequest = _fixture.Create<UploadDocumentRequest>();
-
-            var exception = new InvalidFilePathException();
-
-            _mockUploadDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<UploadDocumentRequest>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _documentController.UploadDocument(mockRequest);
-
-            // Assert
-            response.Should().BeOfType(typeof(BadRequestResult));
-        }
-
-        [Fact]
-        public async Task UploadDocument_WhenFileTooLargeException_ReturnsBadRequest()
-        {
-            // Arrange
-            var mockRequest = _fixture.Create<UploadDocumentRequest>();
-
-            var exception = new FileTooLargeException();
-
-            _mockUploadDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<UploadDocumentRequest>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _documentController.UploadDocument(mockRequest);
-
-            // Assert
-            response.Should().BeOfType(typeof(BadRequestResult));
-        }
-
-        [Fact]
-        public async Task UploadDocument_NoException_ReturnsUploadDocumentResponse()
-        {
-            // Arrange
-            var mockRequest = _fixture.Create<UploadDocumentRequest>();
-
-            var uploadDocumentResponse = _fixture.Create<UploadDocumentResponse>();
-
-            _mockUploadDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<UploadDocumentRequest>(), It.IsAny<Guid>()))
-                .ReturnsAsync(uploadDocumentResponse);
-
-            // Act
-            var response = await _documentController.UploadDocument(mockRequest);
-
-            // Assert
-            response.Should().BeOfType(typeof(CreatedResult));
-            (response as CreatedResult).Value.Should().BeOfType(typeof(UploadDocumentResponse));
-
-            ((response as CreatedResult).Value as UploadDocumentResponse).Name.Should().Be(uploadDocumentResponse.Name);
-            ((response as CreatedResult).Value as UploadDocumentResponse).S3Location.Should().Be(uploadDocumentResponse.S3Location);
-            ((response as CreatedResult).Value as UploadDocumentResponse).DocumentId.Should().Be(uploadDocumentResponse.DocumentId);
         }
 
         [Fact]
@@ -248,19 +165,19 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetDocumentLink_WhenDocumentNotFound_ReturnsNotFound()
+        public async Task GetDocumentDownloadLink_WhenDocumentNotFound_ReturnsNotFound()
         {
             // Arrange
             var query = _fixture.Create<GetDocumentLinkQuery>();
 
             var exception = new DocumentNotFoundException();
 
-            _mockGetDocumentLinkUseCase
+            _mockGetDocumentDownloadLinkUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ThrowsAsync(exception);
 
             // Act
-            var response = await _documentController.GetDocumentLink(query);
+            var response = await _documentController.GetDocumentDownloadLink(query);
 
             // Assert
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -268,18 +185,18 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetDocumentLink_WhenValid_ReturnsGetDocumentResponse()
+        public async Task GetDocumentDownloadLink_WhenValid_ReturnsGetDocumentResponse()
         {
             // Arrange
             var query = _fixture.Create<GetDocumentLinkQuery>();
             var useCaseResponse = _fixture.Create<string>();
 
-            _mockGetDocumentLinkUseCase
+            _mockGetDocumentDownloadLinkUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _documentController.GetDocumentLink(query);
+            var response = await _documentController.GetDocumentDownloadLink(query);
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
@@ -317,6 +234,70 @@ namespace DocumentService.Tests.Controllers
 
             // Assert
             response.Should().BeOfType(typeof(NoContentResult));
+        }
+
+        [Fact]
+        public void GetDocumentUploadLink_WhenCalled_ReturnsLink()
+        {
+            // Arrange
+            var uploadResponseObject = new GetDocumentUploadResponse
+            {
+                UploadUrl = _fixture.Create<string>(),
+                DocumentId = Guid.NewGuid()
+            };
+
+            _mockGetDocumentUploadLinkUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .Returns(uploadResponseObject);
+
+            // Act
+            var response = _documentController.GetDocumentUploadLink();
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+
+            ((response as OkObjectResult).Value as GetDocumentUploadResponse).UploadUrl.Should().Be(uploadResponseObject.UploadUrl);
+            ((response as OkObjectResult).Value as GetDocumentUploadResponse).DocumentId.Should().Be(uploadResponseObject.DocumentId);
+        }
+
+        [Fact]
+        public async Task ValidateUploadedDocument_WhenDocumentNotDoesntExist_Returns404NotFound()
+        {
+            // Arrange
+            var query = _fixture.Create<ValidateUploadedDocumentQuery>();
+            var request = _fixture.Create<ValidateUploadedDocumentRequest>();
+
+            _mockValidateUploadedDocumentUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .ReturnsAsync((Document) null);
+
+            // Act
+            var response = await _documentController.ValidateUploadedDocument(query, request);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.DocumentId);
+        }
+
+        [Fact]
+        public async Task ValidateUploadedDocument_WhenDocumentExists_ReturnsCreatedResponse()
+        {
+            // Arrange
+            var query = _fixture.Create<ValidateUploadedDocumentQuery>();
+            var request = _fixture.Create<ValidateUploadedDocumentRequest>();
+
+            var document = _fixture.Create<Document>();
+
+            _mockValidateUploadedDocumentUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .ReturnsAsync(document);
+
+            // Act
+            var response = await _documentController.ValidateUploadedDocument(query, request);
+
+            // Assert
+            response.Should().BeOfType(typeof(CreatedResult));
+            (response as CreatedResult).Value.Should().Be(document);
         }
     }
 }

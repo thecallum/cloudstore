@@ -11,5 +11,10 @@
   "framework": "netcoreapp3.1",
   "s3-prefix": "DocumentService/",
   "template": "serverless.template",
-  "template-parameters": ""
+  "function-runtime": "dotnetcore3.1",
+  "template-parameters": "",
+  "function-memory-size": 256,
+  "function-timeout": 30,
+  "function-handler": "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
+}
 }

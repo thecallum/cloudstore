@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DocumentService.UseCase.Interfaces
 {
-    public interface IGetDocumentLinkUseCase
+    public interface IGetDocumentDownloadLinkUseCase
     {
         Task<string> Execute(Guid userId, Guid documentId);
     }

@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using Xunit;
 using AutoFixture;
 using DocumentService.Tests.Helpers;
+using System.Net.Http;
+using RestSharp;
+using System.Net;
 
 namespace DocumentService.Tests.Gateways
 {
@@ -34,66 +37,18 @@ namespace DocumentService.Tests.Gateways
         }
 
         [Fact]
-        public async Task UploadDocument_WhenFilePathIsInvalid_ThrowsException()
+        public async Task GetDocumentDownloadLink_WhenCalled_ReturnsValidUrl()
         {
-            // Arrange
-            var documentId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var mockRequest = new UploadDocumentRequest { FilePath = "nonExistentFile.jpg" };
+            // Potentially implement test on downloading the file
 
-            // Act
-            Func<Task<DocumentUploadResponse>> func = async () => await _s3Gateway.UploadDocument(mockRequest, documentId, userId);
-
-            // Assert
-            await func.Should().ThrowAsync<InvalidFilePathException>();
-        }
-
-        [Fact]
-        public async Task UploadDocument_WhenFileTooLarge_ThrowsException()
-        {
-            // Arrange
-            var documentId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var mockRequest = new UploadDocumentRequest { FilePath = _tooLargeFilePath };
-
-            // Act
-            Func<Task<DocumentUploadResponse>> func = async () => await _s3Gateway.UploadDocument(mockRequest, documentId, userId);
-
-            // Assert
-            await func.Should().ThrowAsync<FileTooLargeException>();
-        }
-
-        [Fact]
-        public async Task UploadDocument_WhenValid_UploadsDocument()
-        {
-            // Arrange
-            var documentId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var mockRequest = new UploadDocumentRequest { FilePath = _validFilePath };
-
-            // Act
-            var response = await _s3Gateway.UploadDocument(mockRequest, documentId, userId);
-
-            // Assert
-            response.Should().NotBeNull();
-
-            response.DocumentName.Should().Be("validfile.txt");
-            response.S3Location.Should().Be($"{userId}/{documentId}");
-            response.FileSize.Should().Be(200);
-
-            await _s3TestHelper.VerifyDocumentUploadedToS3($"{userId}/{documentId}");
-        }
-
-        [Fact]
-        public async Task GetDocumentPresignedUrl_WhenCalled_ReturnsValidUrl()
-        {
             // Arrange
             var key = _fixture.Create<string>();
+            var fileName = "file.txt";
 
             await _s3TestHelper.UploadDocumentToS3(key, _validFilePath);
 
             // Act
-            var response = _s3Gateway.GetDocumentPresignedUrl(key);
+            var response = _s3Gateway.GetDocumentDownloadPresignedUrl(key, fileName);
 
             // Assert
             response.Should().NotBeNull();
@@ -113,6 +68,80 @@ namespace DocumentService.Tests.Gateways
 
             // Assert
             await _s3TestHelper.VerifyDocumentDeletedFromS3(key);
+        }
+
+        [Fact]
+        public async Task GetDocumentUploadPresignedUrl_WhenCalled_EnablesFileUploadToS3()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            // Act
+            var uploadUrl = _s3Gateway.GetDocumentUploadPresignedUrl(key);
+
+            _s3TestHelper.TestUploadWithPresignedUrl(uploadUrl, _validFilePath);
+
+            // Assert
+            await _s3TestHelper.VerifyDocumentUploadedToS3($"upload/{key}");
+        }
+
+        [Fact]
+        public async Task ValidateUploadedDocument_WhenDocumentDoesntExist_ReturnsNull()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            // Act
+            var result = await _s3Gateway.ValidateUploadedDocument(key);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task ValidateUploadedDocument_WhenDocumentExists_ReturnsFileSize()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
+
+            // Act
+            var result = await _s3Gateway.ValidateUploadedDocument(key);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.FileSize.Should().Be(200);
+        }
+
+        [Fact]
+        public async Task MoveDocumentToStoreDirectory_WhenCalled_MovesDocumentToStoreDirectory()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
+
+            // Act
+            await _s3Gateway.MoveDocumentToStoreDirectory(key);
+
+            // Assert
+            await _s3TestHelper.VerifyDocumentUploadedToS3($"store/{key}");
+        }
+
+        [Fact]
+        public async Task MoveDocumentToStoreDirectory_WhenCalled_DeletesDocumentFromUploadDirectory()
+        {
+            // Arrange
+            var key = _fixture.Create<string>();
+
+            await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
+
+            // Act
+            await _s3Gateway.MoveDocumentToStoreDirectory(key);
+
+            // Assert
+            await _s3TestHelper.VerifyDocumentDeletedFromS3($"upload/{key}");
         }
     }
 }

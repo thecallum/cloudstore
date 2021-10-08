@@ -68,7 +68,7 @@ namespace DocumentService.Tests.E2ETests
 
         private async Task<HttpResponseMessage> DeleteDocumentRequest(Guid documentId)
         {
-            var uri = new Uri($"/api/document/{documentId}", UriKind.Relative);
+            var uri = new Uri($"/document-service/api/document/{documentId}", UriKind.Relative);
 
             var response = await _httpClient.DeleteAsync(uri).ConfigureAwait(false);
 

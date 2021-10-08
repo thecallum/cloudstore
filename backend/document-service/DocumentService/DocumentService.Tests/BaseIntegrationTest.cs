@@ -84,5 +84,13 @@ namespace DocumentService.Tests
             options.Converters.Add(new JsonStringEnumConverter());
             return options;
         }
+
+        public async Task<T> DecodeResponse<T>(HttpResponseMessage response)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseObject = System.Text.Json.JsonSerializer.Deserialize<T>(responseContent, CreateJsonOptions());
+
+            return responseObject;
+        }
     }
 }

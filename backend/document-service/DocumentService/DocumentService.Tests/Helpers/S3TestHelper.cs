@@ -1,9 +1,11 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DocumentService.Tests.Helpers
@@ -81,6 +83,25 @@ namespace DocumentService.Tests.Helpers
                 };
 
                 await _s3Client.PutObjectAsync(s3Request);
+            }
+        }
+
+        public void TestUploadWithPresignedUrl(string url, string filePath)
+        {
+            // ignore ssl errors
+            ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, certificate, chain, sslPolicyErrors) => true;
+
+            var client = new RestClient(url);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.PUT);
+            request.AddHeader("Content-Type", "application/octet-stream");
+            request.AddParameter("application/octet-stream", filePath, ParameterType.RequestBody);
+            IRestResponse response = client.Execute(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Request failed");
             }
         }
     }

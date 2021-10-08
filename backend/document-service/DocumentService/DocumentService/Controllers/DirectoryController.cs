@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/directory")]
     [ApiController]
     public class DirectoryController : ControllerBase
     {

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DocumentService.UseCase.Interfaces
 {
-    public class GetDocumentLinkUseCase : IGetDocumentLinkUseCase
+    public class GetDocumentDownloadLinkUseCase : IGetDocumentDownloadLinkUseCase
     {
         private readonly IS3Gateway _s3Gateway;
         private readonly IDocumentGateway _documentGateway;
 
-        public GetDocumentLinkUseCase(IS3Gateway s3Gateway, IDocumentGateway documentGateway)
+        public GetDocumentDownloadLinkUseCase(IS3Gateway s3Gateway, IDocumentGateway documentGateway)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
@@ -23,7 +23,7 @@ namespace DocumentService.UseCase.Interfaces
             var existingDocument = await _documentGateway.GetDocumentById(userId, documentId);
             if (existingDocument == null) throw new DocumentNotFoundException();
 
-            return _s3Gateway.GetDocumentPresignedUrl(existingDocument.S3Location);
+            return _s3Gateway.GetDocumentDownloadPresignedUrl(existingDocument.S3Location, existingDocument.Name);
         }
 
     }
