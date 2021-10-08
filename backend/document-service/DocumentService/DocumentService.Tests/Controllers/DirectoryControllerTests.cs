@@ -22,6 +22,7 @@ namespace DocumentService.Tests.Controllers
         private readonly Mock<ICreateDirectoryUseCase> _mockCreateDirectoryUseCase;
         private readonly Mock<IRenameDirectoryUseCase> _mockRenameDirectoryUseCase;
         private readonly Mock<IDeleteDirectoryUseCase> _mockDeleteDirectoryUseCase;
+        private readonly Mock<IGetAllDirectoriesUseCase> _mockGetAllDirectoriesUseCase;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Random _random = new Random();
@@ -31,8 +32,13 @@ namespace DocumentService.Tests.Controllers
             _mockCreateDirectoryUseCase = new Mock<ICreateDirectoryUseCase>();
             _mockRenameDirectoryUseCase = new Mock<IRenameDirectoryUseCase>();
             _mockDeleteDirectoryUseCase = new Mock<IDeleteDirectoryUseCase>();
+            _mockGetAllDirectoriesUseCase = new Mock<IGetAllDirectoriesUseCase>();
 
-            _directoryController = new DirectoryController(_mockCreateDirectoryUseCase.Object, _mockRenameDirectoryUseCase.Object, _mockDeleteDirectoryUseCase.Object);
+            _directoryController = new DirectoryController(
+                _mockCreateDirectoryUseCase.Object, 
+                _mockRenameDirectoryUseCase.Object, 
+                _mockDeleteDirectoryUseCase.Object,
+                _mockGetAllDirectoriesUseCase.Object);
         }
 
         [Fact]
@@ -158,6 +164,76 @@ namespace DocumentService.Tests.Controllers
             response.Should().BeOfType(typeof(OkResult));
 
             _mockDeleteDirectoryUseCase.Verify(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()));
+        }
+
+        [Fact]
+        public async Task GetAllDirectories_WhenDirectoryDoesntExist_ReturnsNotFound()
+        {
+            // Arrange
+            var query = new GetAllDirectoriesQuery { DirectoryId = Guid.NewGuid() };
+
+            var exception = new DirectoryNotFoundException();
+
+            _mockGetAllDirectoriesUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _directoryController.GetAllDirectories(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.DirectoryId);
+        }
+
+        [Fact]
+        public async Task GetAllDirectories_WhenNoDirectoriesExist_ReturnsNoDirectories()
+        {
+            // Arrange
+            var query = new GetAllDirectoriesQuery { DirectoryId = null };
+
+            var useCaseResponse = new GetAllDirectoriesResponse
+            {
+                Directories = new List<Directory>()
+            };
+
+            _mockGetAllDirectoriesUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _directoryController.GetAllDirectories(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDirectoriesResponse));
+            ((response as OkObjectResult).Value as GetAllDirectoriesResponse).Directories.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public async Task GetAllDirectories_WhenManyDirectoriesExist_ReturnsManyDirectories()
+        {
+            // Arrange
+            var query = new GetAllDirectoriesQuery { DirectoryId = null };
+
+            var numberOfDirectories = _random.Next(2, 5);
+
+            var useCaseResponse = new GetAllDirectoriesResponse
+            {
+                Directories = _fixture.CreateMany<Directory>(numberOfDirectories).ToList()
+            };
+
+            _mockGetAllDirectoriesUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _directoryController.GetAllDirectories(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetAllDirectoriesResponse));
+            ((response as OkObjectResult).Value as GetAllDirectoriesResponse).Directories.Should().HaveCount(numberOfDirectories);
         }
     }
 }

@@ -21,23 +21,7 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenDirectoryDoesntExist_ReturnsNotFound()
-        {
-            // Arrange
-            var query = new GetAllDocumentsQuery
-            {
-                DirectoryId = Guid.NewGuid()
-            };
-
-            // Act
-            var response = await GetAllDocumentsRequest(query);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        [Fact]
-        public async Task GetAllDocuments_WhenNoDocumentsExist_ReturnsNoDocuments()
+        public async Task WhenNoDocumentsExist_ReturnsNoDocuments()
         {
             // Arrange
             var query = new GetAllDocumentsQuery { DirectoryId = null };
@@ -54,7 +38,7 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task GetAllDocuments_WhenManyDocumentsExist_ReturnsManyDocuments()
+        public async Task WhenManyDocumentsExist_ReturnsManyDocuments()
         {
             // Arrange
             var query = new GetAllDocumentsQuery { DirectoryId = null };
@@ -79,51 +63,6 @@ namespace DocumentService.Tests.E2ETests
             var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
 
             responseContent.Documents.Should().HaveCount(numberOfDocuments);
-        }
-
-        [Fact]
-        public async Task GetAllDocuments_WhenNoDirectoriesExist_ReturnsNoDirectories()
-        {
-            // Arrange
-            var query = new GetAllDocumentsQuery { DirectoryId = null };
-
-            // Act
-            var response = await GetAllDocumentsRequest(query);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
-
-            responseContent.Directories.Should().HaveCount(0);
-        }
-
-        [Fact]
-        public async Task GetAllDocuments_WhenManyDirectoriesExist_ReturnsManyDirectories()
-        {
-            // Arrange
-            var query = new GetAllDocumentsQuery { DirectoryId = null };
-            var userId = Guid.Parse("851944df-ac6a-43f1-9aac-f146f19078ed");
-
-            var numberOfDirectories = _random.Next(2, 5);
-            var mockDirectories = _fixture
-                .Build<DirectoryDb>()
-                .With(x => x.UserId, userId)
-                .With(x => x.ParentDirectoryId, userId)
-                .CreateMany(numberOfDirectories);
-
-            await SetupTestData(mockDirectories);
-
-            // Act
-            var response = await GetAllDocumentsRequest(query);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            // test contents of response
-            var responseContent = await DecodeResponse<GetAllDocumentsResponse>(response);
-
-            responseContent.Directories.Should().HaveCount(numberOfDirectories);
         }
 
         private async Task<HttpResponseMessage> GetAllDocumentsRequest(GetAllDocumentsQuery query)

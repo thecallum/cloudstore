@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Boundary.Response
 {
-    public class GetAllDocumentsResponse
+    public class GetAllDirectoriesResponse
     {
-        public List<Document> Documents { get; set; }
+        public List<Directory> Directories { get; set; }
     }
 }

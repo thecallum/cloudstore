@@ -1,4 +1,5 @@
 ﻿using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -20,17 +21,19 @@ namespace DocumentService.Controllers
         private readonly ICreateDirectoryUseCase _createDirectoryUseCase;
         private readonly IRenameDirectoryUseCase _renameDirectoryUseCase;
         private readonly IDeleteDirectoryUseCase _delteDirectoryUseCase;
+        private readonly IGetAllDirectoriesUseCase _getAllDirectoriesUseCase;
 
         public DirectoryController(
             ICreateDirectoryUseCase createDirectoryUseCase,
             IRenameDirectoryUseCase renameDirectoryUseCase,
-            IDeleteDirectoryUseCase delteDirectoryUseCase)
+            IDeleteDirectoryUseCase delteDirectoryUseCase,
+            IGetAllDirectoriesUseCase getAllDirectoriesUseCase)
         {
             _createDirectoryUseCase = createDirectoryUseCase;
             _renameDirectoryUseCase = renameDirectoryUseCase;
             _delteDirectoryUseCase = delteDirectoryUseCase;
+            _getAllDirectoriesUseCase = getAllDirectoriesUseCase;
         }
-
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -89,6 +92,25 @@ namespace DocumentService.Controllers
 
                 // any unknown exception
                 throw e;
+            }
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(GetAllDirectoriesResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // directory not found
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> GetAllDirectories([FromQuery] GetAllDirectoriesQuery query)
+        {
+            try
+            {
+                var response = await _getAllDirectoriesUseCase.Execute(_userId, query);
+                return Ok(response);
+
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return NotFound(query.DirectoryId);
             }
         }
     }
