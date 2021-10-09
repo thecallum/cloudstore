@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService;
 
 namespace DocumentService.Middleware
 {
@@ -18,11 +19,11 @@ namespace DocumentService.Middleware
 
         public async Task Invoke(HttpContext httpContext)
         {
-            var tokenService = new TokenService();
+            var tokenService = new TokenService.TokenService();
 
             try
             {
-                var tokenValue = httpContext.Request.Headers["authorizationToken"];
+                var tokenValue = httpContext.Request.Headers[TokenService.Constants.AuthToken];
 
                 var payload = tokenService.DecodeToken(tokenValue);
 

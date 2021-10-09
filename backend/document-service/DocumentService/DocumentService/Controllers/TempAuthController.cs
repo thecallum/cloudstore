@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 
 namespace DocumentService.Controllers
 {
-
-
     [Route("api/auth")]
     [ApiController]
     public class TempAuthController : ControllerBase
@@ -17,7 +16,7 @@ namespace DocumentService.Controllers
         [HttpPost]
         public async Task<IActionResult> GetToken()
         {
-            var tokenService = new TokenService("askdjhaskjdasjkldasjkd");
+            var tokenService = new TokenService.TokenService("askdjhaskjdasjkldasjkd");
 
             var defaultPayload = new Payload
             {
