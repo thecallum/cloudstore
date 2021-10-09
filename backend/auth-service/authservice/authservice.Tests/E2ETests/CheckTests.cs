@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using authservice.Infrastructure;
-using authservice.JWT;
 using AutoFixture;
 using FluentAssertions;
+using TokenService.Models;
 using Xunit;
 
 namespace authservice.Tests.E2ETests
@@ -25,7 +25,7 @@ namespace authservice.Tests.E2ETests
 
         private readonly DatabaseFixture<Startup> _testFixture;
 
-        private readonly TokenService _tokenService;
+        private readonly TokenService.TokenService _tokenService;
 
         public CheckTests(DatabaseFixture<Startup> testFixture)
         {
@@ -36,7 +36,7 @@ namespace authservice.Tests.E2ETests
 
             _httpClient = testFixture.Client;
 
-            _tokenService = new TokenService(Environment.GetEnvironmentVariable("SECRET"));
+            _tokenService = new TokenService.TokenService(Environment.GetEnvironmentVariable("SECRET"));
         }
 
         public void Dispose()

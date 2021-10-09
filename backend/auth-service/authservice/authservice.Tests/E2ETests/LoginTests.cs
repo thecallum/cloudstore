@@ -8,10 +8,10 @@ using Amazon.DynamoDBv2.DataModel;
 using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Infrastructure;
-using authservice.JWT;
 using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
+using TokenService;
 using Xunit;
 
 namespace authservice.Tests.E2ETests
@@ -65,7 +65,7 @@ namespace authservice.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            response.Headers.Should().NotContainKey(HeaderConstants.AuthToken);
+            response.Headers.Should().NotContainKey(Constants.AuthToken);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace authservice.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            response.Headers.Should().NotContainKey(HeaderConstants.AuthToken);
+            response.Headers.Should().NotContainKey(Constants.AuthToken);
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace authservice.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-            response.Headers.Should().NotContainKey(HeaderConstants.AuthToken);
+            response.Headers.Should().NotContainKey(Constants.AuthToken);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace authservice.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Headers.Should().ContainKey(HeaderConstants.AuthToken);
+            response.Headers.Should().ContainKey(Constants.AuthToken);
         }
 
         private string CreateHash(string password)

@@ -2,7 +2,7 @@
 using authservice.Boundary.Request;
 using authservice.Domain;
 using authservice.Infrastructure;
-using authservice.JWT;
+using TokenService.Models;
 
 namespace authservice.Factories
 {

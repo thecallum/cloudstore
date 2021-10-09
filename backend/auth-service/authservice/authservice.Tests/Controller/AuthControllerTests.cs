@@ -4,13 +4,14 @@ using authservice.Controllers;
 using authservice.Domain;
 using authservice.Encryption;
 using authservice.Infrastructure.Exceptions;
-using authservice.JWT;
 using authservice.UseCase.Interfaces;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using TokenService;
+using TokenService.Models;
 using Xunit;
 
 namespace authservice.Tests.Controller
@@ -61,7 +62,7 @@ namespace authservice.Tests.Controller
 
             // Assert
             result.Should().BeOfType(typeof(NotFoundObjectResult));
-            _authController.Response.Headers.Should().NotContainKey(HeaderConstants.AuthToken);
+            _authController.Response.Headers.Should().NotContainKey(Constants.AuthToken);
         }
 
         [Fact]
@@ -81,7 +82,7 @@ namespace authservice.Tests.Controller
 
             // Assert
             result.Should().BeOfType(typeof(UnauthorizedResult));
-            _authController.Response.Headers.Should().NotContainKey(HeaderConstants.AuthToken);
+            _authController.Response.Headers.Should().NotContainKey(Constants.AuthToken);
         }
 
         [Fact]
@@ -105,7 +106,7 @@ namespace authservice.Tests.Controller
 
             // Assert
             result.Should().BeOfType(typeof(OkResult));
-            _authController.Response.Headers[HeaderConstants.AuthToken].Should().Equal(tokenToReturn);
+            _authController.Response.Headers[Constants.AuthToken].Should().Equal(tokenToReturn);
         }
 
         [Fact]

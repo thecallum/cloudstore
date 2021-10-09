@@ -3,10 +3,10 @@ using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Factories;
 using authservice.Infrastructure.Exceptions;
-using authservice.JWT;
 using authservice.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TokenService;
 
 namespace authservice.Controllers
 {
@@ -53,7 +53,7 @@ namespace authservice.Controllers
 
             var payload = user.ToPayload();
             var token = _tokenService.CreateToken(payload);
-            Response.Headers.Add(HeaderConstants.AuthToken, token);
+            Response.Headers.Add(Constants.AuthToken, token);
 
             return Ok();
         }
