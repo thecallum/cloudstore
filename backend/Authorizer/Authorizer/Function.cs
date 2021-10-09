@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Amazon.CDK.AWS.IAM;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using TokenService;
+using TokenService.Models;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -13,10 +15,20 @@ namespace Authorizer
 {
     public class Function
     {
+        private readonly ITokenService _tokenService;
+
+        public Function()
+        {
+            _tokenService = new TokenService.TokenService(Environment.GetEnvironmentVariable("SECRET"));
+        }
+
         public APIGatewayCustomAuthorizerResponse FunctionHandler(APIGatewayCustomAuthorizerRequest apigAuthRequest, ILambdaContext context)
         {
-            var authStatus = true;
-            var token = "___token___";
+            var token = apigAuthRequest.AuthorizationToken;
+
+            var payload = _tokenService.ValidateToken(token);
+
+            bool authStatus = payload != null;
 
             return GenerateResponse(authStatus, token);
         }
