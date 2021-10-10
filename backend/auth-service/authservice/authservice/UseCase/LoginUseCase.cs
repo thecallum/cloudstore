@@ -2,6 +2,7 @@
 using authservice.Domain;
 using authservice.Factories;
 using authservice.Gateways;
+using authservice.Logging;
 using authservice.UseCase.Interfaces;
 
 namespace authservice.UseCase
@@ -17,6 +18,8 @@ namespace authservice.UseCase
 
         public async Task<User> Execute(string email)
         {
+            LogHelper.LogUseCase("LoginUseCase");
+
             var user = await _userGateway.GetUserByEmailAddress(email).ConfigureAwait(false);
             if (user == null) return null;
 

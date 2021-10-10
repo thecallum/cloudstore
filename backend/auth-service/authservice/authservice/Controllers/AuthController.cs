@@ -3,6 +3,7 @@ using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Factories;
 using authservice.Infrastructure.Exceptions;
+using authservice.Logging;
 using authservice.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,8 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] LoginRequestObject requestObject)
         {
+            LogHelper.LogController("Login");
+
             var user = await _loginUseCase.Execute(requestObject.Email);
             if (user == null) return NotFound(requestObject.Email);
 
@@ -65,6 +68,8 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register([FromBody] RegisterRequestObject requestObject)
         {
+            LogHelper.LogController("Register");
+
             try
             {
                 var hash = _hashService.Hash(requestObject.Password);
@@ -87,6 +92,8 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAccount([FromHeader] string token)
         {
+            LogHelper.LogController("Delete");
+
             var validToken = _tokenService.ValidateToken(token);
             if (validToken == false) return Unauthorized();
 
@@ -111,6 +118,8 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CheckAuth([FromHeader] string authorizationToken)
         {
+            LogHelper.LogController("CheckAuth");
+
             var validToken = _tokenService.ValidateToken(authorizationToken);
             if (validToken == false) return Unauthorized();
 

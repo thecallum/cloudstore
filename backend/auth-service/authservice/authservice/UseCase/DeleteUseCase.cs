@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using authservice.Gateways;
+using authservice.Logging;
 using authservice.UseCase.Interfaces;
 
 namespace authservice.UseCase
@@ -15,6 +16,8 @@ namespace authservice.UseCase
 
         public async Task Execute(string email)
         {
+            LogHelper.LogUseCase("DeleteUseCase");
+
             await _userGateway.DeleteUser(email);
         }
     }

@@ -4,6 +4,7 @@ using authservice.Domain;
 using authservice.Factories;
 using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
+using authservice.Logging;
 
 namespace authservice.Gateways
 {
@@ -18,6 +19,8 @@ namespace authservice.Gateways
 
         public async Task DeleteUser(string email)
         {
+            LogHelper.LogGateway("UserGateway", "DeleteUser");
+
             var user = await LoadUser(email);
             if (user == null) throw new UserNotFoundException(email);
 
@@ -26,11 +29,15 @@ namespace authservice.Gateways
 
         public async Task<UserDb> GetUserByEmailAddress(string email)
         {
+            LogHelper.LogGateway("UserGateway", "GetUserByEmailAddress");
+
             return await LoadUser(email);
         }
 
         public async Task RegisterUser(User newUser)
         {
+            LogHelper.LogGateway("UserGateway", "RegisterUser");
+
             var user = await LoadUser(newUser.Email);
             if (user != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
 
@@ -39,6 +46,8 @@ namespace authservice.Gateways
 
         public async Task<UserDb> LoadUser(string email)
         {
+            LogHelper.LogGateway("UserGateway", "LoadUser");
+
             return await _context.LoadAsync<UserDb>(email).ConfigureAwait(false);
         }
     }
