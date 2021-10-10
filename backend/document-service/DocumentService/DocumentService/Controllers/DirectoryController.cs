@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using DocumentService.Middleware;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +41,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateDirectory([FromBody] CreateDirectoryRequest request)
         {
+            LogHelper.LogController("CreateDirectory");
+
             var user = (User)HttpContext.Items["user"];
 
             var directoryId = await _createDirectoryUseCase.Execute(request, user.Id);
@@ -55,6 +58,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RenameDirectory([FromRoute] RenameDirectoryQuery query, [FromBody] RenameDirectoryRequest request)
         {
+            LogHelper.LogController("RenameDirectory");
+
             var user = (User)HttpContext.Items["user"];
 
             try
@@ -75,6 +80,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDirectory([FromRoute] DeleteDirectoryQuery query)
         {
+            LogHelper.LogController("DeleteDirectory");
+
             var user = (User)HttpContext.Items["user"];
 
             try
@@ -104,9 +111,10 @@ namespace DocumentService.Controllers
         [ProducesResponseType(typeof(GetAllDirectoriesResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)] // directory not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
         public async Task<IActionResult> GetAllDirectories([FromQuery] GetAllDirectoriesQuery query)
         {
+            LogHelper.LogController("GetAllDirectories");
+
             var user = (User)HttpContext.Items["user"];
 
             try

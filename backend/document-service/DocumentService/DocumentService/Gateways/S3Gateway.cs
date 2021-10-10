@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using DocumentService.Boundary.Request;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,8 @@ namespace DocumentService.Gateways
 
         public async Task DeleteDocument(string key)
         {
+            LogHelper.LogGateway("S3Gateway", "DeleteDocument");
+
             var request = new DeleteObjectRequest
             {
                 BucketName = _bucketName,
@@ -46,6 +49,8 @@ namespace DocumentService.Gateways
 
         public string GetDocumentUploadPresignedUrl(string key)
         {
+            LogHelper.LogGateway("S3Gateway", "GetDocumentUploadPresignedUrl");
+
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
@@ -60,6 +65,8 @@ namespace DocumentService.Gateways
 
         public string GetDocumentDownloadPresignedUrl(string key, string fileName)
         {
+            LogHelper.LogGateway("S3Gateway", "GetDocumentDownloadPresignedUrl");
+
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
@@ -78,6 +85,8 @@ namespace DocumentService.Gateways
 
         public async Task<DocumentUploadResponse> ValidateUploadedDocument(string key)
         {
+            LogHelper.LogGateway("S3Gateway", "ValidateUploadedDocument");
+
             var request = new GetObjectMetadataRequest
             {
                 BucketName = _bucketName,
@@ -101,6 +110,8 @@ namespace DocumentService.Gateways
 
         public async Task MoveDocumentToStoreDirectory(string key)
         {
+            LogHelper.LogGateway("S3Gateway", "MoveDocumentToStoreDirectory");
+
             await MoveDocument(key);
             await DeleteUploadDocument(key);
         }

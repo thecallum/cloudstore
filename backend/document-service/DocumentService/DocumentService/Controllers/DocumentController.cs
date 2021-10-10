@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using DocumentService.Middleware;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -45,6 +46,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetDocumentUploadLink()
         {
+            LogHelper.LogController("GetDocumentUploadLink");
+
             var user = (User)HttpContext.Items["user"];
 
             var response = _getDocumentUploadLinkUseCase.Execute(user.Id);
@@ -59,6 +62,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ValidateUploadedDocument([FromRoute] ValidateUploadedDocumentQuery query, [FromBody] ValidateUploadedDocumentRequest request)
         {
+            LogHelper.LogController("ValidateUploadedDocument");
+
             var user = (User)HttpContext.Items["user"];
 
             var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
@@ -73,6 +78,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllDocuments([FromQuery] GetAllDocumentsQuery query)
         {
+            LogHelper.LogController("GetAllDocuments");
+
             var user = (User)HttpContext.Items["user"];
 
             try
@@ -95,6 +102,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDocument([FromRoute] DeleteDocumentRequest request)
         {
+            LogHelper.LogController("DeleteDocument");
+
             var user = (User)HttpContext.Items["user"];
 
             try
@@ -118,6 +127,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDocumentDownloadLink([FromRoute] GetDocumentLinkQuery query)
         {
+            LogHelper.LogController("GetDocumentDownloadLink");
+
             var user = (User)HttpContext.Items["user"];
 
             try

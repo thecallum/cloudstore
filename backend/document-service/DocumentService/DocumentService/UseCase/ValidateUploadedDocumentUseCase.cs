@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Domain;
 using DocumentService.Gateways;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace DocumentService.UseCase
 
         public async Task<Document> Execute(Guid userId, Guid documentId, ValidateUploadedDocumentRequest request)
         {
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase");
+
             var key = $"{userId}/{documentId}";
 
             var documentUploadResponse = await _s3Gateway.ValidateUploadedDocument(key);

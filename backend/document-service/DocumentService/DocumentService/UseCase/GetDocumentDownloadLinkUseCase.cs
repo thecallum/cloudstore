@@ -1,5 +1,6 @@
 ﻿using DocumentService.Gateways;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace DocumentService.UseCase.Interfaces
 
         public async Task<string> Execute(Guid userId, Guid documentId)
         {
+            LogHelper.LogUseCase("GetDocumentDownloadLinkUseCase");
+
             var existingDocument = await _documentGateway.GetDocumentById(userId, documentId);
             if (existingDocument == null) throw new DocumentNotFoundException();
 

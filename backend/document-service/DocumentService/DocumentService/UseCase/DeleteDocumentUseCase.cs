@@ -1,4 +1,5 @@
 ﻿using DocumentService.Gateways;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,8 @@ namespace DocumentService.UseCase
 
         public async Task Execute(Guid userId, Guid documentId)
         {
+            LogHelper.LogUseCase("DeleteDocumentUseCase");
+
             var document = await _documentGateway.DeleteDocument(userId, documentId);
 
             await _s3Gateway.DeleteDocument(document.S3Location);

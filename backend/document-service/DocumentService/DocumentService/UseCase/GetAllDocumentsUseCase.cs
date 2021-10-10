@@ -4,6 +4,7 @@ using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace DocumentService.UseCase
 
         public async Task<GetAllDocumentsResponse> Execute(Guid userId, GetAllDocumentsQuery query)
         {
+            LogHelper.LogUseCase("GetAllDocumentsUseCase");
+
             var documents = new List<Document>();
 
             var documentGatewayResponse = await _documentGateway.GetAllDocuments(userId, query.DirectoryId);

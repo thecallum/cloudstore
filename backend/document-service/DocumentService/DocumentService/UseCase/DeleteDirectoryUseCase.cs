@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace DocumentService.UseCase
 
         public async Task Execute(DeleteDirectoryQuery query, Guid userId)
         {
+            LogHelper.LogUseCase("DeleteDirectoryUseCase");
+
             var directoryContainsFiles = await _documentGateway.DirectoryContainsFiles(userId, query.DirectoryId);
 
             // Need to implement recursive delete functionality, but it is too complicated for now

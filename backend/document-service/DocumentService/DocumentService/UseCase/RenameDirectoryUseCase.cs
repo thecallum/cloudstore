@@ -1,5 +1,6 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Gateways;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace DocumentService.UseCase
 
         public async Task Execute(RenameDirectoryQuery query, RenameDirectoryRequest request, Guid userId)
         {
+            LogHelper.LogUseCase("RenameDirectoryUseCase");
+
             await _directoryGateway.RenameDirectory(request.Name, query.Id, userId);
         }
     }

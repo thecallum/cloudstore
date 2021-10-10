@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Factories;
 using DocumentService.Gateways;
+using DocumentService.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace DocumentService.UseCase.Interfaces
 
         public async Task<Guid> Execute(CreateDirectoryRequest request, Guid userId)
         {
+            LogHelper.LogUseCase("CreateDirectoryUseCase");
+
             var directory = request.ToDomain(userId);
 
             await _directoryGateway.CreateDirectory(directory);

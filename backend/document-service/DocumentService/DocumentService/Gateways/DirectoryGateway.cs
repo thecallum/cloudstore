@@ -6,6 +6,7 @@ using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace DocumentService.Gateways
 
         public async Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId)
         {
+            LogHelper.LogGateway("DirectoryGateway", "CheckDirectoryExists");
+
             var existingDirectory = await LoadDirectory(directoryId, userId);
 
             return existingDirectory != null;
@@ -31,6 +34,8 @@ namespace DocumentService.Gateways
 
         public async Task<bool> ContainsChildDirectories(Guid directoryId, Guid userId)
         {
+            LogHelper.LogGateway("DirectoryGateway", "ContainsChildDirectories");
+
             var directories = await GetAllDirectories(userId, directoryId);
 
             return directories.Count() > 0;
@@ -38,11 +43,15 @@ namespace DocumentService.Gateways
 
         public async Task CreateDirectory(Directory directory)
         {
+            LogHelper.LogGateway("DirectoryGateway", "CreateDirectory");
+
             await _context.SaveAsync(directory.ToDatabase());
         }
 
         public async Task DeleteDirectory(Guid directoryId, Guid userId)
         {
+            LogHelper.LogGateway("DirectoryGateway", "DeleteDirectory");
+
             var existingDirectory = await LoadDirectory(directoryId, userId);
             if (existingDirectory == null) throw new DirectoryNotFoundException();
 
@@ -51,6 +60,8 @@ namespace DocumentService.Gateways
 
         public async Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null)
         {
+            LogHelper.LogGateway("DirectoryGateway", "GetAllDirectories");
+
             // If looking for directories within another directory, 
             // must check that parent directory exists
             if (parentDirectoryId != null)
@@ -84,6 +95,8 @@ namespace DocumentService.Gateways
 
         public async Task RenameDirectory(string newName, Guid directoryId, Guid userId)
         {
+            LogHelper.LogGateway("DirectoryGateway", "RenameDirectory");
+
             var existingDirectory = await LoadDirectory(directoryId, userId);
             if (existingDirectory == null) throw new DirectoryNotFoundException();
 

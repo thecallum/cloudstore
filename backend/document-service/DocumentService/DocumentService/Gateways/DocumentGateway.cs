@@ -5,6 +5,7 @@ using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace DocumentService.Gateways
 
         public async Task<DocumentDb> DeleteDocument(Guid userId, Guid documentId)
         {
+            LogHelper.LogGateway("DocumentGateway", "DeleteDocument");
+
             var existingDocument = await GetDocumentById(userId, documentId);
             if (existingDocument == null) throw new DocumentNotFoundException();
 
@@ -33,6 +36,8 @@ namespace DocumentService.Gateways
 
         public async Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId)
         {
+            LogHelper.LogGateway("DocumentGateway", "DirectoryContainsFiles");
+
             var documents = await GetAllDocuments(userId, directoryId);
 
             return documents.Count() > 0;
@@ -40,6 +45,8 @@ namespace DocumentService.Gateways
 
         public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null)
         {
+            LogHelper.LogGateway("DocumentGateway", "GetAllDocuments");
+
             var documentList = new List<DocumentDb>();
 
             var selectedDirectoryId = (directoryId != null) ? (Guid)directoryId : userId;
@@ -86,11 +93,15 @@ namespace DocumentService.Gateways
 
         public async Task<DocumentDb> GetDocumentById(Guid userId, Guid documentId)
         {
+            LogHelper.LogGateway("DocumentGateway", "GetDocumentById");
+
             return await _context.LoadAsync<DocumentDb>(userId, documentId);
         }
 
         public async Task SaveDocument(Document document)
         {
+            LogHelper.LogGateway("DocumentGateway", "SaveDocument");
+
             await _context.SaveAsync(document.ToDatabase());
         }
     }

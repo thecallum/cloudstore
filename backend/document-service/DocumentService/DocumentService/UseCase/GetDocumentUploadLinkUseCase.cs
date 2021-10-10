@@ -1,5 +1,6 @@
 ﻿using DocumentService.Boundary.Response;
 using DocumentService.Gateways;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace DocumentService.UseCase
 
         public GetDocumentUploadResponse Execute(Guid userId)
         {
+            LogHelper.LogUseCase("GetDocumentUploadLinkUseCase");
+
             var documentId = Guid.NewGuid();
             var key = $"{userId}/{documentId}";
 

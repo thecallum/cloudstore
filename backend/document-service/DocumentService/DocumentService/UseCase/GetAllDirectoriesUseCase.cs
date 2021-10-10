@@ -3,6 +3,7 @@ using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Gateways;
+using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace DocumentService.UseCase
 
         public async Task<GetAllDirectoriesResponse> Execute(Guid userId, GetAllDirectoriesQuery query)
         {
+            LogHelper.LogUseCase("GetAllDirectoriesUseCase");
+
             var directories = new List<Directory>();
 
             // if DirectoryId not null, then we are looking for directories within a parent directory.
