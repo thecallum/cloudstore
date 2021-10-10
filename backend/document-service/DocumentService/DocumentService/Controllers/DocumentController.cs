@@ -45,7 +45,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetDocumentUploadLink()
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             var response = _getDocumentUploadLinkUseCase.Execute(user.Id);
 
@@ -59,7 +59,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ValidateUploadedDocument([FromRoute] ValidateUploadedDocumentQuery query, [FromBody] ValidateUploadedDocumentRequest request)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
             if (document == null) return NotFound(query.DocumentId);
@@ -73,7 +73,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllDocuments([FromQuery] GetAllDocumentsQuery query)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
@@ -95,7 +95,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDocument([FromRoute] DeleteDocumentRequest request)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
@@ -118,7 +118,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDocumentDownloadLink([FromRoute] GetDocumentLinkQuery query)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {

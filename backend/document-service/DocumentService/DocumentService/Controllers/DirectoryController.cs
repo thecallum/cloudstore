@@ -40,7 +40,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateDirectory([FromBody] CreateDirectoryRequest request)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             var directoryId = await _createDirectoryUseCase.Execute(request, user.Id);
 
@@ -55,7 +55,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RenameDirectory([FromRoute] RenameDirectoryQuery query, [FromBody] RenameDirectoryRequest request)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
@@ -75,7 +75,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteDirectory([FromRoute] DeleteDirectoryQuery query)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
@@ -107,7 +107,7 @@ namespace DocumentService.Controllers
 
         public async Task<IActionResult> GetAllDirectories([FromQuery] GetAllDirectoriesQuery query)
         {
-            var user = (Payload)HttpContext.Items["user"];
+            var user = (User)HttpContext.Items["user"];
 
             try
             {

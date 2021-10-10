@@ -9,9 +9,9 @@ namespace DocumentService.Tests.Helpers
 {
     public static class ContextHelper
     {
-        public static Payload CreateUser(Guid? id = null)
+        public static User CreateUser(Guid? id = null)
         {
-            return new Payload
+            return new User
             {
                 Id = id ?? Guid.NewGuid(),
                 FirstName = "FirstName",

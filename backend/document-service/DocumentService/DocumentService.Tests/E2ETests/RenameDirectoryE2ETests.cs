@@ -19,14 +19,9 @@ namespace DocumentService.Tests.E2ETests
 {
     public class RenameDirectoryE2ETests : BaseIntegrationTest
     {
-        private readonly Guid _userId;
-        private readonly string _token;
-
         public RenameDirectoryE2ETests(DatabaseFixture<Startup> testFixture)
            : base(testFixture)
         {
-            _userId = Guid.NewGuid();
-            _token = ContextHelper.CreateToken(_userId);
         }
 
         [Fact]
