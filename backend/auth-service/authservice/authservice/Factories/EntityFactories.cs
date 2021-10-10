@@ -3,14 +3,15 @@ using authservice.Boundary.Request;
 using authservice.Domain;
 using authservice.Infrastructure;
 using TokenService.Models;
+using User = authservice.Domain.User;
 
 namespace authservice.Factories
 {
     public static class EntityFactories
     {
-        public static Payload ToPayload(this User user)
+        public static TokenService.Models.User ToPayload(this User user)
         {
-            return new Payload
+            return new TokenService.Models.User
             {
                 Id = user.Id,
                 Email = user.Email,

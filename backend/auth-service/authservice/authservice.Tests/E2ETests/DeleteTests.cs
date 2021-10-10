@@ -67,9 +67,9 @@ namespace authservice.Tests.E2ETests
         public async Task Delete_WhenUserDoesntExist_ReturnsBadRequest()
         {
             // Arrange
-            var payload = _fixture.Create<Payload>();
+            var payload = _fixture.Create<TokenService.Models.User>();
 
-            var token = CreateToken(payload);
+            var token = _tokenService.CreateToken(payload);
 
             // Act
             var response = await DeleteRequest(token);
@@ -86,7 +86,7 @@ namespace authservice.Tests.E2ETests
 
             await SetupTestData(mockUser);
 
-            var payload = new Payload
+            var payload = new TokenService.Models.User
             {
                 Email = mockUser.Email,
                 FirstName = mockUser.FirstName,
@@ -94,7 +94,7 @@ namespace authservice.Tests.E2ETests
                 Id = mockUser.Id
             };
 
-            var token = CreateToken(payload);
+            var token = _tokenService.CreateToken(payload);
 
             // Act
             var response = await DeleteRequest(token);
@@ -106,14 +106,9 @@ namespace authservice.Tests.E2ETests
             databaseResponse.Should().BeNull();
         }
 
-        private string CreateToken(Payload payload)
-        {
-            return _tokenService.CreateToken(payload);
-        }
-
         private async Task<HttpResponseMessage> DeleteRequest(string token)
         {
-            var uri = new Uri("/api/auth/delete", UriKind.Relative);
+            var uri = new Uri("/auth-service/api/auth/delete", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
 

@@ -13,6 +13,7 @@ using Moq;
 using TokenService;
 using TokenService.Models;
 using Xunit;
+using User = authservice.Domain.User;
 
 namespace authservice.Tests.Controller
 {
@@ -99,7 +100,7 @@ namespace authservice.Tests.Controller
 
             // setup jwtService to return custom token
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.CreateToken(It.IsAny<Payload>())).Returns(tokenToReturn);
+            _mockJWTService.Setup(x => x.CreateToken(It.IsAny<TokenService.Models.User>())).Returns(tokenToReturn);
 
             // Act
             var result = await _authController.Login(requestObject);
@@ -162,8 +163,7 @@ namespace authservice.Tests.Controller
             // Arrange    
             var mockToken = _fixture.Create<string>();
 
-            // setup hashservice to return password is bad
-            _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(false);
 
             // Act
             var result = await _authController.DeleteAccount(mockToken);
@@ -176,15 +176,17 @@ namespace authservice.Tests.Controller
         public async Task Delete_WhenUserDoesntExist_Returns404NotFound()
         {
             // Arrange    
-            var mockPayload = _fixture.Create<Payload>();
+            var mockPayload = _fixture.Create<TokenService.Models.User>();
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid
             _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
+            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
+
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(mockPayload);
+            _mockJWTService.Setup(x => x.DecodeToken(It.IsAny<string>())).Returns(mockPayload);
 
             // setup usecase to throw not found exception
             var exception = new UserNotFoundException(mockPayload.Email);
@@ -203,15 +205,17 @@ namespace authservice.Tests.Controller
         public async Task Delete_WhenCalled_Returns201NoContent()
         {
             // Arrange    
-            var mockPayload = _fixture.Create<Payload>();
+            var mockPayload = _fixture.Create<TokenService.Models.User>();
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid
             _mockHashService.Setup(x => x.Check(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
+            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
+
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(mockPayload);
+            _mockJWTService.Setup(x => x.DecodeToken(It.IsAny<string>())).Returns(mockPayload);
 
             // Act
             var result = await _authController.DeleteAccount(mockToken);
@@ -228,7 +232,7 @@ namespace authservice.Tests.Controller
 
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns((Payload) null);
+            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(false);
 
             // Act
             var result = await _authController.CheckAuth(mockToken);
@@ -246,7 +250,7 @@ namespace authservice.Tests.Controller
 
             // setup jwtService to return user
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(mockPayload);
+            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
 
             // Act
             var result = await _authController.CheckAuth(mockToken);

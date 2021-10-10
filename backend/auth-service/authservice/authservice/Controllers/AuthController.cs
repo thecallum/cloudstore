@@ -87,18 +87,20 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAccount([FromHeader] string token)
         {
-            var payload = _tokenService.ValidateToken(token);
-            if (payload == null) return Unauthorized();
+            var validToken = _tokenService.ValidateToken(token);
+            if (validToken == false) return Unauthorized();
+
+            var user = _tokenService.DecodeToken(token);
 
             try
             {
-                await _deleteUseCase.Execute(payload.Email);
+                await _deleteUseCase.Execute(user.Email);
 
                 return NoContent();
             }
             catch (UserNotFoundException)
             {
-                return NotFound(payload.Email);
+                return NotFound(user.Email);
             }
         }
 
@@ -107,10 +109,10 @@ namespace authservice.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CheckAuth([FromHeader] string token)
+        public async Task<IActionResult> CheckAuth([FromHeader] string authorizationToken)
         {
-            var payload = _tokenService.ValidateToken(token);
-            if (payload == null) return Unauthorized();
+            var validToken = _tokenService.ValidateToken(authorizationToken);
+            if (validToken == false) return Unauthorized();
 
             return Ok();
         }

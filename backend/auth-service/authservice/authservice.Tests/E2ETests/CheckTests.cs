@@ -66,9 +66,9 @@ namespace authservice.Tests.E2ETests
         public async Task Check_WhenValidToken_ReturnsOk()
         {
             // Arrange
-            var payload = _fixture.Create<Payload>();
+            var payload = _fixture.Create<TokenService.Models.User>();
 
-            var token = CreateToken(payload);
+            var token = _tokenService.CreateToken(payload);
 
             // Act
             var response = await CheckRequest(token);
@@ -77,18 +77,13 @@ namespace authservice.Tests.E2ETests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
-        private string CreateToken(Payload payload)
-        {
-            return _tokenService.CreateToken(payload);
-        }
-
         private async Task<HttpResponseMessage> CheckRequest(string token)
         {
-            var uri = new Uri("/api/auth/check", UriKind.Relative);
+            var uri = new Uri("/auth-service/api/auth/check", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
 
-            message.Headers.Add("Token", token);
+            message.Headers.Add(TokenService.Constants.AuthToken, token);
 
             var response = await _httpClient.SendAsync(message).ConfigureAwait(false);
 

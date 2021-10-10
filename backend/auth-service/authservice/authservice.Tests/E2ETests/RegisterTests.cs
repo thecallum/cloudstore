@@ -123,7 +123,7 @@ namespace authservice.Tests.E2ETests
 
         private async Task<HttpResponseMessage> RegisterRequest(RegisterRequestObject request)
         {
-            var uri = new Uri("/api/auth/register", UriKind.Relative);
+            var uri = new Uri("/auth-service/api/auth/register", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

@@ -149,7 +149,7 @@ namespace authservice.Tests.E2ETests
 
         private async Task<HttpResponseMessage> LoginRequest(LoginRequestObject request)
         {
-            var uri = new Uri("/api/auth/login", UriKind.Relative);
+            var uri = new Uri("/auth-service/api/auth/login", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

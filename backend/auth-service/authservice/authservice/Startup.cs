@@ -73,22 +73,25 @@ namespace authservice
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
+            app.Map("/auth-service", mainApp =>
             {
-                endpoints.MapControllers();
-                endpoints.MapGet("/",
-                    async context =>
-                    {
-                        await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
-                    });
+                if (env.IsDevelopment()) mainApp.UseDeveloperExceptionPage();
+
+                mainApp.UseHttpsRedirection();
+
+                mainApp.UseRouting();
+
+                mainApp.UseAuthorization();
+
+                mainApp.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                    endpoints.MapGet("/",
+                        async context =>
+                        {
+                            await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
+                        });
+                });
             });
         }
     }
