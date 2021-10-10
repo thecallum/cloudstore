@@ -7,8 +7,8 @@ namespace TokenService
 {
     public interface ITokenService
     {
-        string CreateToken(Payload payload);
-        Payload ValidateToken(string token);
-        Payload DecodeToken(string token);
+        string CreateToken(User user);
+        bool ValidateToken(string token);
+        User DecodeToken(string token);
     }
 }

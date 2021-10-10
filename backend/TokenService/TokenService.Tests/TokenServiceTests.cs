@@ -21,7 +21,7 @@ namespace TokenService.Tests
         }
 
         [Fact]
-        public void ValidateToken_WhenTokenIsInvalid_ReturnsNull()
+        public void ValidateToken_WhenTokenIsInvalid_ReturnsFalse()
         {
             // Arrange
             var token = _fixture.Create<string>();
@@ -30,44 +30,39 @@ namespace TokenService.Tests
             var response = _tokenService.ValidateToken(token);
 
             // Assert
-            response.Should().BeNull();
+            response.Should().BeFalse();
         }
 
         [Fact]
-        public void ValidateToken_WhenTokenIsValid_ReturnsPayload()
+        public void ValidateToken_WhenTokenIsValid_ReturnsTrue()
         {
             // Arrange
-            var payload = _fixture.Create<Payload>();
-            var token = _tokenService.CreateToken(payload);
+            var user = _fixture.Create<User>();
+            var token = _tokenService.CreateToken(user);
 
             // Act
             var response = _tokenService.ValidateToken(token);
 
             // Assert
-            response.Should().NotBeNull();
-            response.Id.Should().Be(payload.Id);
-            response.Email.Should().Be(payload.Email);
-            response.FirstName.Should().Be(payload.FirstName);
-            response.LastName.Should().Be(payload.LastName);
+            response.Should().BeTrue();
         }
 
         [Fact]
         public void DecodeToken_WhenTokenEncodedWithSecret_CanDecodePayload()
         {
             // Arrange
-            var payload = _fixture.Create<Payload>();
-            var token = _tokenService.CreateToken(payload);
+            var user = _fixture.Create<User>();
+            var token = _tokenService.CreateToken(user);
 
             // Act
             var response = _tokenService.DecodeToken(token);
 
             // Assert
             response.Should().NotBeNull();
-            response.Id.Should().Be(payload.Id);
-            response.Email.Should().Be(payload.Email);
-            response.FirstName.Should().Be(payload.FirstName);
-            response.LastName.Should().Be(payload.LastName);
-
+            response.Id.Should().Be(user.Id);
+            response.Email.Should().Be(user.Email);
+            response.FirstName.Should().Be(user.FirstName);
+            response.LastName.Should().Be(user.LastName);
         }
     }
 }
