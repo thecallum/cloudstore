@@ -17,4 +17,3 @@
   "function-timeout": 30,
   "function-handler": "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
 }
-}

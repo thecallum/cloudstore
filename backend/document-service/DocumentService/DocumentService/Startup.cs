@@ -41,6 +41,7 @@ namespace DocumentService
 
             services.AddTransient<IValidator<CreateDirectoryRequest>, CreateDirectoryRequestValidator>();
             services.AddTransient<IValidator<RenameDirectoryRequest>, RenameDirectoryRequestValidator>();
+            services.AddTransient<IValidator<ValidateUploadedDocumentRequest>, ValidateUploadedDocumentRequestValidator>();
 
             services.AddControllers();
 
