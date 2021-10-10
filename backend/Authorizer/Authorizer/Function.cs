@@ -25,19 +25,13 @@ namespace Authorizer
         public APIGatewayCustomAuthorizerResponse FunctionHandler(APIGatewayCustomAuthorizerRequest apigAuthRequest, ILambdaContext context)
         {
             var token = apigAuthRequest.AuthorizationToken;
-
-            var payload = _tokenService.ValidateToken(token);
-
-            bool authStatus = payload != null;
+            var authStatus = _tokenService.ValidateToken(token);
 
             return GenerateResponse(authStatus, token);
         }
 
         private APIGatewayCustomAuthorizerResponse GenerateResponse(bool authorized, string token)
         {
-
-
-
             return new APIGatewayCustomAuthorizerResponse
             {
                 PrincipalID = token,
