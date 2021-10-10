@@ -12,7 +12,7 @@ namespace authservice.Boundary.Request.Validation
 
             RuleFor(x => x.Password)
                 .NotNull()
-                .Length(1, 100);
+                .NotEmpty();
         }
     }
 }
