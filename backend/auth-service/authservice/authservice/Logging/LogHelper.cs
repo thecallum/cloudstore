@@ -23,3 +23,4 @@ namespace authservice.Logging
             LambdaLogger.Log($"Calling Gateway [{gatewayName}] [{gatewayMethodName}]");
         }
     }
+}
