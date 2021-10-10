@@ -11,6 +11,7 @@ namespace authservice.Boundary.Request.Validation
                 .EmailAddress();
 
             RuleFor(x => x.Password)
+                .NotNull()
                 .Length(1, 100);
         }
     }
