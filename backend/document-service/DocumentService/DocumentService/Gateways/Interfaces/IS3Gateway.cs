@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DocumentService.Gateways
+namespace DocumentService.Gateways.Interfaces
 {
     public interface IS3Gateway
     {

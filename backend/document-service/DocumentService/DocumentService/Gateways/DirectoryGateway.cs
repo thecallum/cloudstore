@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using DocumentService.Domain;
 using DocumentService.Factories;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;

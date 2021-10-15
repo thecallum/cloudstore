@@ -3,6 +3,7 @@ using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.UseCase;

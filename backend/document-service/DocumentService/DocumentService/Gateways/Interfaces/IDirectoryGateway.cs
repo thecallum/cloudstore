@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DocumentService.Gateways
+namespace DocumentService.Gateways.Interfaces
 {
     public interface IDirectoryGateway
     {

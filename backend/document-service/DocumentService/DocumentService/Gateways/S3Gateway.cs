@@ -1,13 +1,9 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using DocumentService.Boundary.Request;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DocumentService.Gateways

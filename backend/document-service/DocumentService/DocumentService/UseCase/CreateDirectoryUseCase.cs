@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Factories;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Logging;
 using System;
 using System.Collections.Generic;

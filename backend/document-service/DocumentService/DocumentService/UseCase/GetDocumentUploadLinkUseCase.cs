@@ -1,5 +1,7 @@
-﻿using DocumentService.Boundary.Response;
+﻿using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
@@ -18,11 +20,12 @@ namespace DocumentService.UseCase
             _s3Gateway = s3Gateway;
         }
 
-        public GetDocumentUploadResponse Execute(Guid userId)
+        public GetDocumentUploadResponse Execute(Guid userId, GetDocumentUploadLinkQuery query)
         {
             LogHelper.LogUseCase("GetDocumentUploadLinkUseCase");
 
-            var documentId = Guid.NewGuid();
+            var documentId = query.ExistingDocumentId ?? Guid.NewGuid();
+
             var key = $"{userId}/{documentId}";
 
             var uploadUrl = _s3Gateway.GetDocumentUploadPresignedUrl(key);

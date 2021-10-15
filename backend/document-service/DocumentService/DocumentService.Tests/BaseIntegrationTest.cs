@@ -57,6 +57,13 @@ namespace DocumentService.Tests
             _cleanup.Add(async () => await _context.DeleteAsync<DocumentDb>(document.UserId, document.DocumentId));
         }
 
+        protected async Task SetupTestData(DocumentStorageDb entity)
+        {
+            await _context.SaveAsync<DocumentStorageDb>(entity);
+
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentStorageDb>(entity.UserId));
+        }
+
         protected async Task SetupTestData(IEnumerable<DocumentDb> documents)
         {
             foreach (var document in documents)

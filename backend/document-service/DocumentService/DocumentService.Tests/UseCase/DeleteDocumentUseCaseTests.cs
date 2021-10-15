@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.UseCase;
@@ -19,6 +20,7 @@ namespace DocumentService.Tests.UseCase
         private readonly IDeleteDocumentUseCase _deleteDocumentUseCase;
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
+        private readonly Mock<IStorageServiceGateway> _mockStorageServiceGateway;
 
         private readonly Fixture _fixture = new Fixture();
 
@@ -26,8 +28,12 @@ namespace DocumentService.Tests.UseCase
         {
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
+            _mockStorageServiceGateway = new Mock<IStorageServiceGateway>();
 
-            _deleteDocumentUseCase = new DeleteDocumentUseCase(_mockS3Gateway.Object, _mockDocumentGateway.Object);
+            _deleteDocumentUseCase = new DeleteDocumentUseCase(
+                _mockS3Gateway.Object, 
+                _mockDocumentGateway.Object,
+                _mockStorageServiceGateway.Object);
         }
 
         [Fact]

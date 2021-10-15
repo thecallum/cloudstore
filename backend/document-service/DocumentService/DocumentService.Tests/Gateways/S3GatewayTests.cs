@@ -1,19 +1,10 @@
-﻿using Amazon.S3;
-using Amazon.S3.Model;
-using DocumentService.Boundary.Request;
-using DocumentService.Gateways;
-using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
+﻿using DocumentService.Gateways;
 using FluentAssertions;
-using System;
-using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 using AutoFixture;
 using DocumentService.Tests.Helpers;
-using System.Net.Http;
-using RestSharp;
-using System.Net;
+using DocumentService.Gateways.Interfaces;
 
 namespace DocumentService.Tests.Gateways
 {
