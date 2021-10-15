@@ -56,6 +56,7 @@ namespace DocumentService.Tests.UseCase
             await func.Should().ThrowAsync<DocumentNotFoundException>();
 
             _mockS3Gateway.Verify(x => x.DeleteDocument(It.IsAny<string>()), Times.Never);
+            _mockStorageServiceGateway.Verify(x => x.RemoveFile(userId, It.IsAny<long>()), Times.Never);
         }
 
         [Fact]
@@ -75,6 +76,7 @@ namespace DocumentService.Tests.UseCase
 
             // Assert
             _mockS3Gateway.Verify(x => x.DeleteDocument(document.S3Location), Times.Once);
+            _mockStorageServiceGateway.Verify(x => x.RemoveFile(document.UserId, It.IsAny<long>()), Times.Once);
         }
     }
 }

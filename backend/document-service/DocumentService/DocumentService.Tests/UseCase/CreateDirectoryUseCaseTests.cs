@@ -1,18 +1,10 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
-using DocumentService.Boundary.Response;
 using DocumentService.Domain;
-using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
-using DocumentService.Infrastructure;
-using DocumentService.Infrastructure.Exceptions;
-using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
-using FluentAssertions;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 

@@ -1,5 +1,6 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
@@ -51,7 +52,7 @@ namespace DocumentService.UseCase
 
             await _s3Gateway.MoveDocumentToStoreDirectory(key);
 
-            var document = CreateEntity(documentId, userId, key, documentUploadResponse, request);
+            var document = existingDocument?.ToDomain() ?? CreateEntity(documentId, userId, key, documentUploadResponse, request);
             await _documentGateway.SaveDocument(document);
 
             if (existingDocument == null)
