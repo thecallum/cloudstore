@@ -59,6 +59,7 @@ namespace DocumentService.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status413RequestEntityTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ValidateUploadedDocument([FromRoute] ValidateUploadedDocumentQuery query, [FromBody] ValidateUploadedDocumentRequest request)
         {
@@ -66,10 +67,16 @@ namespace DocumentService.Controllers
 
             var user = (User)HttpContext.Items["user"];
 
-            var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
-            if (document == null) return NotFound(query.DocumentId);
+            try
+            {
+                var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
+                if (document == null) return NotFound(query.DocumentId);
 
-            return Created($"/document-service/api/document/{query.DocumentId}", document);
+                return Created($"/document-service/api/document/{query.DocumentId}", document);
+            } catch (ExceededUsageCapacityException)
+            {
+                return StatusCode(StatusCodes.Status413RequestEntityTooLarge);
+            }
         }
 
         [HttpGet]

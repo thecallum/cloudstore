@@ -237,5 +237,28 @@ namespace DocumentService.Tests.Controllers
             response.Should().BeOfType(typeof(CreatedResult));
             (response as CreatedResult).Value.Should().Be(document);
         }
+
+        [Fact]
+        public async Task ValidateUploadedDocument_WhenStorageCapacityExceeded_Returns413Response()
+        {
+            // Arrange
+            var query = _fixture.Create<ValidateUploadedDocumentQuery>();
+            var request = _fixture.Create<ValidateUploadedDocumentRequest>();
+
+            var document = _fixture.Create<Document>();
+
+            var exception = new ExceededUsageCapacityException();
+
+            _mockValidateUploadedDocumentUseCase
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            var response = await _documentController.ValidateUploadedDocument(query, request);
+
+            // Assert
+            response.Should().BeOfType(typeof(StatusCodeResult));
+            (response as StatusCodeResult).StatusCode.Should().Be(413);
+        }
     }
 }
