@@ -45,15 +45,33 @@ namespace DocumentService.Tests.E2ETests
             await _s3TestHelper.VerifyDocumentUploadedToS3($"upload/{key}");
         }
 
-        private async Task<HttpResponseMessage> GetDocumentUploadLinkRequest()
+        [Fact]
+        public async Task GetDocumentUploadLink_WhenExistingDocumentIdIsNotNull_ReturnsDocumentId()
+        {
+            // Arrange
+            var existingDocumentId = Guid.NewGuid();
+            
+            // Act
+            var response = await GetDocumentUploadLinkRequest(existingDocumentId);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseContent = await DecodeResponse<GetDocumentUploadResponse>(response);
+
+            responseContent.DocumentId.Should().Be(existingDocumentId);
+        }
+
+        private async Task<HttpResponseMessage> GetDocumentUploadLinkRequest(Guid? existingDocumentId = null)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/document/upload", UriKind.Relative);
+            var url = $"/document-service/api/document/upload/";
+            if (existingDocumentId != null) url += existingDocumentId;
+
+            var uri = new Uri(url, UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
             message.Headers.Add("authorizationToken", _token);
-
-           // message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
             // call request
             _httpClient.DefaultRequestHeaders

@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
+using DocumentService.Boundary.Request;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.UseCase;
 using FluentAssertions;
 using Moq;
@@ -26,21 +28,44 @@ namespace DocumentService.Tests.UseCase
         }
 
         [Fact]
-        public void WhenCalled_CallsGateway()
+        public void WhenExistingDocumentIdNull_CreatedNewDocumentId()
         {
             // Arrange
             var userId = Guid.NewGuid();
             var mockUrl = _fixture.Create<string>();
+
+            var query = new GetDocumentUploadLinkQuery { };
 
             _mockS3Gateway
                 .Setup(x => x.GetDocumentUploadPresignedUrl(It.IsAny<string>()))
                 .Returns(mockUrl);
 
             // Act
-            var response = _useCase.Execute(userId);
+            var response = _useCase.Execute(userId, query);
 
             // Assert
             response.UploadUrl.Should().Be(mockUrl);
+        }
+
+        [Fact]
+        public void WhenExistingDocumentIdNotNull_UsesExistingDocumentId()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var mockUrl = _fixture.Create<string>();
+
+            var query = new GetDocumentUploadLinkQuery { ExistingDocumentId = Guid.NewGuid() };
+
+            _mockS3Gateway
+                .Setup(x => x.GetDocumentUploadPresignedUrl(It.IsAny<string>()))
+                .Returns(mockUrl);
+
+            // Act
+            var response = _useCase.Execute(userId, query);
+
+            // Assert
+            response.UploadUrl.Should().Be(mockUrl);
+            response.DocumentId.Should().Be((Guid) query.ExistingDocumentId);
         }
     }
 }

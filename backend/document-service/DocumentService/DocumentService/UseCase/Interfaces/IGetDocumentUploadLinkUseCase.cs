@@ -1,4 +1,5 @@
-﻿using DocumentService.Boundary.Response;
+﻿using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace DocumentService.UseCase.Interfaces
 {
     public interface IGetDocumentUploadLinkUseCase
     {
-        GetDocumentUploadResponse Execute(Guid userId);
+        GetDocumentUploadResponse Execute(Guid userId, GetDocumentUploadLinkQuery query);
     }
 }

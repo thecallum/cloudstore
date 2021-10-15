@@ -40,17 +40,17 @@ namespace DocumentService.Controllers
             _validateUploadedDocumentUseCase = validateUploadedDocumentUseCase;
         }
 
-        [Route("upload")]
+        [Route("upload/{existingDocumentId?}")]
         [HttpGet]
         [ProducesResponseType(typeof(GetDocumentUploadResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetDocumentUploadLink()
+        public IActionResult GetDocumentUploadLink([FromRoute] GetDocumentUploadLinkQuery query)
         {
             LogHelper.LogController("GetDocumentUploadLink");
 
             var user = (User)HttpContext.Items["user"];
 
-            var response = _getDocumentUploadLinkUseCase.Execute(user.Id);
+            var response = _getDocumentUploadLinkUseCase.Execute(user.Id, query);
 
             return Ok(response);
         }
