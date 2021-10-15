@@ -51,6 +51,9 @@ namespace DocumentService.Tests.E2ETests
             var document = _fixture.Build<DocumentDb>().With(x => x.UserId, _userId).Create();
             await SetupTestData(document);
 
+            var storageUsage = new DocumentStorageDb { UserId = _userId, StorageUsage = document.FileSize };
+            await SetupTestData(storageUsage);
+
             await _s3TestHelper.UploadDocumentToS3(document.S3Location, _validFilePath);
 
             // Act
@@ -63,6 +66,10 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.Should().BeNull();
 
             await _s3TestHelper.VerifyDocumentDeletedFromS3(document.S3Location);
+
+            // check storage service
+            var databaseResponse2 = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            databaseResponse2.StorageUsage.Should().Be(0);
         }
 
         private async Task<HttpResponseMessage> DeleteDocumentRequest(Guid documentId)

@@ -71,6 +71,7 @@ namespace DocumentService
             services.AddScoped<IGetDocumentUploadLinkUseCase, GetDocumentUploadLinkUseCase>();
             services.AddScoped<IValidateUploadedDocumentUseCase, ValidateUploadedDocumentUseCase>();
             services.AddScoped<IGetAllDirectoriesUseCase, GetAllDirectoriesUseCase>();
+            services.AddScoped<IGetStorageUsageUseCase, GetStorageUsageUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

@@ -20,12 +20,14 @@ namespace DocumentService.Tests.E2ETests
     public class ValidateUploadedDocumentE2ETests : BaseIntegrationTest
     {
         private readonly string _validFilePath;
+        private readonly string _tooLargeFilePath;
         private readonly S3TestHelper _s3TestHelper;
 
         public ValidateUploadedDocumentE2ETests(DatabaseFixture<Startup> testFixture)
             : base(testFixture)
         {
             _validFilePath = testFixture.ValidFilePath;
+            _tooLargeFilePath = testFixture.TooLargeFilePath;
             _s3TestHelper = new S3TestHelper(_s3Client);
         }
 
@@ -43,6 +45,26 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task WhenDocumentTooLarge_Returns413()
+        {
+            // Arrange
+            var documentId = Guid.NewGuid();
+            var key = $"{_userId}/{documentId}";
+
+            var request = _fixture.Build<ValidateUploadedDocumentRequest>()
+                            .With(x => x.DirectoryId, Guid.NewGuid())
+                            .Create();
+
+            await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _tooLargeFilePath);
+
+            // Act
+            var response = await ValidateUploadedDocumentRequest(documentId, request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
         }
 
         [Fact]
@@ -99,7 +121,7 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task WhenCalled_InsertsDocumentIntoDatabase()
+        public async Task WhenNewDocument_InsertsDocumentIntoDatabase()
         {
             // Arrange
             var documentId = Guid.NewGuid();
@@ -124,6 +146,37 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.Name.Should().Be(request.FileName);
             databaseResponse.S3Location.Should().Be($"{_userId}/{documentId}");
+        }
+
+        [Fact]
+        public async Task WhenExistingDocument_UpdatesDocumentIntoDatabase()
+        {
+            // Arrange
+            var existingDocument = _fixture.Build<DocumentDb>()
+                                        .With(x => x.UserId, _userId)
+                                        .Create();
+
+            await SetupTestData(existingDocument);
+
+            var key = $"{_userId}/{existingDocument.DocumentId}";
+
+            var request = _fixture.Create<ValidateUploadedDocumentRequest>();
+
+            await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
+
+            // Act
+            var response = await ValidateUploadedDocumentRequest(existingDocument.DocumentId, request);
+
+            // Assert
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, existingDocument.DocumentId).ConfigureAwait(false);
+
+            databaseResponse.Should().NotBeNull();
+            databaseResponse.DocumentId.Should().Be(existingDocument.DocumentId);
+            databaseResponse.UserId.Should().Be(_userId);
+            databaseResponse.DirectoryId.Should().Be(existingDocument.DirectoryId);
+            databaseResponse.FileSize.Should().Be(200);
+            databaseResponse.Name.Should().Be(existingDocument.Name);
+            databaseResponse.S3Location.Should().Be(existingDocument.S3Location);
         }
 
         private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request)

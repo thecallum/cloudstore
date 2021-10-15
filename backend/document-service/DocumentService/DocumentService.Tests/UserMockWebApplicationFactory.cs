@@ -50,7 +50,7 @@ namespace DocumentService.Tests
 
         private void CreateTestFiles()
         {
-            TooLargeFilePath = TestHelpers.GetFilePath("tooLargeFile.txt", 1073741825);
+            TooLargeFilePath = TestHelpers.GetFilePath("tooLargeFile.txt", 1000);
             ValidFilePath = TestHelpers.GetFilePath("validfile.txt", 200);
         }
 

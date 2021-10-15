@@ -52,7 +52,11 @@ namespace DocumentService.UseCase
 
             await _s3Gateway.MoveDocumentToStoreDirectory(key);
 
+            // directoryId is ignored if existing document
+            // also ignore filename
             var document = existingDocument?.ToDomain() ?? CreateEntity(documentId, userId, key, documentUploadResponse, request);
+            document.FileSize = documentUploadResponse.FileSize;
+
             await _documentGateway.SaveDocument(document);
 
             if (existingDocument == null)
