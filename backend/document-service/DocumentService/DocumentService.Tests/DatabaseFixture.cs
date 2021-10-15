@@ -13,27 +13,20 @@ namespace DocumentService.Tests
 {
     public class DatabaseFixture<TStartup> : IDisposable where TStartup : class
     {
-        private const string DocumentTableName = "Document";
         private readonly UserMockWebApplicationFactory<TStartup> _factory;
         public DatabaseFixture()
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
 
-
-          
-
-
             _factory = new UserMockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
 
             ResetDatabase().GetAwaiter().GetResult();
-
         }
 
         private async Task ResetDatabase()
         {
             var tables = await DynamoDb.ListTablesAsync();
-
 
             if (tables.TableNames.Contains("Document"))
             {
@@ -45,8 +38,14 @@ namespace DocumentService.Tests
                 await DynamoDb.DeleteTableAsync("Directory");
             }
 
+            if (tables.TableNames.Contains("DocumentStorage"))
+            {
+                await DynamoDb.DeleteTableAsync("DocumentStorage");
+            }
+
             await DatabaseBuilder.CreateDocumentTable(DynamoDb);
             await DatabaseBuilder.CreateDirectoryTable(DynamoDb);
+            await DatabaseBuilder.CreateDocumentStorageTable(DynamoDb);
         }
 
         public HttpClient Client { get; }
@@ -62,12 +61,6 @@ namespace DocumentService.Tests
 
         public void Dispose()
         {
-            // cleanup database
-            
-            
-           //   DeleteAllTables().GetAwaiter().GetResult();
-
-            
         }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)

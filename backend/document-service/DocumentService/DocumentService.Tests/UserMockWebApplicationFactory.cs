@@ -21,7 +21,6 @@ namespace DocumentService.Tests
     public class UserMockWebApplicationFactory<TStartup>
     : WebApplicationFactory<TStartup> where TStartup : class
     {
-        private const string DocumentTableName = "Document";
         public IAmazonDynamoDB DynamoDb { get; private set; }
         public IDynamoDBContext DynamoDbContext { get; private set; }
 
@@ -44,7 +43,6 @@ namespace DocumentService.Tests
                 DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
                 S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
-               // EnsureTableExist().GetAwaiter().GetResult();
                 EnsureBucketExists();
                 CreateTestFiles();
             });
@@ -72,27 +70,5 @@ namespace DocumentService.Tests
             }
         }
 
-        private async Task EnsureTableExist()
-        {
-            var tables = await DynamoDb.ListTablesAsync();
-
-            var taskList = new List<Task>();
-
-            if (tables.TableNames.Contains("Document"))
-            {
-                await DynamoDb.DeleteTableAsync("Document");
-            }
-
-            if (tables.TableNames.Contains("Directory"))
-            {
-                await DynamoDb.DeleteTableAsync("Directory");
-            }
-
-            taskList.Add(DatabaseBuilder.CreateDocumentTable(DynamoDb));
-            taskList.Add(DatabaseBuilder.CreateDirectoryTable(DynamoDb));
-
-
-            await Task.WhenAll(taskList);
-        }
     }
 }

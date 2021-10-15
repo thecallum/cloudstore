@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Request.Validation;
 using DocumentService.Gateways;
+using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Middleware;
 using DocumentService.UseCase;
@@ -55,6 +56,7 @@ namespace DocumentService
         {
             services.AddScoped<IDocumentGateway, DocumentGateway>();
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
+            services.AddScoped<IStorageServiceGateway, StorageServiceGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
         }
 

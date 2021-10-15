@@ -182,12 +182,14 @@ namespace DocumentService.Tests.Controllers
                 DocumentId = Guid.NewGuid()
             };
 
+            var query = new GetDocumentUploadLinkQuery { ExistingDocumentId = Guid.NewGuid() };
+
             _mockGetDocumentUploadLinkUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetDocumentUploadLinkQuery>()))
                 .Returns(uploadResponseObject);
 
             // Act
-            var response = _documentController.GetDocumentUploadLink();
+            var response = _documentController.GetDocumentUploadLink(query);
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));

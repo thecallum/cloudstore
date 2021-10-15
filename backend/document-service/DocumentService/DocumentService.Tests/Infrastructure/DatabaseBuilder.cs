@@ -168,5 +168,36 @@ namespace DocumentService.Tests.Infrastructure
 
             await dynamoDb.CreateTableAsync(request).ConfigureAwait(false);
         }
+
+        public static async Task CreateDocumentStorageTable(IAmazonDynamoDB dynamoDb)
+        {
+            var request = new CreateTableRequest
+            {
+                TableName = "DocumentStorage",
+                AttributeDefinitions = new List<AttributeDefinition>
+                {
+                    new AttributeDefinition
+                    {
+                        AttributeName = "userId",
+                        AttributeType = "S"
+                    }
+                },
+                KeySchema = new List<KeySchemaElement>
+                {
+                    new KeySchemaElement
+                    {
+                        AttributeName = "userId",
+                        KeyType = "HASH" //Partition key
+                    }
+                },
+                ProvisionedThroughput = new ProvisionedThroughput
+                {
+                    ReadCapacityUnits = 2,
+                    WriteCapacityUnits = 2
+                }
+            };
+
+            await dynamoDb.CreateTableAsync(request).ConfigureAwait(false);
+        }
     }
  }
