@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import loginRequest from "../requests/login";
+import Layout from "./layout/layout";
 
 import { saveToken } from "../services/authService";
 
@@ -41,7 +42,7 @@ export default ({ history }) => {
   };
 
   return (
-    <>
+    <Layout>
       <h1>Login</h1>
 
       <form onSubmit={handleSubmit}>
@@ -53,6 +54,6 @@ export default ({ history }) => {
       </form>
 
       {loading && <p>Loading...</p>}
-    </>
+    </Layout>
   );
 };

@@ -1,5 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import getAllDocuments from "../requests/getAllDocuments";
+import getAllDirectories from "../requests/getAllDirectories";
+
+import Layout from "./layout/layout";
 
 import {
   BrowserRouter,
@@ -8,6 +12,7 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
+import { loadToken } from "../services/authService";
 
 const decodeDashboardPath = () => {
   const urlComponents = window.location.pathname.split("/").slice(2);
@@ -68,27 +73,65 @@ const DashboardBreadcrumb = ({ urlComponents }) => {
 export default (props) => {
   const [path, setPath] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
+  const [directories, setDirectories] = useState([]);
 
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("location changed");
-
+  const loadAll = (urlComponents) => {
     setLoading(true);
-    setPath(window.location.pathname);
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 200);
-  }, [location.key]);
+    console.log({ name: urlComponents[0].name });
+
+    // const token = loadToken();
+
+    const token =
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzQ1NTcwNDcsImlkIjoiNWQyOWI3YjUtMjljNC00NDhjLThkMmQtNWI1OGFmOTk3ZjZhIiwiZmlyc3ROYW1lIjoiY2FsbHVtIiwibGFzdE5hbWUiOiJtYWNwaGVyc29uIiwiZW1haWwiOiJjYWxsdW1tYWNAcHJvdG9ubWFpbC5jb20ifQ.9VuxlbMJF50W3GDY0jecxsz9vcEsi9XbKc9CwWFQpMs";
+
+    console.log({ token });
+
+    Promise.all([
+      getAllDocuments(token, urlComponents[0].name),
+      getAllDirectories(token, urlComponents[0].name),
+    ])
+      .then((res) => {
+        console.log({ res });
+
+        const [documentsResponse, directoriesResponse] = res;
+
+        if (documentsResponse.success === true) {
+          setDocuments(documentsResponse.message.documents);
+        } else {
+          setDocuments([]);
+        }
+
+        if (directoriesResponse.success === true) {
+          setDirectories(directoriesResponse.message.directories);
+        } else {
+          setDirectories([]);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const urlComponents = decodeDashboardPath();
 
+  useEffect(() => {
+    console.log("location changed");
+    setPath(window.location.pathname);
+
+    loadAll(urlComponents);
+  }, [location.key]);
+
   return (
-    <div>
+    <Layout>
+      <h1>Dashboard Component</h1>
+
       <DashboardBreadcrumb urlComponents={urlComponents} />
 
-      <p>{path}</p>
+      <p>Name: [{urlComponents[0].name}]</p>
 
       {loading === true ? (
         <>
@@ -96,9 +139,27 @@ export default (props) => {
         </>
       ) : (
         <>
-          <h1>Dashboard Component</h1>
+          <h2>Directories [{directories.length}]</h2>
+
+          {/* <pre>{JSON.stringify(directories, null, 2)}</pre> */}
+
+          <ul>
+            {directories.map((x) => (
+              <li>
+                <Link to={`/dashboard/${x.directoryId}`}>{x.name}</Link>
+              </li>
+            ))}
+          </ul>
+
+          <h2>Documents [{documents.length}]</h2>
+
+          <ul>
+            {documents.map((x) => (
+              <li>{x.name}</li>
+            ))}
+          </ul>
         </>
       )}
-    </div>
+    </Layout>
   );
 };
