@@ -1,10 +1,6 @@
-import {
-  BrowserRouter,
-  Switch,
-  Route,
-  Link,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
+
+import ProtectedRoute from "./protectedRoute";
 
 import Home from "../views/home";
 import Login from "../views/login";
@@ -20,8 +16,8 @@ const Router = () => {
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
-        <Route exact path="/account" component={Account} />
-        <Route path="/dashboard" component={Dashboard} />
+        <ProtectedRoute exact path="/account" component={Account} />
+        <ProtectedRoute path="/dashboard" component={Dashboard} />
 
         <Route component={NotFoundPage} />
       </Switch>
