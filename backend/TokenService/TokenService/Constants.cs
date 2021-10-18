@@ -6,6 +6,6 @@ namespace TokenService
 {
     public static class Constants
     {
-        public static string AuthToken = "authorizationToken";
+        public static string AuthToken = "Authorization";
     }
 }
