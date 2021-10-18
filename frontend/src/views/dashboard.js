@@ -5,13 +5,7 @@ import getAllDirectories from "../requests/getAllDirectories";
 
 import Layout from "./layout/layout";
 
-import {
-  BrowserRouter,
-  Switch,
-  Route,
-  Link,
-  useLocation,
-} from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { loadToken } from "../services/authService";
 
 const decodeDashboardPath = () => {
@@ -81,14 +75,7 @@ export default (props) => {
   const loadAll = (urlComponents) => {
     setLoading(true);
 
-    console.log({ name: urlComponents[0].name });
-
-    // const token = loadToken();
-
-    const token =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzQ1NTcwNDcsImlkIjoiNWQyOWI3YjUtMjljNC00NDhjLThkMmQtNWI1OGFmOTk3ZjZhIiwiZmlyc3ROYW1lIjoiY2FsbHVtIiwibGFzdE5hbWUiOiJtYWNwaGVyc29uIiwiZW1haWwiOiJjYWxsdW1tYWNAcHJvdG9ubWFpbC5jb20ifQ.9VuxlbMJF50W3GDY0jecxsz9vcEsi9XbKc9CwWFQpMs";
-
-    console.log({ token });
+    const token = loadToken();
 
     Promise.all([
       getAllDocuments(token, urlComponents[0].name),
@@ -119,7 +106,7 @@ export default (props) => {
   const urlComponents = decodeDashboardPath();
 
   useEffect(() => {
-    console.log("location changed");
+    // console.log("location changed");
     setPath(window.location.pathname);
 
     loadAll(urlComponents);
@@ -130,8 +117,6 @@ export default (props) => {
       <h1>Dashboard Component</h1>
 
       <DashboardBreadcrumb urlComponents={urlComponents} />
-
-      <p>Name: [{urlComponents[0].name}]</p>
 
       {loading === true ? (
         <>

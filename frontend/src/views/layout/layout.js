@@ -5,7 +5,17 @@ const layout = ({ children }) => {
     <>
       <Header />
 
-      <main>{children}</main>
+      <main>
+        <div
+          style={{
+            width: "calc(100% - 30px)",
+            maxWidth: "800px",
+            margin: "50px auto",
+          }}
+        >
+          {children}
+        </div>
+      </main>
     </>
   );
 };
