@@ -173,42 +173,20 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllDirectories_WhenDirectoryDoesntExist_ReturnsNotFound()
-        {
-            // Arrange
-            var query = new GetAllDirectoriesQuery { DirectoryId = Guid.NewGuid() };
-
-            var exception = new DirectoryNotFoundException();
-
-            _mockGetAllDirectoriesUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _directoryController.GetAllDirectories(query);
-
-            // Assert
-            response.Should().BeOfType(typeof(NotFoundObjectResult));
-            (response as NotFoundObjectResult).Value.Should().Be(query.DirectoryId);
-        }
-
-        [Fact]
         public async Task GetAllDirectories_WhenNoDirectoriesExist_ReturnsNoDirectories()
         {
             // Arrange
-            var query = new GetAllDirectoriesQuery { DirectoryId = null };
-
             var useCaseResponse = new GetAllDirectoriesResponse
             {
                 Directories = new List<Directory>()
             };
 
             _mockGetAllDirectoriesUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _directoryController.GetAllDirectories(query);
+            var response = await _directoryController.GetAllDirectories();
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
@@ -220,8 +198,6 @@ namespace DocumentService.Tests.Controllers
         public async Task GetAllDirectories_WhenManyDirectoriesExist_ReturnsManyDirectories()
         {
             // Arrange
-            var query = new GetAllDirectoriesQuery { DirectoryId = null };
-
             var numberOfDirectories = _random.Next(2, 5);
 
             var useCaseResponse = new GetAllDirectoriesResponse
@@ -230,11 +206,11 @@ namespace DocumentService.Tests.Controllers
             };
 
             _mockGetAllDirectoriesUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<GetAllDirectoriesQuery>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _directoryController.GetAllDirectories(query);
+            var response = await _directoryController.GetAllDirectories();
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));

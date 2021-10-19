@@ -39,16 +39,15 @@ namespace DocumentService.Tests.UseCase
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var query = _fixture.Create<GetAllDirectoriesQuery>();
 
             var exception = new DirectoryNotFoundException();
 
             _mockDirectoryGateway
-                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
                 .ThrowsAsync(exception);
 
             // Act
-            Func<Task<GetAllDirectoriesResponse>> func = async () => await _getAllDirectoriesUseCase.Execute(userId, query);
+            Func<Task<GetAllDirectoriesResponse>> func = async () => await _getAllDirectoriesUseCase.Execute(userId);
 
             // Assert
             await func.Should().ThrowAsync<DirectoryNotFoundException>();
@@ -59,16 +58,15 @@ namespace DocumentService.Tests.UseCase
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var query = _fixture.Create<GetAllDirectoriesQuery>();
 
             var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
 
             _mockDirectoryGateway
-                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
                 .ReturnsAsync(directoryGatewayResponse);
 
             // Act
-            var response = await _getAllDirectoriesUseCase.Execute(userId, query);
+            var response = await _getAllDirectoriesUseCase.Execute(userId);
 
             // Assert
             response.Directories.Should().HaveCount(0);
@@ -79,17 +77,16 @@ namespace DocumentService.Tests.UseCase
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var query = _fixture.Create<GetAllDirectoriesQuery>();
 
             var numberOfDirectories = _random.Next(2, 5);
             var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(numberOfDirectories);
 
             _mockDirectoryGateway
-                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
                 .ReturnsAsync(directoryGatewayResponse);
 
             // Act
-            var response = await _getAllDirectoriesUseCase.Execute(userId, query);
+            var response = await _getAllDirectoriesUseCase.Execute(userId);
 
             // Assert
             response.Directories.Should().HaveCount(numberOfDirectories);

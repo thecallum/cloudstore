@@ -22,23 +22,15 @@ namespace DocumentService.UseCase
             _directoryGateway = directoryGateway;
         }
 
-        public async Task<GetAllDirectoriesResponse> Execute(Guid userId, GetAllDirectoriesQuery query)
+        public async Task<GetAllDirectoriesResponse> Execute(Guid userId)
         {
             LogHelper.LogUseCase("GetAllDirectoriesUseCase");
 
-            var directories = new List<Directory>();
-
-            // if DirectoryId not null, then we are looking for directories within a parent directory.
-            // this method will throw exception is parent directory doesnt exist
-            var directoryGatewayResponse = await _directoryGateway.GetAllDirectories(userId, query.DirectoryId);
-
-            directories.AddRange(
-                directoryGatewayResponse.Select(x => x.ToDomain())
-            );
+            var directoryGatewayResponse = await _directoryGateway.GetAllDirectories(userId);
 
             return new GetAllDirectoriesResponse
             {
-                Directories = directories
+                Directories = directoryGatewayResponse.Select(x => x.ToDomain()).ToList()
             };
         }
     }

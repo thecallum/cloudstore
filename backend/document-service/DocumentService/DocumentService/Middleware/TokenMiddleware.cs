@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Amazon.Lambda.Core;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -21,17 +22,29 @@ namespace DocumentService.Middleware
         {
             var tokenService = new TokenService.TokenService();
 
+            LambdaLogger.Log("Calling TokenMiddleware Invoke");
+
             try
             {
                 var tokenValue = httpContext.Request.Headers[TokenService.Constants.AuthToken];
+
+                LambdaLogger.Log("tokenValue: " + tokenValue);
+
 
                 var payload = tokenService.DecodeToken(tokenValue);
 
                 httpContext.Items["user"] = payload;
 
+                LambdaLogger.Log("Payload decoded: " +  payload);
+
+
                 await _next(httpContext);
-            } catch(Exception)
+            } catch(Exception e)
             {
+                LambdaLogger.Log("Exception user is null");
+                LambdaLogger.Log(e.Message);
+
+
                 httpContext.Items["user"] = null;
 
                 await _next(httpContext);

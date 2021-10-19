@@ -180,7 +180,9 @@ namespace DocumentService.Tests.UseCase
             // Assert
             _mockDocumentGateway.Verify(x => x.SaveDocument(It.IsAny<Document>()), Times.Once);
 
-            response.Should().BeEquivalentTo(existingDocument.ToDomain());
+            response.Should().BeEquivalentTo(existingDocument.ToDomain(), config => {
+                return config.Excluding(x => x.FileSize);
+            });
         }
 
 

@@ -15,6 +15,13 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Gateways
 {
+
+    public class SortedDirectoryObject
+    {
+        public Guid DirectoryId { get; set; }
+        public List<SortedDirectoryObject> Children { get; set; }
+    }
+
     public class DirectoryGateway : IDirectoryGateway
     {
         private readonly IDynamoDBContext _context;
@@ -37,9 +44,34 @@ namespace DocumentService.Gateways
         {
             LogHelper.LogGateway("DirectoryGateway", "ContainsChildDirectories");
 
-            var directories = await GetAllDirectories(userId, directoryId);
+            var config = new DynamoDBOperationConfig
+            {
+                IndexName = "DirectoryId_Name"
+            };
 
-            return directories.Count() > 0;
+            var search = _context.QueryAsync<DirectoryDb>(directoryId, config);
+            
+            var newDirectorys = await search.GetNextSetAsync();
+
+            return newDirectorys.Count() > 0;
+        }
+
+        public async Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId)
+        {
+            LogHelper.LogGateway("DirectoryGateway", "GetAllDirectories");
+
+            var directoryList = new List<DirectoryDb>();
+
+            var search = _context.QueryAsync<DirectoryDb>(userId);
+
+            do
+            {
+                var newDirectorys = await search.GetNextSetAsync();
+                directoryList.AddRange(newDirectorys);
+
+            } while (search.IsDone == false);
+
+            return directoryList;
         }
 
         public async Task CreateDirectory(Directory directory)
@@ -59,40 +91,7 @@ namespace DocumentService.Gateways
             await _context.DeleteAsync<DirectoryDb>(userId, directoryId);
         }
 
-        public async Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null)
-        {
-            LogHelper.LogGateway("DirectoryGateway", "GetAllDirectories");
-
-            // If looking for directories within another directory, 
-            // must check that parent directory exists
-            if (parentDirectoryId != null)
-            {
-                var directoryExists = await CheckDirectoryExists((Guid)parentDirectoryId, userId);
-                if (directoryExists == false) throw new DirectoryNotFoundException();
-            }
-
-            var directoryList = new List<DirectoryDb>();
-
-            // default directory cannot be null, because we cant distinguish between accounts.
-            // Instead the default will be the userid
-            var selectedParentDirectoryId = (parentDirectoryId != null) ? (Guid)parentDirectoryId : userId;
-
-            var config = new DynamoDBOperationConfig
-            {
-                IndexName = "DirectoryId_Name",
-            };
-
-            var search = _context.QueryAsync<DirectoryDb>(selectedParentDirectoryId, config);
-
-            do
-            {
-                var newDirectorys = await search.GetNextSetAsync();
-                directoryList.AddRange(newDirectorys);
-
-            } while (search.IsDone == false);
-
-            return directoryList;
-        }
+   
 
         public async Task RenameDirectory(string newName, Guid directoryId, Guid userId)
         {

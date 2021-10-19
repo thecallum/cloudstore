@@ -109,24 +109,15 @@ namespace DocumentService.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(GetAllDirectoriesResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)] // directory not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllDirectories([FromQuery] GetAllDirectoriesQuery query)
+        public async Task<IActionResult> GetAllDirectories()
         {
             LogHelper.LogController("GetAllDirectories");
 
             var user = (User)HttpContext.Items["user"];
 
-            try
-            {
-                var response = await _getAllDirectoriesUseCase.Execute(user.Id, query);
-                return Ok(response);
-
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return NotFound(query.DirectoryId);
-            }
+            var response = await _getAllDirectoriesUseCase.Execute(user.Id);
+            return Ok(response);
         }
     }
 }

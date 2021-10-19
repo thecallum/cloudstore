@@ -23,29 +23,12 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task WhenDirectoryDoesntExist_ReturnsNotFound()
-        {
-            // Arrange
-            var query = new GetAllDirectoriesQuery
-            {
-                DirectoryId = Guid.NewGuid()
-            };
-
-            // Act
-            var response = await GetAllDirectoriesRequest(query);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
-
-        [Fact]
         public async Task WhenNoDirectoriesExist_ReturnsNoDirectories()
         {
             // Arrange
-            var query = new GetAllDirectoriesQuery { DirectoryId = null };
 
             // Act
-            var response = await GetAllDirectoriesRequest(query);
+            var response = await GetAllDirectoriesRequest();
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -59,8 +42,6 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenManyDirectoriesExist_ReturnsManyDirectories()
         {
             // Arrange
-            var query = new GetAllDirectoriesQuery { DirectoryId = null };
-
             var numberOfDirectories = _random.Next(2, 5);
             var mockDirectories = _fixture
                 .Build<DirectoryDb>()
@@ -71,7 +52,7 @@ namespace DocumentService.Tests.E2ETests
             await SetupTestData(mockDirectories);
 
             // Act
-            var response = await GetAllDirectoriesRequest(query);
+            var response = await GetAllDirectoriesRequest();
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -82,17 +63,15 @@ namespace DocumentService.Tests.E2ETests
             responseContent.Directories.Should().HaveCount(numberOfDirectories);
         }
 
-        private async Task<HttpResponseMessage> GetAllDirectoriesRequest(GetAllDirectoriesQuery query)
+        private async Task<HttpResponseMessage> GetAllDirectoriesRequest()
         {
             // setup request
             var url = "/document-service/api/directory";
 
-            if (query.DirectoryId != null) url += $"?directoryId={query.DirectoryId}";
-
             var uri = new Uri(url, UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
-            message.Headers.Add("authorizationToken", _token);
+            message.Headers.Add(TokenService.Constants.AuthToken, _token);
 
             //message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 

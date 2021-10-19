@@ -9,6 +9,6 @@ namespace DocumentService.UseCase.Interfaces
 {
     public interface IGetAllDirectoriesUseCase
     {
-        Task<GetAllDirectoriesResponse> Execute(Guid userId, GetAllDirectoriesQuery query);
+        Task<GetAllDirectoriesResponse> Execute(Guid userId);
     }
 }

@@ -63,7 +63,7 @@ namespace DocumentService.Tests.E2ETests
             var uri = new Uri($"/document-service/api/storage/usage/", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
-            message.Headers.Add("authorizationToken", _token);
+            message.Headers.Add(TokenService.Constants.AuthToken, _token);
 
             // call request
             _httpClient.DefaultRequestHeaders
