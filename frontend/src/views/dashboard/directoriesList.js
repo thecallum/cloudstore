@@ -35,9 +35,11 @@ const DirectoriesList = ({ directories, urlComponents }) => {
     );
   }
 
+  if (filteredDirectories.length === 0) return null;
+
   return (
     <>
-      <h2>Directories [{filteredDirectories.length}]</h2>
+      <h2>Directories</h2>
 
       <StyledDirectoriesList>
         {filteredDirectories.map((x, index) => (
