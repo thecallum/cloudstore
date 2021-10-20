@@ -1,4 +1,25 @@
-import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+import Directory from "./directory";
+
+const StyledDirectoriesList = styled.ul`
+  margin: 0;
+  padding: 0;
+
+  display: grid;
+
+  grid-template-columns: 1fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
+
+  @media (min-width: 500px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: 700px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+`;
 
 const DirectoriesList = ({ directories, urlComponents }) => {
   let filteredDirectories;
@@ -18,23 +39,11 @@ const DirectoriesList = ({ directories, urlComponents }) => {
     <>
       <h2>Directories [{filteredDirectories.length}]</h2>
 
-      <ul>
-        {filteredDirectories.map((x, index) => {
-          let directoryUrl = `/dashboard`;
-
-          if (urlComponents.length > 0) {
-            directoryUrl += urlComponents[urlComponents.length - 1].full;
-          }
-
-          directoryUrl += `/` + x.directoryId;
-
-          return (
-            <li key={index}>
-              <Link to={directoryUrl}>{x.name}</Link>
-            </li>
-          );
-        })}
-      </ul>
+      <StyledDirectoriesList>
+        {filteredDirectories.map((x, index) => (
+          <Directory directory={x} urlComponents={urlComponents} key={index} />
+        ))}
+      </StyledDirectoriesList>
     </>
   );
 };
