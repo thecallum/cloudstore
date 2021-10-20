@@ -6,7 +6,7 @@ import Home from "../views/home";
 import Login from "../views/login";
 import Register from "../views/register";
 import Account from "../views/account";
-import Dashboard from "../views/dashboard";
+import Dashboard from "../views/dashboard/index";
 import NotFoundPage from "../views/notFoundPage";
 
 const Router = () => {

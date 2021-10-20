@@ -1,22 +1,17 @@
 import { API_BASE_URL } from "./constants";
-import { loadToken } from "../services/authService";
 
-var headers = new Headers();
-headers.append("Content-Type", "application/json");
-
-const getAllDirectories = (token, directoryId = null) =>
+const getAllDirectories = (token) =>
   new Promise((resolve) => {
-    let url = API_BASE_URL + "document-service/api/directory/";
+    var headers = new Headers();
+    headers.append("Content-Type", "application/json");
 
-    if (!!directoryId !== false) url += `?directoryId=${directoryId}`;
+    const url = API_BASE_URL + "document-service/api/directory/";
 
     headers.append("authorization", token);
 
     var requestOptions = {
       method: "GET",
       headers: headers,
-      redirect: "follow",
-      mode: "cors",
     };
 
     fetch(url, requestOptions)

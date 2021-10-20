@@ -4,7 +4,7 @@ import Layout from "./layout/layout";
 
 import { saveToken } from "../services/authService";
 
-export default ({ history }) => {
+const Login = ({ history }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -57,3 +57,5 @@ export default ({ history }) => {
     </Layout>
   );
 };
+
+export default Login;

@@ -1,18 +1,23 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import getAllDocuments from "../requests/getAllDocuments";
-import getAllDirectories from "../requests/getAllDirectories";
+import getAllDocuments from "../../requests/getAllDocuments";
+import getAllDirectories from "../../requests/getAllDirectories";
 
-import Layout from "./layout/layout";
+import Layout from "../layout/layout";
 
-import { Link, useLocation } from "react-router-dom";
-import { loadToken } from "../services/authService";
+import { useLocation } from "react-router-dom";
+import { loadToken } from "../../services/authService";
+
+import CreateDirectory from "./createDirectory";
+import DashboardBreadcrumb from "./breadcrumb";
+import DirectoriesList from "./directoriesList";
+import DocumentsList from "./documentsList";
 
 const decodeDashboardPath = () => {
   const urlComponents = window.location.pathname.split("/").slice(2);
 
   if (urlComponents.length === 1 && urlComponents[0] === "") {
-    return [{ base: "/", full: "/dashboard/" }];
+    return [];
   }
 
   const formattedUrls = [];
@@ -38,34 +43,7 @@ const decodeDashboardPath = () => {
   return formattedUrls;
 };
 
-const DashboardBreadcrumb = ({ urlComponents }) => {
-  return (
-    <ul
-      style={{
-        margin: 0,
-        padding: 0,
-        display: "flex",
-        // background: "orange",
-        padding: "5px",
-        marginLeft: "20px",
-      }}
-    >
-      {urlComponents.map((x) => (
-        <li
-          style={{
-            display: "block",
-            marginRight: 2,
-          }}
-        >
-          <Link to={`/dashboard${x.full}`}>{x.base}</Link>
-        </li>
-      ))}
-    </ul>
-  );
-};
-
-export default (props) => {
-  const [path, setPath] = useState(null);
+const Dashboard = (props) => {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState([]);
   const [directories, setDirectories] = useState([]);
@@ -75,15 +53,15 @@ export default (props) => {
   const loadAll = (urlComponents) => {
     setLoading(true);
 
+    const directoryId =
+      urlComponents.length === 0
+        ? null
+        : urlComponents[urlComponents.length - 1].name;
+
     const token = loadToken();
 
-    Promise.all([
-      getAllDocuments(token, urlComponents[0].name),
-      getAllDirectories(token, urlComponents[0].name),
-    ])
+    Promise.all([getAllDocuments(token, directoryId), getAllDirectories(token)])
       .then((res) => {
-        console.log({ res });
-
         const [documentsResponse, directoriesResponse] = res;
 
         if (documentsResponse.success === true) {
@@ -106,17 +84,20 @@ export default (props) => {
   const urlComponents = decodeDashboardPath();
 
   useEffect(() => {
-    // console.log("location changed");
-    setPath(window.location.pathname);
-
     loadAll(urlComponents);
   }, [location.key]);
 
   return (
     <Layout>
-      <h1>Dashboard Component</h1>
+      <h1>Dashboard Component: </h1>
 
-      <DashboardBreadcrumb urlComponents={urlComponents} />
+      <CreateDirectory
+        directoryId={
+          urlComponents.length === 0
+            ? null
+            : urlComponents[urlComponents.length - 1].name
+        }
+      />
 
       {loading === true ? (
         <>
@@ -124,27 +105,33 @@ export default (props) => {
         </>
       ) : (
         <>
-          <h2>Directories [{directories.length}]</h2>
+          <DashboardBreadcrumb
+            urlComponents={urlComponents}
+            directories={directories}
+          />
 
-          {/* <pre>{JSON.stringify(directories, null, 2)}</pre> */}
+          <h2>
+            Current Directory: [
+            {urlComponents.length === 0
+              ? "Home"
+              : directories.filter(
+                  (x) =>
+                    x.directoryId ===
+                    urlComponents[urlComponents.length - 1].name
+                )[0].name}
+            ]
+          </h2>
 
-          <ul>
-            {directories.map((x) => (
-              <li>
-                <Link to={`/dashboard/${x.directoryId}`}>{x.name}</Link>
-              </li>
-            ))}
-          </ul>
+          <DirectoriesList
+            directories={directories}
+            urlComponents={urlComponents}
+          />
 
-          <h2>Documents [{documents.length}]</h2>
-
-          <ul>
-            {documents.map((x) => (
-              <li>{x.name}</li>
-            ))}
-          </ul>
+          <DocumentsList documents={documents} urlComponents={urlComponents} />
         </>
       )}
     </Layout>
   );
 };
+
+export default Dashboard;

@@ -35,8 +35,9 @@ const header = () => {
           display: "flex",
         }}
       >
-        {links.map((x) => (
+        {links.map((x, index) => (
           <li
+            key={index}
             style={{
               display: "block",
               marginLeft: "8px",

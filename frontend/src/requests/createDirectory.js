@@ -1,35 +1,34 @@
 import { API_BASE_URL } from "./constants";
 
-const getAllDocuments = (token, directoryId = null) =>
+const createDirectory = (token, { name, parentDirectoryId = null }) =>
   new Promise((resolve) => {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    let url = API_BASE_URL + "document-service/api/document/";
 
-    if (!!directoryId !== false) url += `?directoryId=${directoryId}`;
+    const url = API_BASE_URL + "document-service/api/directory";
 
     headers.append("authorization", token);
 
+    var body = JSON.stringify({
+      name,
+      parentDirectoryId,
+    });
+
     var requestOptions = {
-      method: "GET",
+      method: "POST",
       headers: headers,
-      redirect: "follow",
-      mode: "cors",
+      body: body,
     };
 
     fetch(url, requestOptions)
       .then((res) => {
-        if (res.status !== 200) {
+        if (res.status !== 201) {
           resolve({
             success: false,
             status: res.status,
           });
-          return;
         }
 
-        return res.json();
-      })
-      .then((res) => {
         resolve({
           success: true,
           message: res,
@@ -43,4 +42,4 @@ const getAllDocuments = (token, directoryId = null) =>
       });
   });
 
-export default getAllDocuments;
+export default createDirectory;
