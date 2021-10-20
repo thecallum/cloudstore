@@ -78,12 +78,8 @@ namespace authservice
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
                 .WithExposedHeaders("authorization", "x-amzn-Remapped-Authorization"));
-
-
 
             app.Map("/auth-service", mainApp =>
             {
