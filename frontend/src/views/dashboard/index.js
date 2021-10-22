@@ -63,7 +63,6 @@ const Dashboard = (props) => {
     setLoading(true);
 
     let directoryId = null;
-    let directory = null;
 
     if (urlComponents.length > 0) {
       directoryId = urlComponents[urlComponents.length - 1].name;
@@ -88,17 +87,26 @@ const Dashboard = (props) => {
           setDocuments(documentsResponse.message.documents);
         }
 
+        let directories = [];
+        let directory = null;
+
         if (directoriesResponse.success) {
-          setDirectories(directoriesResponse.message.directories);
+          directories = directoriesResponse.message.directories;
+
+          // console.log({ directoryId });
 
           if (directoryId !== null) {
+            // console.log("filtering directories", directories);
             directory = directories.filter(
               (x) => x.directoryId === directoryId
             )[0];
           }
-
-          setDirectory(directory);
         }
+
+        setDirectories(directories);
+
+        // console.log("setDirectory", directory);
+        setDirectory(directory);
 
         if (storageUsageResponse.success === true) {
           setStorageUsage(storageUsageResponse.message);
@@ -127,6 +135,10 @@ const Dashboard = (props) => {
         </>
       ) : (
         <>
+          {/* <pre>{JSON.stringify(directory, null, 2)}</pre>
+
+          <pre>{JSON.stringify(directoryId, null, 2)}</pre> */}
+
           <DashboardBreadcrumb
             urlComponents={urlComponents}
             directories={directories}

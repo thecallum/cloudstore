@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import CreateDirectoryModal from "./modals/createDirectoryModal";
 import UploadDocumentModal from "./modals/uploadDocumentModal";
 import DeleteDirectoryModal from "./modals/deleteDirectoryModal";
+import RenameDirectoryModal from "./modals/renameDirectoryModal";
 
 const customStyles = {
   content: {
@@ -73,6 +74,16 @@ const TaskBar = ({ directoryId, directory = null }) => {
     };
 
     actionList.push(deleteDirectoryAction);
+
+    const renameDirectoryModal = {
+      component: (
+        <button type="button" onClick={() => openModal("renameDirectory")}>
+          Rename Directory
+        </button>
+      ),
+    };
+
+    actionList.push(renameDirectoryModal);
   }
 
   return (
@@ -82,7 +93,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
         padding: "15px",
       }}
     >
-      <h2>Taskbar : {directoryId}</h2>
+      <h2>Taskbar</h2>
 
       <ul>
         {actionList.map((x, index) => (
@@ -123,6 +134,17 @@ const TaskBar = ({ directoryId, directory = null }) => {
             closeModal={closeModal}
             directoryId={directoryId}
           />
+        </Modal>
+      )}
+
+      {selectedModal === "renameDirectory" && (
+        <Modal
+          isOpen={true}
+          onRequestClose={closeModal}
+          style={customStyles}
+          contentLabel="Example Modal"
+        >
+          <RenameDirectoryModal closeModal={closeModal} directory={directory} />
         </Modal>
       )}
     </div>

@@ -82,7 +82,8 @@ namespace DocumentService
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader());
+                .AllowAnyHeader()
+                .WithExposedHeaders("location"));
 
             app.Map("/document-service", mainApp =>
             {

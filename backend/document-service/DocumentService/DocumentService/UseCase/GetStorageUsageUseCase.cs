@@ -12,7 +12,7 @@ namespace DocumentService.UseCase
     {
         private readonly IStorageServiceGateway _storageServiceGateway;
 
-        private readonly long _accountStorageCapacity = 1000;
+        private readonly long _accountStorageCapacity = 1073741824;
 
         public GetStorageUsageUseCase(IStorageServiceGateway storageServiceGateway, long? accountStorageCapacity = null)
         {
