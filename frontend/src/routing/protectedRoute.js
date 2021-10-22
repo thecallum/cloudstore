@@ -4,6 +4,8 @@ import { checkAuthStatus } from "../services/authService";
 const ProtectedRoute = ({ component: Component, ...restOfProps }) => {
   const isAuthenticated = checkAuthStatus();
 
+  console.log({ isAuthenticated });
+
   return (
     <Route
       {...restOfProps}
