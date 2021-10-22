@@ -5,6 +5,8 @@ import fileSize from "filesize.js";
 import getDocumentDownloadLinkRequest from "../../../../requests/getDocumentDownloadLink";
 import { loadToken } from "../../../../services/authService";
 
+import deleteDocumentRequest from "../../../../requests/deleteDocument";
+
 const customStyles = {
   content: {
     top: "50%",
@@ -25,6 +27,8 @@ const ModalContents = ({ document = null }) => {
   const getDownloadLink = async () => {
     const token = loadToken();
 
+    if (loading) return;
+
     setLoading(true);
     setError(null);
 
@@ -38,6 +42,32 @@ const ModalContents = ({ document = null }) => {
     }
 
     // console.log({ response });
+
+    setLoading(false);
+  };
+
+  const handleDeleteDocument = async () => {
+    const status = window.confirm(
+      "Are you sure you want to delete this document?"
+    );
+
+    if (status !== true) return;
+
+    if (loading) return;
+
+    setLoading(true);
+    setError(null);
+
+    const token = loadToken();
+
+    var response = await deleteDocumentRequest(token, document.id);
+
+    if (response.success === false) {
+      setError("Unable to delete document");
+    } else {
+      //   console.log("document deleted");
+      window.location.reload();
+    }
 
     setLoading(false);
   };
@@ -62,6 +92,10 @@ const ModalContents = ({ document = null }) => {
 
       <button type="button" onClick={getDownloadLink}>
         Download Document
+      </button>
+
+      <button type="button" onClick={handleDeleteDocument}>
+        Delete Document
       </button>
     </>
   );
