@@ -2,6 +2,9 @@ import React from "react";
 import { useEffect, useState } from "react";
 import getAllDocuments from "../../requests/getAllDocuments";
 import getAllDirectories from "../../requests/getAllDirectories";
+import getStorageUsage from "../../requests/getStorageUsage";
+
+import StorageUsage from "./storageUsage";
 
 import Layout from "../layout/layout";
 
@@ -48,6 +51,7 @@ const Dashboard = (props) => {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState([]);
   const [directories, setDirectories] = useState([]);
+  const [storageUsage, setStorageUsage] = useState(null);
 
   const location = useLocation();
 
@@ -61,20 +65,29 @@ const Dashboard = (props) => {
 
     const token = loadToken();
 
-    Promise.all([getAllDocuments(token, directoryId), getAllDirectories(token)])
-      .then((res) => {
-        const [documentsResponse, directoriesResponse] = res;
+    const taskList = [
+      getAllDocuments(token, directoryId),
+      getAllDirectories(token),
+      getStorageUsage(token),
+    ];
 
-        if (documentsResponse.success === true) {
+    Promise.all(taskList)
+      .then((res) => {
+        const [documentsResponse, directoriesResponse, storageUsageResponse] =
+          res;
+
+        if (documentsResponse.success) {
           setDocuments(documentsResponse.message.documents);
-        } else {
-          setDocuments([]);
         }
 
-        if (directoriesResponse.success === true) {
+        if (directoriesResponse.success) {
           setDirectories(directoriesResponse.message.directories);
-        } else {
-          setDirectories([]);
+        }
+
+        console.log({ storageUsageResponse });
+
+        if (storageUsageResponse.success === true) {
+          setStorageUsage(storageUsageResponse.message);
         }
       })
       .finally(() => {
@@ -118,6 +131,8 @@ const Dashboard = (props) => {
             urlComponents={urlComponents}
             directories={directories}
           />
+
+          <StorageUsage storageUsage={storageUsage} />
 
           <h2>
             Current Directory: [
