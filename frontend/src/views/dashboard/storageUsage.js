@@ -1,6 +1,8 @@
 import fileSize from "filesize.js";
 
 const storageUsage = ({ storageUsage }) => {
+  if (storageUsage === null) return null;
+
   return (
     <div
       style={{

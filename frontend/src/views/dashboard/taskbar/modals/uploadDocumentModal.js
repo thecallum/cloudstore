@@ -1,22 +1,27 @@
+import { loadToken } from "../../../../services/authService";
 import { useState } from "react";
-import { loadToken } from "../../services/authService";
 
-import validateDocumentUploaded from "../../requests/validateDocumentUpload";
-import uploadFileToS3 from "../../requests/uploadFileToS3";
-import getUploadLink from "../../requests/getUploadLink";
+import validateDocumentUploaded from "../../../../requests/validateDocumentUpload";
+import uploadFileToS3 from "../../../../requests/uploadFileToS3";
+import getUploadLink from "../../../../requests/getUploadLink";
 
-const UploadDocument = ({ directoryId = null }) => {
+const UploadDocumentModal = ({ closeModal, directoryId }) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (loading) return;
 
-    if (e.target.file.files.length === 0) return;
-    if (filePath === null) return;
+    if (e.target.file.files.length === 0 || filePath === null) {
+      setError("Select a file");
+      return;
+    }
 
     setLoading(true);
+
+    setError(null);
 
     const token = loadToken();
 
@@ -25,7 +30,7 @@ const UploadDocument = ({ directoryId = null }) => {
     const getUploadLinkResponse = await getUploadLink(token);
 
     if (getUploadLinkResponse.success === false) {
-      alert("error getting upload link");
+      setError("error getting upload link");
       setLoading(false);
       return;
     }
@@ -36,7 +41,7 @@ const UploadDocument = ({ directoryId = null }) => {
     );
 
     if (uploadResponse.success === false) {
-      alert("error uploading file to s3");
+      setError("error uploading file to s3");
       setLoading(false);
       return;
     }
@@ -49,7 +54,7 @@ const UploadDocument = ({ directoryId = null }) => {
     );
 
     if (validateResponse.success === false) {
-      alert("Error validating file upload");
+      setError("Error validating file upload");
       setLoading(false);
       return;
     }
@@ -65,8 +70,6 @@ const UploadDocument = ({ directoryId = null }) => {
     <div style={{ border: "1px solid black", padding: "15px" }}>
       <h2>Upload Document</h2>
 
-      <p>FilePath: {filePath}</p>
-
       <form onSubmit={handleSubmit}>
         <div>
           <input
@@ -81,6 +84,8 @@ const UploadDocument = ({ directoryId = null }) => {
 
         {loading && <p>Loading...</p>}
 
+        {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
+
         <div>
           <button type="submit">Upload</button>
         </div>
@@ -89,4 +94,4 @@ const UploadDocument = ({ directoryId = null }) => {
   );
 };
 
-export default UploadDocument;
+export default UploadDocumentModal;

@@ -22,12 +22,24 @@ const StyledDocumentsList = styled.ul`
 `;
 
 const DocumentsList = ({ documents, urlComponents }) => {
+  const triggerCustomEvent = (modalName) => {
+    const event = new CustomEvent("open-modal", {
+      detail: {
+        modalName,
+      },
+    });
+
+    window.dispatchEvent(event);
+  };
+
   if (documents.length === 0) {
     return (
       <>
         <h2>No documements here..</h2>
 
-        <button>Button to upload new document</button>
+        <button onClick={() => triggerCustomEvent("uploadDocument")}>
+          Button to upload new document
+        </button>
       </>
     );
   }

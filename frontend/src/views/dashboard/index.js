@@ -11,11 +11,11 @@ import Layout from "../layout/layout";
 import { useLocation } from "react-router-dom";
 import { loadToken } from "../../services/authService";
 
-import CreateDirectory from "./createDirectory";
-import UploadDocument from "./uploadDocument";
 import DashboardBreadcrumb from "./breadcrumb";
 import DirectoriesList from "./directoriesList";
 import DocumentsList from "./documentsList";
+
+import TaskBar from "./taskbar/taskbar";
 
 const decodeDashboardPath = () => {
   const urlComponents = window.location.pathname.split("/").slice(2);
@@ -103,17 +103,9 @@ const Dashboard = (props) => {
 
   return (
     <Layout>
-      <h1>Dashboard Component: </h1>
+      <h1>Dashboard</h1>
 
-      <CreateDirectory
-        directoryId={
-          urlComponents.length === 0
-            ? null
-            : urlComponents[urlComponents.length - 1].name
-        }
-      />
-
-      <UploadDocument
+      <TaskBar
         directoryId={
           urlComponents.length === 0
             ? null
