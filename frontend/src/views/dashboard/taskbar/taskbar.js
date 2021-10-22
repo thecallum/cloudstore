@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 import CreateDirectoryModal from "./modals/createDirectoryModal";
 import UploadDocumentModal from "./modals/uploadDocumentModal";
+import DeleteDirectoryModal from "./modals/deleteDirectoryModal";
 
 const customStyles = {
   content: {
@@ -17,11 +18,10 @@ const customStyles = {
 
 Modal.setAppElement("#root");
 
-const TaskBar = ({ directoryId }) => {
+const TaskBar = ({ directoryId, directory = null }) => {
   const [selectedModal, setSelectedModal] = useState(null);
 
   const handleCustomEvent = (e) => {
-    // console.log("custom event", e.detail.modalName);
     openModal(e.detail.modalName);
   };
 
@@ -31,7 +31,7 @@ const TaskBar = ({ directoryId }) => {
     return function cleanup() {
       window.removeEventListener("open-modal", handleCustomEvent);
     };
-  }, []);
+  }, [directoryId, directory]);
 
   function openModal(modalName) {
     setSelectedModal(modalName);
@@ -41,10 +41,39 @@ const TaskBar = ({ directoryId }) => {
     setSelectedModal(null);
   }
 
-  const modalList = [
-    { name: "createDirectory", label: "Create Directory" },
-    { name: "uploadDocument", label: "Upload Document" },
-  ];
+  const actionList = [];
+
+  // Add Modal actions
+  const createDirectoryAction = {
+    component: (
+      <button type="button" onClick={() => openModal("createModal")}>
+        Create Directory
+      </button>
+    ),
+  };
+
+  const uploadDocumentAction = {
+    component: (
+      <button type="button" onClick={() => openModal("uploadDocument")}>
+        Upload Document
+      </button>
+    ),
+  };
+
+  actionList.push(createDirectoryAction);
+  actionList.push(uploadDocumentAction);
+
+  if (directory !== null) {
+    const deleteDirectoryAction = {
+      component: (
+        <button type="button" onClick={() => openModal("deleteDirectory")}>
+          Delete Directory
+        </button>
+      ),
+    };
+
+    actionList.push(deleteDirectoryAction);
+  }
 
   return (
     <div
@@ -53,15 +82,11 @@ const TaskBar = ({ directoryId }) => {
         padding: "15px",
       }}
     >
-      <h2>Taskbar</h2>
+      <h2>Taskbar : {directoryId}</h2>
 
       <ul>
-        {modalList.map((x, index) => (
-          <li key={index}>
-            <button type="button" onClick={() => openModal(x.name)}>
-              {x.label}
-            </button>
-          </li>
+        {actionList.map((x, index) => (
+          <li key={index}>{x.component}</li>
         ))}
       </ul>
 
@@ -84,6 +109,20 @@ const TaskBar = ({ directoryId }) => {
           contentLabel="Example Modal"
         >
           <UploadDocumentModal directoryId={directoryId} />
+        </Modal>
+      )}
+
+      {selectedModal === "deleteDirectory" && (
+        <Modal
+          isOpen={true}
+          onRequestClose={closeModal}
+          style={customStyles}
+          contentLabel="Example Modal"
+        >
+          <DeleteDirectoryModal
+            closeModal={closeModal}
+            directoryId={directoryId}
+          />
         </Modal>
       )}
     </div>

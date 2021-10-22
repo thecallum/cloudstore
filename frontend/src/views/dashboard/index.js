@@ -54,15 +54,22 @@ const Dashboard = (props) => {
   const [directories, setDirectories] = useState([]);
   const [storageUsage, setStorageUsage] = useState(null);
 
+  const [directoryId, setDirectoryId] = useState(null);
+  const [directory, setDirectory] = useState(null);
+
   const location = useLocation();
 
   const loadAll = (urlComponents) => {
     setLoading(true);
 
-    const directoryId =
-      urlComponents.length === 0
-        ? null
-        : urlComponents[urlComponents.length - 1].name;
+    let directoryId = null;
+    let directory = null;
+
+    if (urlComponents.length > 0) {
+      directoryId = urlComponents[urlComponents.length - 1].name;
+    }
+
+    setDirectoryId(directoryId);
 
     const token = loadToken();
 
@@ -83,9 +90,15 @@ const Dashboard = (props) => {
 
         if (directoriesResponse.success) {
           setDirectories(directoriesResponse.message.directories);
-        }
 
-        console.log({ storageUsageResponse });
+          if (directoryId !== null) {
+            directory = directories.filter(
+              (x) => x.directoryId === directoryId
+            )[0];
+          }
+
+          setDirectory(directory);
+        }
 
         if (storageUsageResponse.success === true) {
           setStorageUsage(storageUsageResponse.message);
@@ -106,13 +119,7 @@ const Dashboard = (props) => {
     <Layout>
       <h1>Dashboard</h1>
 
-      <TaskBar
-        directoryId={
-          urlComponents.length === 0
-            ? null
-            : urlComponents[urlComponents.length - 1].name
-        }
-      />
+      <TaskBar directoryId={directoryId} directory={directory} />
 
       {loading === true ? (
         <>
@@ -127,17 +134,7 @@ const Dashboard = (props) => {
 
           <StorageUsage storageUsage={storageUsage} />
 
-          <h2>
-            Current Directory: [
-            {urlComponents.length === 0
-              ? "Home"
-              : directories.filter(
-                  (x) =>
-                    x.directoryId ===
-                    urlComponents[urlComponents.length - 1].name
-                )[0].name}
-            ]
-          </h2>
+          <h2>Current Directory: [{directory?.name}]</h2>
 
           <PreviewDocumentModal documents={documents} />
 
