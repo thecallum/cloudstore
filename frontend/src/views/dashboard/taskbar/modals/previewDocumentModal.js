@@ -41,8 +41,6 @@ const ModalContents = ({ document = null }) => {
       window.open(response.message.documentLink, "_blank").focus();
     }
 
-    // console.log({ response });
-
     setLoading(false);
   };
 
@@ -65,7 +63,6 @@ const ModalContents = ({ document = null }) => {
     if (response.success === false) {
       setError("Unable to delete document");
     } else {
-      //   console.log("document deleted");
       window.location.reload();
     }
 
@@ -106,7 +103,6 @@ const PreviewDocumentModal = ({ documents = [] }) => {
   const [currentDocument, setCurrentDocument] = useState(null);
 
   const showDocumentPreview = (e) => {
-    // console.log(e.detail.documentId);
     const documentId = e.detail.documentId;
 
     setCurrentDocument(documents.filter((x) => x.id === documentId)[0]);
@@ -130,7 +126,6 @@ const PreviewDocumentModal = ({ documents = [] }) => {
     setShowModal(false);
   }
 
-  //   console.log(documents);
   return (
     <div>
       <Modal

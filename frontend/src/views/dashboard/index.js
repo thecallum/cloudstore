@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import getAllDocuments from "../../requests/getAllDocuments";
 import getAllDirectories from "../../requests/getAllDirectories";
 import getStorageUsage from "../../requests/getStorageUsage";
+import { Link } from "react-router-dom";
 
 import StorageUsage from "./storageUsage";
 
@@ -48,6 +49,16 @@ const decodeDashboardPath = () => {
   return formattedUrls;
 };
 
+const DashboardLayout = ({ children }) => {
+  return (
+    <Layout>
+      <h1>Dashboard</h1>
+
+      {children}
+    </Layout>
+  );
+};
+
 const Dashboard = (props) => {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState([]);
@@ -56,6 +67,8 @@ const Dashboard = (props) => {
 
   const [directoryId, setDirectoryId] = useState(null);
   const [directory, setDirectory] = useState(null);
+
+  const [directoryNotFound, setDirectoryNotFound] = useState(false);
 
   const location = useLocation();
 
@@ -90,22 +103,22 @@ const Dashboard = (props) => {
         let directories = [];
         let directory = null;
 
+        // default value
+        setDirectoryNotFound(false);
+
         if (directoriesResponse.success) {
           directories = directoriesResponse.message.directories;
 
-          // console.log({ directoryId });
-
           if (directoryId !== null) {
-            // console.log("filtering directories", directories);
             directory = directories.filter(
               (x) => x.directoryId === directoryId
             )[0];
+
+            if (directory === undefined) setDirectoryNotFound(true);
           }
         }
-
         setDirectories(directories);
 
-        // console.log("setDirectory", directory);
         setDirectory(directory);
 
         if (storageUsageResponse.success === true) {
@@ -123,42 +136,52 @@ const Dashboard = (props) => {
     loadAll(urlComponents);
   }, [location.key]);
 
-  return (
-    <Layout>
-      <h1>Dashboard</h1>
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <p>Loading...</p>
+      </DashboardLayout>
+    );
+  }
 
+  if (directoryNotFound) {
+    return (
+      <DashboardLayout>
+        <h2>Directory Not Found</h2>
+
+        <p>
+          <Link to="/dashboard/">Back to Safety</Link>
+        </p>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
       <TaskBar directoryId={directoryId} directory={directory} />
 
-      {loading === true ? (
-        <>
-          <p>Loading...</p>
-        </>
-      ) : (
-        <>
-          {/* <pre>{JSON.stringify(directory, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(directory, null, 2)}</pre>
 
-          <pre>{JSON.stringify(directoryId, null, 2)}</pre> */}
-
+<pre>{JSON.stringify(directoryId, null, 2)}</pre> */}
+      {/* 
           <DashboardBreadcrumb
             urlComponents={urlComponents}
             directories={directories}
-          />
+          /> */}
 
-          <StorageUsage storageUsage={storageUsage} />
+      <StorageUsage storageUsage={storageUsage} />
 
-          <h2>Current Directory: [{directory?.name}]</h2>
+      <h2>Current Directory: [{directory?.name}]</h2>
 
-          <PreviewDocumentModal documents={documents} />
+      <PreviewDocumentModal documents={documents} />
 
-          <DirectoriesList
-            directories={directories}
-            urlComponents={urlComponents}
-          />
+      <DirectoriesList
+        directories={directories}
+        urlComponents={urlComponents}
+      />
 
-          <DocumentsList documents={documents} urlComponents={urlComponents} />
-        </>
-      )}
-    </Layout>
+      <DocumentsList documents={documents} urlComponents={urlComponents} />
+    </DashboardLayout>
   );
 };
 

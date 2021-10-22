@@ -26,15 +26,12 @@ const CreateDirectoryModal = ({ closeModal, directoryId }) => {
       payload.parentDirectoryId = directoryId;
     }
 
-    console.log({ payload });
-
     const token = loadToken();
 
     createDirectoryRequest(token, payload)
       .then((res) => {
         if (!res.success) {
           // do nothing
-          console.log({ res });
 
           setError("Something went wrong");
           return;
