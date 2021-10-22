@@ -16,6 +16,7 @@ import DirectoriesList from "./directoriesList";
 import DocumentsList from "./documentsList";
 
 import TaskBar from "./taskbar/taskbar";
+import PreviewDocumentModal from "./taskbar/modals/previewDocumentModal";
 
 const decodeDashboardPath = () => {
   const urlComponents = window.location.pathname.split("/").slice(2);
@@ -137,6 +138,8 @@ const Dashboard = (props) => {
                 )[0].name}
             ]
           </h2>
+
+          <PreviewDocumentModal documents={documents} />
 
           <DirectoriesList
             directories={directories}
