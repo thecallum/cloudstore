@@ -47,7 +47,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
   // Add Modal actions
   const createDirectoryAction = {
     component: (
-      <button type="button" onClick={() => openModal("createModal")}>
+      <button type="button" onClick={() => openModal("createDirectory")}>
         Create Directory
       </button>
     ),
