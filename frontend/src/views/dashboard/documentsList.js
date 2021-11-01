@@ -1,5 +1,5 @@
 import styled from "styled-components";
-
+import { modalActions } from "./taskbar/modalActions";
 import Document from "./document";
 
 const StyledDocumentsList = styled.ul`
@@ -36,9 +36,13 @@ const DocumentsList = ({ documents, urlComponents }) => {
     return (
       <>
         <h2>No documements here..</h2>
+        <br />
 
-        <button onClick={() => triggerCustomEvent("uploadDocument")}>
-          Button to upload new document
+        <button
+          onClick={() => triggerCustomEvent(modalActions.UPLOAD_DOCUMENT_MODAL)}
+          class="form"
+        >
+          Upload Document
         </button>
       </>
     );
