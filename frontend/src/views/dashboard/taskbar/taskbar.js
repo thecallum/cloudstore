@@ -17,6 +17,13 @@ const customStyles = {
   },
 };
 
+const modalActions = {
+  CREATE_DIRECTORY_MODAL: "CREATE_DIRECTORY_MODAL",
+  UPLOAD_DOCUMENT_MODAL: "UPLOAD_DOCUMENT_MODAL",
+  DELETE_DIRECTORY_MODAL: "DELETE_DIRECTORY_MODAL",
+  RENAME_DIRECTORY_MODAL: "RENAME_DIRECTORY_MODAL",
+};
+
 Modal.setAppElement("#root");
 
 const TaskBar = ({ directoryId, directory = null }) => {
@@ -47,7 +54,10 @@ const TaskBar = ({ directoryId, directory = null }) => {
   // Add Modal actions
   const createDirectoryAction = {
     component: (
-      <button type="button" onClick={() => openModal("createDirectory")}>
+      <button
+        type="button"
+        onClick={() => openModal(modalActions.CREATE_DIRECTORY_MODAL)}
+      >
         Create Directory
       </button>
     ),
@@ -55,7 +65,10 @@ const TaskBar = ({ directoryId, directory = null }) => {
 
   const uploadDocumentAction = {
     component: (
-      <button type="button" onClick={() => openModal("uploadDocument")}>
+      <button
+        type="button"
+        onClick={() => openModal(modalActions.UPLOAD_DOCUMENT_MODAL)}
+      >
         Upload Document
       </button>
     ),
@@ -67,7 +80,10 @@ const TaskBar = ({ directoryId, directory = null }) => {
   if (directory !== null) {
     const deleteDirectoryAction = {
       component: (
-        <button type="button" onClick={() => openModal("deleteDirectory")}>
+        <button
+          type="button"
+          onClick={() => openModal(modalActions.DELETE_DIRECTORY_MODAL)}
+        >
           Delete Directory
         </button>
       ),
@@ -77,7 +93,10 @@ const TaskBar = ({ directoryId, directory = null }) => {
 
     const renameDirectoryModal = {
       component: (
-        <button type="button" onClick={() => openModal("renameDirectory")}>
+        <button
+          type="button"
+          onClick={() => openModal(modalActions.RENAME_DIRECTORY_MODAL)}
+        >
           Rename Directory
         </button>
       ),
@@ -101,7 +120,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
         ))}
       </ul>
 
-      {selectedModal === "createDirectory" && (
+      {selectedModal === modalActions.CREATE_DIRECTORY_MODAL && (
         <Modal
           isOpen={true}
           onRequestClose={closeModal}
@@ -112,7 +131,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
         </Modal>
       )}
 
-      {selectedModal === "uploadDocument" && (
+      {selectedModal === modalActions.UPLOAD_DOCUMENT_MODAL && (
         <Modal
           isOpen={true}
           onRequestClose={closeModal}
@@ -123,7 +142,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
         </Modal>
       )}
 
-      {selectedModal === "deleteDirectory" && (
+      {selectedModal === modalActions.DELETE_DIRECTORY_MODAL && (
         <Modal
           isOpen={true}
           onRequestClose={closeModal}
@@ -137,7 +156,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
         </Modal>
       )}
 
-      {selectedModal === "renameDirectory" && (
+      {selectedModal === modalActions.RENAME_DIRECTORY_MODAL && (
         <Modal
           isOpen={true}
           onRequestClose={closeModal}
