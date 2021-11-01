@@ -1,10 +1,13 @@
 import Modal from "react-modal";
 import { useState, useEffect } from "react";
+import styled from "styled-components";
 
-import CreateDirectoryModal from "./modals/createDirectoryModal";
-import UploadDocumentModal from "./modals/uploadDocumentModal";
-import DeleteDirectoryModal from "./modals/deleteDirectoryModal";
-import RenameDirectoryModal from "./modals/renameDirectoryModal";
+import {
+  createDirectoryAction,
+  uploadDocumentAction,
+  deleteDirectoryAction,
+  renameDirectoryAction,
+} from "./modalActions";
 
 const customStyles = {
   content: {
@@ -17,14 +20,37 @@ const customStyles = {
   },
 };
 
-const modalActions = {
-  CREATE_DIRECTORY_MODAL: "CREATE_DIRECTORY_MODAL",
-  UPLOAD_DOCUMENT_MODAL: "UPLOAD_DOCUMENT_MODAL",
-  DELETE_DIRECTORY_MODAL: "DELETE_DIRECTORY_MODAL",
-  RENAME_DIRECTORY_MODAL: "RENAME_DIRECTORY_MODAL",
-};
-
 Modal.setAppElement("#root");
+
+const StyledList = styled.ul`
+  margin: -5px -5px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const StyledListItem = styled.li`
+  margin: 5px 5px;
+  display: block;
+  padding: 0;
+
+  button {
+    border-radius: 0;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+`;
+
+const ActionItem = ({ text, name, openModal }) => {
+  return (
+    <StyledListItem>
+      <button type="button" onClick={() => openModal(name)}>
+        {text}
+      </button>
+    </StyledListItem>
+  );
+};
 
 const TaskBar = ({ directoryId, directory = null }) => {
   const [selectedModal, setSelectedModal] = useState(null);
@@ -41,68 +67,14 @@ const TaskBar = ({ directoryId, directory = null }) => {
     };
   }, [directoryId, directory]);
 
-  function openModal(modalName) {
-    setSelectedModal(modalName);
-  }
+  const openModal = (modalName) => setSelectedModal(modalName);
+  const closeModal = () => setSelectedModal(null);
 
-  function closeModal() {
-    setSelectedModal(null);
-  }
-
-  const actionList = [];
-
-  // Add Modal actions
-  const createDirectoryAction = {
-    component: (
-      <button
-        type="button"
-        onClick={() => openModal(modalActions.CREATE_DIRECTORY_MODAL)}
-      >
-        Create Directory
-      </button>
-    ),
-  };
-
-  const uploadDocumentAction = {
-    component: (
-      <button
-        type="button"
-        onClick={() => openModal(modalActions.UPLOAD_DOCUMENT_MODAL)}
-      >
-        Upload Document
-      </button>
-    ),
-  };
-
-  actionList.push(createDirectoryAction);
-  actionList.push(uploadDocumentAction);
+  const actionList = [createDirectoryAction, uploadDocumentAction];
 
   if (directory !== null) {
-    const deleteDirectoryAction = {
-      component: (
-        <button
-          type="button"
-          onClick={() => openModal(modalActions.DELETE_DIRECTORY_MODAL)}
-        >
-          Delete Directory
-        </button>
-      ),
-    };
-
     actionList.push(deleteDirectoryAction);
-
-    const renameDirectoryModal = {
-      component: (
-        <button
-          type="button"
-          onClick={() => openModal(modalActions.RENAME_DIRECTORY_MODAL)}
-        >
-          Rename Directory
-        </button>
-      ),
-    };
-
-    actionList.push(renameDirectoryModal);
+    actionList.push(renameDirectoryAction);
   }
 
   return (
@@ -112,60 +84,35 @@ const TaskBar = ({ directoryId, directory = null }) => {
         padding: "15px",
       }}
     >
-      <h2>Taskbar</h2>
-
-      <ul>
+      <StyledList>
         {actionList.map((x, index) => (
-          <li key={index}>{x.component}</li>
-        ))}
-      </ul>
-
-      {selectedModal === modalActions.CREATE_DIRECTORY_MODAL && (
-        <Modal
-          isOpen={true}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-          <CreateDirectoryModal directoryId={directoryId} />
-        </Modal>
-      )}
-
-      {selectedModal === modalActions.UPLOAD_DOCUMENT_MODAL && (
-        <Modal
-          isOpen={true}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-          <UploadDocumentModal directoryId={directoryId} />
-        </Modal>
-      )}
-
-      {selectedModal === modalActions.DELETE_DIRECTORY_MODAL && (
-        <Modal
-          isOpen={true}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-          <DeleteDirectoryModal
-            closeModal={closeModal}
-            directoryId={directoryId}
+          <ActionItem
+            text={x.text}
+            name={x.name}
+            openModal={openModal}
+            key={index}
           />
-        </Modal>
-      )}
+        ))}
+      </StyledList>
 
-      {selectedModal === modalActions.RENAME_DIRECTORY_MODAL && (
-        <Modal
-          isOpen={true}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-          <RenameDirectoryModal closeModal={closeModal} directory={directory} />
-        </Modal>
-      )}
+      {/* Render Modals  */}
+
+      <p>SelectedModal: {selectedModal}</p>
+
+      {actionList.map((x, index) => {
+        if (selectedModal !== x.name) return null;
+
+        return (
+          <Modal
+            key={index}
+            isOpen={true}
+            onRequestClose={closeModal}
+            style={customStyles}
+          >
+            <x.component closeModal={closeModal} directoryId={directoryId} />
+          </Modal>
+        );
+      })}
     </div>
   );
 };
