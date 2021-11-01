@@ -9,18 +9,26 @@ import {
   renameDirectoryAction,
 } from "./modalActions";
 
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
-
 Modal.setAppElement("#root");
+
+const StyledModal = styled(Modal)`
+  background: #fff;
+  width: calc(100% - 30px);
+  max-width: 600px;
+  padding: 15px;
+
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 4px;
+
+  @media (min-width: 800px) {
+    padding: 30px;
+  }
+`;
 
 const StyledList = styled.ul`
   margin: -5px -5px;
@@ -102,18 +110,13 @@ const TaskBar = ({ directoryId, directory = null }) => {
         if (selectedModal !== x.name) return null;
 
         return (
-          <Modal
-            key={index}
-            isOpen={true}
-            onRequestClose={closeModal}
-            style={customStyles}
-          >
+          <StyledModal key={index} isOpen={true} onRequestClose={closeModal}>
             <x.component
               closeModal={closeModal}
               directoryId={directoryId}
               directory={directory}
             />
-          </Modal>
+          </StyledModal>
         );
       })}
     </div>

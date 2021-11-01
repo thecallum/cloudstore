@@ -160,15 +160,6 @@ const Dashboard = (props) => {
     <DashboardLayout>
       <TaskBar directoryId={directoryId} directory={directory} />
 
-      {/* <pre>{JSON.stringify(directory, null, 2)}</pre>
-
-<pre>{JSON.stringify(directoryId, null, 2)}</pre> */}
-      {/* 
-          <DashboardBreadcrumb
-            urlComponents={urlComponents}
-            directories={directories}
-          /> */}
-
       <StorageUsage storageUsage={storageUsage} />
 
       <h2>Current Directory: [{directory?.name}]</h2>

@@ -1,23 +1,30 @@
 import Modal from "react-modal";
 import { useState, useEffect } from "react";
 import fileSize from "filesize.js";
-
+import styled from "styled-components";
 import getDocumentDownloadLinkRequest from "../../../../requests/getDocumentDownloadLink";
 import { loadToken } from "../../../../services/authService";
 
 import deleteDocumentRequest from "../../../../requests/deleteDocument";
 
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
+const StyledModal = styled(Modal)`
+  background: #fff;
+  width: calc(100% - 30px);
+  max-width: 600px;
+  padding: 15px;
 
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 4px;
+
+  @media (min-width: 800px) {
+    padding: 30px;
+  }
+`;
 Modal.setAppElement("#root");
 
 const ModalContents = ({ document = null }) => {
@@ -78,6 +85,8 @@ const ModalContents = ({ document = null }) => {
     <>
       <h2>Preview Document</h2>
 
+      <br />
+
       <dl>
         <dt>Name</dt>
         <dd>{document.name}</dd>
@@ -133,14 +142,13 @@ const PreviewDocumentModal = ({ documents = [] }) => {
 
   return (
     <div>
-      <Modal
+      <StyledModal
         isOpen={showModal}
         onRequestClose={closeModal}
-        style={customStyles}
         contentLabel="Example Modal"
       >
         <ModalContents document={currentDocument} />
-      </Modal>
+      </StyledModal>
     </div>
   );
 };
