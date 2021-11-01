@@ -39,6 +39,7 @@ const StyledListItem = styled.li`
     border: none;
     padding: 4px 8px;
     cursor: pointer;
+    background: #ddd;
   }
 `;
 
@@ -97,8 +98,6 @@ const TaskBar = ({ directoryId, directory = null }) => {
 
       {/* Render Modals  */}
 
-      <p>SelectedModal: {selectedModal}</p>
-
       {actionList.map((x, index) => {
         if (selectedModal !== x.name) return null;
 
@@ -109,7 +108,11 @@ const TaskBar = ({ directoryId, directory = null }) => {
             onRequestClose={closeModal}
             style={customStyles}
           >
-            <x.component closeModal={closeModal} directoryId={directoryId} />
+            <x.component
+              closeModal={closeModal}
+              directoryId={directoryId}
+              directory={directory}
+            />
           </Modal>
         );
       })}

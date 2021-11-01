@@ -1,14 +1,36 @@
 import { loadToken } from "../../../../services/authService";
 import renameDirectoryRequest from "../../../../requests/renameDirectory";
 import { useState, useEffect } from "react";
+import Validator from "Validator";
 
 const RenameDirectoryModal = ({ directory, closeModal }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const originalName = directory.name;
 
-  const [name, setName] = useState(originalName);
+  const [loading, setLoading] = useState(false);
+  const [fields, setFields] = useState({ name: originalName });
+  const [errors, setErrors] = useState({});
+  const [requestError, setRequestError] = useState(null);
+
+  // const [name, setName] = useState(originalName);
+
+  const validateRequest = () => {
+    const rules = {
+      name: "required|string",
+    };
+
+    const v = Validator.make(fields, rules);
+
+    if (v.fails()) return v.getErrors();
+
+    // valid
+    return null;
+  };
+
+  const onInput = (e) =>
+    setFields({
+      ...fields,
+      [e.target.name]: e.target.value,
+    });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,21 +38,25 @@ const RenameDirectoryModal = ({ directory, closeModal }) => {
 
     if (nameChanged === false) return;
 
-    if (name === "") {
-      setError("Directory name cannot be empty");
+    const errors = validateRequest();
+    if (errors !== null) {
+      setErrors(errors);
       return;
     }
 
+    setErrors({});
+    setRequestError(null);
     setLoading(true);
-    setError(null);
 
     const token = loadToken();
-    renameDirectoryRequest(token, directory.directoryId, name)
+
+    renameDirectoryRequest(token, directory.directoryId, fields.name)
       .then((res) => {
         if (!res.success) {
           // do nothing
 
-          setError("Something went wrong");
+          setRequestError("Something went wrong");
+
           return;
         }
 
@@ -41,30 +67,39 @@ const RenameDirectoryModal = ({ directory, closeModal }) => {
       });
   };
 
-  const nameChanged = name !== originalName;
+  const nameChanged = fields.name !== originalName;
 
   return (
     <div>
       <h2>Rename Directory</h2>
 
-      {loading && <p>Loading...</p>}
+      <br />
 
       <form onSubmit={handleSubmit}>
         <div>
-          <div>
-            <label htmlFor="">Name</label>
-          </div>
+          <label class="form">Directory Name</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="name"
+            className={`form ${errors.hasOwnProperty("name") ? "error" : ""}`}
+            value={fields.name}
+            onChange={onInput}
           />
+          {errors.hasOwnProperty("name") && (
+            <span class="form">{errors.name[0]}</span>
+          )}
         </div>
 
-        {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
+        {!!requestError && <span class="form">{requestError}</span>}
+
+        {loading && <p>Loading...</p>}
 
         <div>
-          <button type="submit" disabled={nameChanged === false}>
+          <button
+            type="submit"
+            className="form"
+            disabled={nameChanged === false || fields.name === ""}
+          >
             Update
           </button>
         </div>

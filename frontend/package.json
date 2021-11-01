@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "Validator": "^1.1.4",
     "cra-template": "1.1.2",
     "filesize.js": "^2.0.0",
     "jwt-decode": "^3.1.2",

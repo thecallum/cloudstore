@@ -34,14 +34,17 @@ const ModalContents = ({ document = null }) => {
 
     const response = await getDocumentDownloadLinkRequest(token, document.id);
 
+    console.log({ response });
+
+    setLoading(false);
+
     if (response.success === false) {
       setError("Unable to download document");
     } else {
       // open in new tab
-      window.open(response.message.documentLink, "_blank").focus();
+      const link = response.message.documentLink;
+      window.open(link, "_blank").focus();
     }
-
-    setLoading(false);
   };
 
   const handleDeleteDocument = async () => {
@@ -83,15 +86,17 @@ const ModalContents = ({ document = null }) => {
         <dd>{fileSize(document.fileSize)}</dd>
       </dl>
 
-      {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
+      <br />
+
+      {!!error && <span className="form">{error}</span>}
 
       {loading && <p>Loading...</p>}
 
-      <button type="button" onClick={getDownloadLink}>
+      <button type="button" class="form" onClick={getDownloadLink}>
         Download Document
       </button>
 
-      <button type="button" onClick={handleDeleteDocument}>
+      <button type="button" class="form danger" onClick={handleDeleteDocument}>
         Delete Document
       </button>
     </>

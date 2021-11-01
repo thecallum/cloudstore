@@ -7,21 +7,31 @@ import getUploadLink from "../../../../requests/getUploadLink";
 
 const UploadDocumentModal = ({ closeModal, directoryId }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [fields, setFields] = useState({ file: null });
+  const [errors, setErrors] = useState({});
+  const [requestError, setRequestError] = useState(null);
+
+  const onInput = (e) =>
+    setFields({
+      ...fields,
+      [e.target.name]: e.target.value,
+    });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (loading) return;
 
-    if (e.target.file.files.length === 0 || filePath === null) {
-      setError("Select a file");
+    if (e.target.file.files.length === 0 || fields.file === null) {
+      setErrors({
+        ...errors,
+        file: ["Select a file"],
+      });
       return;
     }
 
+    setErrors({});
     setLoading(true);
-
-    setError(null);
 
     const token = loadToken();
 
@@ -30,7 +40,7 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
     const getUploadLinkResponse = await getUploadLink(token);
 
     if (getUploadLinkResponse.success === false) {
-      setError("error getting upload link");
+      setRequestError("error getting upload link");
       setLoading(false);
       return;
     }
@@ -41,7 +51,7 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
     );
 
     if (uploadResponse.success === false) {
-      setError("error uploading file to s3");
+      setRequestError("error uploading file to s3");
       setLoading(false);
       return;
     }
@@ -54,7 +64,7 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
     );
 
     if (validateResponse.success === false) {
-      setError("Error validating file upload");
+      setRequestError("Error validating file upload");
       setLoading(false);
       return;
     }
@@ -64,14 +74,29 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
     window.location.reload();
   };
 
-  const [filePath, setFilePath] = useState(null);
-
   return (
-    <div style={{ border: "1px solid black", padding: "15px" }}>
+    <div>
       <h2>Upload Document</h2>
+
+      <br />
 
       <form onSubmit={handleSubmit}>
         <div>
+          <label class="form">Directory Name</label>
+
+          <input
+            type="file"
+            name="file"
+            className={`form ${errors.hasOwnProperty("file") ? "error" : ""}`}
+            value={fields.file}
+            onChange={onInput}
+          />
+          {errors.hasOwnProperty("file") && (
+            <span class="form">{errors.file[0]}</span>
+          )}
+        </div>
+
+        {/* <div>
           <input
             type="file"
             name="file"
@@ -80,15 +105,15 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
               setFilePath(e.target.value);
             }}
           />
-        </div>
+        </div> */}
+
+        {!!requestError && <span className="form">{requestError}</span>}
 
         {loading && <p>Loading...</p>}
 
-        {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
-
-        <div>
-          <button type="submit">Upload</button>
-        </div>
+        <button type="submit" class="form">
+          Upload
+        </button>
       </form>
     </div>
   );

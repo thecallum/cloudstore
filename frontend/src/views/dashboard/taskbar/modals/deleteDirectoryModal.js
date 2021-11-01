@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 
 const DeleteDirectoryModal = ({ directoryId, closeModal }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [requestError, setRequestError] = useState(null);
 
   const history = useHistory();
 
@@ -13,6 +13,7 @@ const DeleteDirectoryModal = ({ directoryId, closeModal }) => {
     e.preventDefault();
     if (loading) return;
 
+    setRequestError(null);
     setLoading(true);
 
     const token = loadToken();
@@ -21,7 +22,7 @@ const DeleteDirectoryModal = ({ directoryId, closeModal }) => {
         if (!res.success) {
           // do nothing
           console.log({ res });
-          setError("Something went wrong");
+          setRequestError("Something went wrong");
           return;
         }
 
@@ -45,17 +46,23 @@ const DeleteDirectoryModal = ({ directoryId, closeModal }) => {
     <div>
       <h2>Delete Directory</h2>
 
-      {loading && <p>Loading...</p>}
+      <br />
 
       <form onSubmit={handleSubmit}>
-        {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
+        {!!requestError && <span className="form">{requestError}</span>}
 
         <p> Are you sure you want to delete this directory?</p>
 
-        <div>
-          <button type="submit">Delete</button>
+        <br />
 
-          <button type="button" onClick={closeModal}>
+        {loading && <p>Loading...</p>}
+
+        <div>
+          <button type="submit" class="form">
+            Delete
+          </button>
+
+          <button type="button" class="form danger" onClick={closeModal}>
             Cancel
           </button>
         </div>

@@ -43,7 +43,14 @@ const header = () => {
               marginLeft: "8px",
             }}
           >
-            <Link to={x.url}>{x.name}</Link>
+            <Link
+              style={{
+                color: "#0a0a0a",
+              }}
+              to={x.url}
+            >
+              {x.name}
+            </Link>
           </li>
         ))}
       </ul>

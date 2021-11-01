@@ -1,24 +1,51 @@
+import Validator from "Validator";
+
 import { loadToken } from "../../../../services/authService";
 import createDirectoryRequest from "../../../../requests/createDirectory";
 import { useState } from "react";
 
 const CreateDirectoryModal = ({ closeModal, directoryId }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [fields, setFields] = useState({ name: "" });
+  const [errors, setErrors] = useState({});
+  const [requestError, setRequestError] = useState(null);
+
+  const onInput = (e) =>
+    setFields({
+      ...fields,
+      [e.target.name]: e.target.value,
+    });
+
+  const validateRequest = () => {
+    const rules = {
+      name: "required|string",
+    };
+
+    const v = Validator.make(fields, rules);
+
+    if (v.fails()) return v.getErrors();
+
+    // valid
+    return null;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (loading) return;
 
+    const errors = validateRequest();
+
+    if (errors !== null) {
+      setErrors(errors);
+      return;
+    }
+
+    setErrors({});
+
     const payload = {
       name: e.target.name.value,
     };
-
-    if (payload.name === null || payload.name === "") {
-      setError("Name cannot be empty");
-      return;
-    }
 
     setLoading(true);
 
@@ -33,7 +60,7 @@ const CreateDirectoryModal = ({ closeModal, directoryId }) => {
         if (!res.success) {
           // do nothing
 
-          setError("Something went wrong");
+          setRequestError("Something went wrong");
           return;
         }
 
@@ -50,21 +77,30 @@ const CreateDirectoryModal = ({ closeModal, directoryId }) => {
     <div>
       <h2>Create Directory</h2>
 
-      {loading && <p>Loading...</p>}
+      <br />
 
       <form onSubmit={handleSubmit}>
         <div>
-          <div>
-            <label htmlFor="">Name</label>
-          </div>
-          <input type="text" name="name" id="" />
+          <label class="form">Directory Name</label>
+          <input
+            type="text"
+            name="name"
+            className={`form ${errors.hasOwnProperty("name") ? "error" : ""}`}
+            value={fields.name}
+            onChange={onInput}
+          />
+          {errors.hasOwnProperty("name") && (
+            <span class="form">{errors.name[0]}</span>
+          )}
         </div>
 
-        {!!error && <p style={{ color: "hsl(0, 50%, 50%)" }}>{error}</p>}
+        {requestError !== null && <span class="form">{requestError}</span>}
 
-        <div>
-          <button type="submit">Create</button>
-        </div>
+        {loading && <p>Loading...</p>}
+
+        <button type="submit" class="form">
+          Create
+        </button>
       </form>
     </div>
   );
