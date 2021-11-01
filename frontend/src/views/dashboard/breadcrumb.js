@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 const Ul = ({ children }) => (
   <ul
     style={{
-      margin: 0,
+      margin: "15px 0 10px",
+      padding: 0,
       display: "flex",
-      padding: "5px",
-      marginLeft: "20px",
-      flexDirection: "column",
+      flexDirection: "row",
+      flexWrap: "wrap",
     }}
   >
     {children}
@@ -39,10 +39,11 @@ const DashboardBreadcrumb = ({ urlComponents, directories }) => {
             {index === lastIndex ? (
               <>
                 {directories.filter((d) => d.directoryId === x.name)[0]["name"]}
+                /
               </>
             ) : (
               <Link to={`/dashboard${x.full}`}>
-                {directories.filter((d) => d.directoryId === x.name)[0].name}
+                {directories.filter((d) => d.directoryId === x.name)[0].name}/
               </Link>
             )}
           </li>

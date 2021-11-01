@@ -4,12 +4,7 @@ const storageUsage = ({ storageUsage }) => {
   if (storageUsage === null) return null;
 
   return (
-    <div
-      style={{
-        border: "1px solid black",
-        padding: "15px",
-      }}
-    >
+    <div className="storageUsage">
       <h2>Storage Usage</h2>
 
       <div>

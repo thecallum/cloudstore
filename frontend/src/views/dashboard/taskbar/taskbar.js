@@ -87,12 +87,7 @@ const TaskBar = ({ directoryId, directory = null }) => {
   }
 
   return (
-    <div
-      style={{
-        border: "1px solid black",
-        padding: "15px",
-      }}
-    >
+    <div className="taskbar">
       <StyledList>
         {actionList.map((x, index) => (
           <ActionItem

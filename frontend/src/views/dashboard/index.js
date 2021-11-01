@@ -4,8 +4,7 @@ import getAllDocuments from "../../requests/getAllDocuments";
 import getAllDirectories from "../../requests/getAllDirectories";
 import getStorageUsage from "../../requests/getStorageUsage";
 import { Link } from "react-router-dom";
-
-import StorageUsage from "./storageUsage";
+import Menu from "./taskbar/Menu";
 
 import Layout from "../layout/layout";
 
@@ -16,7 +15,6 @@ import DashboardBreadcrumb from "./breadcrumb";
 import DirectoriesList from "./directoriesList";
 import DocumentsList from "./documentsList";
 
-import TaskBar from "./taskbar/taskbar";
 import PreviewDocumentModal from "./taskbar/modals/previewDocumentModal";
 
 const decodeDashboardPath = () => {
@@ -52,7 +50,7 @@ const decodeDashboardPath = () => {
 const DashboardLayout = ({ children }) => {
   return (
     <Layout>
-      <h1>Dashboard</h1>
+      {/* <h1>Dashboard</h1> */}
 
       {children}
     </Layout>
@@ -158,11 +156,24 @@ const Dashboard = (props) => {
 
   return (
     <DashboardLayout>
-      <TaskBar directoryId={directoryId} directory={directory} />
+      <Menu
+        directoryId={directoryId}
+        directory={directory}
+        storageUsage={storageUsage}
+      ></Menu>
 
-      <StorageUsage storageUsage={storageUsage} />
+      <DashboardBreadcrumb
+        urlComponents={urlComponents}
+        directories={directories}
+      />
 
-      <h2>Current Directory: [{directory?.name}]</h2>
+      {directory !== null && directory.hasOwnProperty("name") && (
+        <>
+          <h1>{directory.name}</h1>
+
+          <br />
+        </>
+      )}
 
       <PreviewDocumentModal documents={documents} />
 

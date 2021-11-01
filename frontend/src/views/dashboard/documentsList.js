@@ -50,8 +50,6 @@ const DocumentsList = ({ documents, urlComponents }) => {
 
   return (
     <>
-      <h2>Documents</h2>
-
       <StyledDocumentsList>
         {documents.map((x, index) => (
           <Document key={index} document={x} />

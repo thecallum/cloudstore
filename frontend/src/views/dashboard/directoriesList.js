@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Directory from "./directory";
 
 const StyledDirectoriesList = styled.ul`
-  margin: 0;
+  margin: 0 0 30px;
   padding: 0;
 
   display: grid;
@@ -39,8 +39,6 @@ const DirectoriesList = ({ directories, urlComponents }) => {
 
   return (
     <>
-      <h2>Directories</h2>
-
       <StyledDirectoriesList>
         {filteredDirectories.map((x, index) => (
           <Directory directory={x} urlComponents={urlComponents} key={index} />
