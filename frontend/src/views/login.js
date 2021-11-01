@@ -4,6 +4,8 @@ import Validator from "Validator";
 import loginRequest from "../requests/login";
 import Layout from "./layout/layout";
 
+import TextInput from "../components/forms/TextInput";
+
 import { saveToken } from "../services/authService";
 
 const Login = ({ history }) => {
@@ -82,35 +84,22 @@ const Login = ({ history }) => {
       <br />
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label class="form">Email</label>
-          <input
-            type="text"
-            name="email"
-            className={`form ${errors.hasOwnProperty("email") ? "error" : ""}`}
-            value={fields.email}
-            onChange={onInput}
-          />
-          {errors.hasOwnProperty("email") && (
-            <span class="form">{errors.email[0]}</span>
-          )}
-        </div>
+        <TextInput
+          name="email"
+          label="Email"
+          value={fields.email}
+          onChange={onInput}
+          errors={errors["email"]}
+        />
 
-        <div>
-          <label class="form">Password</label>
-          <input
-            type="password"
-            name="password"
-            className={`form ${
-              errors.hasOwnProperty("password") ? "error" : ""
-            }`}
-            value={fields.password}
-            onChange={onInput}
-          />
-          {errors.hasOwnProperty("password") && (
-            <span class="form">{errors.password[0]}</span>
-          )}
-        </div>
+        <TextInput
+          name="password"
+          label="Password"
+          value={fields.password}
+          onChange={onInput}
+          errors={errors["password"]}
+          type="password"
+        />
 
         <button type="submit" class="form">
           Login

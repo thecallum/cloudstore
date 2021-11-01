@@ -96,17 +96,6 @@ const UploadDocumentModal = ({ closeModal, directoryId }) => {
           )}
         </div>
 
-        {/* <div>
-          <input
-            type="file"
-            name="file"
-            id=""
-            onChange={(e) => {
-              setFilePath(e.target.value);
-            }}
-          />
-        </div> */}
-
         {!!requestError && <span className="form">{requestError}</span>}
 
         {loading && <p>Loading...</p>}

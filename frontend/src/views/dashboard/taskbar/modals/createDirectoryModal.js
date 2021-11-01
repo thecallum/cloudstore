@@ -4,6 +4,8 @@ import { loadToken } from "../../../../services/authService";
 import createDirectoryRequest from "../../../../requests/createDirectory";
 import { useState } from "react";
 
+import TextInput from "../../../../components/forms/TextInput";
+
 const CreateDirectoryModal = ({ closeModal, directoryId }) => {
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState({ name: "" });
@@ -80,19 +82,13 @@ const CreateDirectoryModal = ({ closeModal, directoryId }) => {
       <br />
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label class="form">Directory Name</label>
-          <input
-            type="text"
-            name="name"
-            className={`form ${errors.hasOwnProperty("name") ? "error" : ""}`}
-            value={fields.name}
-            onChange={onInput}
-          />
-          {errors.hasOwnProperty("name") && (
-            <span class="form">{errors.name[0]}</span>
-          )}
-        </div>
+        <TextInput
+          name="name"
+          label="Directory Name"
+          value={fields.name}
+          onChange={onInput}
+          errors={errors["name"]}
+        />
 
         {requestError !== null && <span class="form">{requestError}</span>}
 

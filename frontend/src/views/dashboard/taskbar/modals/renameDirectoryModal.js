@@ -3,6 +3,8 @@ import renameDirectoryRequest from "../../../../requests/renameDirectory";
 import { useState, useEffect } from "react";
 import Validator from "Validator";
 
+import TextInput from "../../../../components/forms/TextInput";
+
 const RenameDirectoryModal = ({ directory, closeModal }) => {
   const originalName = directory.name;
 
@@ -76,19 +78,13 @@ const RenameDirectoryModal = ({ directory, closeModal }) => {
       <br />
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label class="form">Directory Name</label>
-          <input
-            type="text"
-            name="name"
-            className={`form ${errors.hasOwnProperty("name") ? "error" : ""}`}
-            value={fields.name}
-            onChange={onInput}
-          />
-          {errors.hasOwnProperty("name") && (
-            <span class="form">{errors.name[0]}</span>
-          )}
-        </div>
+        <TextInput
+          name="name"
+          label="Directory Name"
+          value={fields.name}
+          onChange={onInput}
+          errors={errors["name"]}
+        />
 
         {!!requestError && <span class="form">{requestError}</span>}
 
