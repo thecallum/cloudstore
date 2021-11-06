@@ -35,6 +35,7 @@ namespace TokenService
                 .AddClaim("firstName", user.FirstName)
                 .AddClaim("lastName", user.LastName)
                 .AddClaim("email", user.Email)
+                .AddClaim("storageCapacity", user.StorageCapacity)
                 .Encode();
 
             return token;
@@ -52,10 +53,11 @@ namespace TokenService
             {
                 return new User
                 {
-                    Id = Guid.Parse( (string) payload["id"]),
-                    FirstName = (string) payload["firstName"],
-                    LastName = (string) payload["lastName"],
-                    Email = (string) payload["email"]
+                    Id = Guid.Parse((string)payload["id"]),
+                    FirstName = (string)payload["firstName"],
+                    LastName = (string)payload["lastName"],
+                    Email = (string)payload["email"],
+                    StorageCapacity = (long)payload["storageCapacity"]
                 };
             } catch(Exception)
             {
