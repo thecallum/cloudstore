@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": " {\n    \"Type\": \"Notification\",\n    \"MessageId\": \"9d1b350a-0edd-5b02-8d7e-6cf567af45d8\",\n    \"SequenceNumber\": \"10000000000000061000\",\n    \"TopicArn\": \"arn:aws:sns:eu-west-1:714664911966:TestTopic.fifo\",\n    \"Message\": \"{\\n \\\"eventType\\\": \\\"DeleteDirectoryEvent\\\",\\n \\\"user\\\": {\\n   \\\"id\\\": \\\"64b42225-4acb-47f0-b3e4-a281214b2798\\\",\\n   \\\"email\\\": \\\"callummac@protonmail.com\\\",\\n   \\\"firstName\\\": \\\"Callum\\\",\\n   \\\"lastName\\\": \\\"Macpherson\\\"\\n },\\n \\\"targetId\\\": \\\"ee01f4cc-d2c3-4fd8-81af-2baa2c3096e0\\\",\\n \\\"dateTime\\\": \\\"2021-11-05T14:55:43+00:00\\\",\\n \\\"eventData\\\": {\\n   \\\"oldData\\\": {},\\n   \\\"newData\\\": {}\\n }\\n}\",\n    \"Timestamp\": \"2021-11-05T17:17:38.513Z\",\n    \"UnsubscribeURL\": \"https:\/\/sns.eu-west-1.amazonaws.com\/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:714664911966:TestTopic.fifo:54794034-aed7-469b-8827-9193b1280100\"\n}\n",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1523232000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1523232000001"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:{partition}:sqs:{region}:123456789012:MyQueue",
+      "awsRegion": "{region}"
+    }
+  ]
+}
