@@ -45,7 +45,7 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var mockDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, _userId)
+                .With(x => x.UserId, _user.Id)
                 .Create();
 
             await SetupTestData(mockDirectory);
@@ -64,7 +64,7 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var mockDirectory = _fixture.Build<DirectoryDb>()
-                .With(x => x.UserId, _userId)
+                .With(x => x.UserId, _user.Id)
                 .Create();
 
             await SetupTestData(mockDirectory);
@@ -79,7 +79,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_userId, mockDirectory.DirectoryId);
+            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, mockDirectory.DirectoryId);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Name.Should().Be(request.Name);

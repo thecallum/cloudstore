@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 
 namespace DocumentService.UseCase.Interfaces
 {
     public interface IGetStorageUsageUseCase
     {
-        Task<GetStorageUsageResponse> Execute(Guid userId);
+        Task<GetStorageUsageResponse> Execute(User user);
     }
 }

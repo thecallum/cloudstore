@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 namespace DocumentService.Tests.Controllers
@@ -206,7 +207,7 @@ namespace DocumentService.Tests.Controllers
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
             _mockValidateUploadedDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
                 .ReturnsAsync((Document) null);
 
             // Act
@@ -227,7 +228,7 @@ namespace DocumentService.Tests.Controllers
             var document = _fixture.Create<Document>();
 
             _mockValidateUploadedDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
                 .ReturnsAsync(document);
 
             // Act
@@ -250,7 +251,7 @@ namespace DocumentService.Tests.Controllers
             var exception = new ExceededUsageCapacityException();
 
             _mockValidateUploadedDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
                 .ThrowsAsync(exception);
 
             // Act

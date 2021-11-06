@@ -69,7 +69,8 @@ namespace DocumentService.Controllers
 
             try
             {
-                var document = await _validateUploadedDocumentUseCase.Execute(user.Id, query.DocumentId, request);
+
+                var document = await _validateUploadedDocumentUseCase.Execute(query.DocumentId, request, user);
                 if (document == null) return NotFound(query.DocumentId);
 
                 return Created($"/document-service/api/document/{query.DocumentId}", document);

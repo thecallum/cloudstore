@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 
 namespace DocumentService.UseCase
 {
@@ -12,18 +13,14 @@ namespace DocumentService.UseCase
     {
         private readonly IStorageServiceGateway _storageServiceGateway;
 
-        private readonly long _accountStorageCapacity = 1073741824;
-
-        public GetStorageUsageUseCase(IStorageServiceGateway storageServiceGateway, long? accountStorageCapacity = null)
+        public GetStorageUsageUseCase(IStorageServiceGateway storageServiceGateway)
         {
             _storageServiceGateway = storageServiceGateway;
-
-            if (accountStorageCapacity != null) _accountStorageCapacity = (long)accountStorageCapacity;
         }
 
-        public async Task<GetStorageUsageResponse> Execute(Guid userId)
+        public async Task<GetStorageUsageResponse> Execute(User user)
         {
-            var storageUsageResponse = await _storageServiceGateway.GetUsage(userId, _accountStorageCapacity);
+            var storageUsageResponse = await _storageServiceGateway.GetUsage(user);
 
             return new GetStorageUsageResponse
             {

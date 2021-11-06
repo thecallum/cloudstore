@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 namespace DocumentService.Tests.UseCase
@@ -26,8 +27,6 @@ namespace DocumentService.Tests.UseCase
 
         private readonly Fixture _fixture = new Fixture();
 
-        private readonly long _accountStorageCapacity = 200;
-
         public ValidateUploadedDocumentUseCaseTests()
         {
             _mockS3Gateway = new Mock<IS3Gateway>();
@@ -37,15 +36,17 @@ namespace DocumentService.Tests.UseCase
             _useCase = new ValidateUploadedDocumentUseCase(
                 _mockS3Gateway.Object, 
                 _mockDocumentGateway.Object,
-                _mockStorageServiceGateway.Object,
-                _accountStorageCapacity);
+                _mockStorageServiceGateway.Object);
         }
 
         [Fact]
         public async Task WhenDocumentDoesntExist_ReturnsNull()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .Create();
+            
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -56,7 +57,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync((DocumentUploadResponse)null);
 
             // Act
-            var response = await _useCase.Execute(userId, documentId, request);
+            var response = await _useCase.Execute(documentId, request, user);
 
             // Assert
             response.Should().BeNull();
@@ -66,14 +67,17 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenExceedsStorageCapacity_ExceptionThrown()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .Create();
+            
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
                 .Create();
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(false);
 
             var documentUploadResponse = _fixture.Create<DocumentUploadResponse>();
@@ -83,7 +87,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             // Act
-            Func<Task<Document>> func = async () => await _useCase.Execute(userId, documentId, request);
+            Func<Task<Document>> func = async () => await _useCase.Execute(documentId, request, user);
 
             // Assert
             await func.Should().ThrowAsync<ExceededUsageCapacityException>();
@@ -93,14 +97,17 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenDocumentExists_CallsS3Gateway()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .Create();
+            
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
                 .Create();
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(true);
 
             var documentUploadResponse = _fixture.Create<DocumentUploadResponse>();
@@ -110,7 +117,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             // Act
-            var response = await _useCase.Execute(userId, documentId, request);
+            var response = await _useCase.Execute(documentId, request, user);
 
             // Assert
             _mockS3Gateway.Verify(x => x.MoveDocumentToStoreDirectory(It.IsAny<string>()), Times.Once);
@@ -120,7 +127,7 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenNewDocument_CreatesDocumentInDatabase()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Build<User>().With(x => x.StorageCapacity, long.MaxValue).Create();
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -133,22 +140,22 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(true);
 
             // Act
-            var response = await _useCase.Execute(userId, documentId, request);
+            var response = await _useCase.Execute(documentId, request, user);
 
             // Assert
             _mockDocumentGateway.Verify(x => x.SaveDocument(It.IsAny<Document>()), Times.Once);
 
             response.Should().NotBeNull();
             response.Id.Should().Be(documentId);
-            response.UserId.Should().Be(userId);
+            response.UserId.Should().Be(user.Id);
             response.DirectoryId.Should().Be((Guid)request.DirectoryId);
             response.FileSize.Should().Be(documentUploadResponse.FileSize);
             response.Name.Should().Be(request.FileName);
-            response.S3Location.Should().Be($"{userId}/{documentId}");
+            response.S3Location.Should().Be($"{user.Id}/{documentId}");
         }
 
         [Fact]
@@ -165,17 +172,22 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(true);
 
             var existingDocument = _fixture.Create<DocumentDb>();
+
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .With(x => x.Id, existingDocument.UserId)
+                .Create();
 
             _mockDocumentGateway
                 .Setup(x => x.GetDocumentById(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync(existingDocument);
 
             // Act
-            var response = await _useCase.Execute(existingDocument.UserId, existingDocument.DocumentId, request);
+            var response = await _useCase.Execute(existingDocument.DocumentId, request, user);
 
             // Assert
             _mockDocumentGateway.Verify(x => x.SaveDocument(It.IsAny<Document>()), Times.Once);
@@ -190,8 +202,10 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenNewDocument_AddsFileToStorageService()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var documentId = Guid.NewGuid();
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .Create(); var documentId = Guid.NewGuid();
+
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
                 .Create();
@@ -203,7 +217,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(true);
 
             var existingDocument = _fixture.Create<DocumentDb>();
@@ -213,7 +227,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync((DocumentDb) null);
 
             // Act
-            var response = await _useCase.Execute(userId, documentId, request);
+            var response = await _useCase.Execute(documentId, request, user);
 
             // Assert
             _mockStorageServiceGateway.Verify(x => x.AddFile(It.IsAny<Guid>(), It.IsAny<long>()), Times.Once);
@@ -224,8 +238,10 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenExistingDocument_AddsFileToStorageService()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            var documentId = Guid.NewGuid();
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, long.MaxValue)
+                .Create(); var documentId = Guid.NewGuid();
+
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
                 .Create();
@@ -237,7 +253,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             _mockStorageServiceGateway
-               .Setup(x => x.CanUploadFile(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>()))
+               .Setup(x => x.CanUploadFile(It.IsAny<User>(), It.IsAny<long>(), It.IsAny<long?>()))
                .ReturnsAsync(true);
 
             var existingDocument = _fixture.Create<DocumentDb>();
@@ -247,7 +263,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(existingDocument);
 
             // Act
-            var response = await _useCase.Execute(userId, documentId, request);
+            var response = await _useCase.Execute(documentId, request, user);
 
             // Assert
             _mockStorageServiceGateway.Verify(x => x.AddFile(It.IsAny<Guid>(), It.IsAny<long>()), Times.Never);

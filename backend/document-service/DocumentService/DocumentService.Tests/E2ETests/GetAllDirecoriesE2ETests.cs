@@ -45,8 +45,8 @@ namespace DocumentService.Tests.E2ETests
             var numberOfDirectories = _random.Next(2, 5);
             var mockDirectories = _fixture
                 .Build<DirectoryDb>()
-                .With(x => x.UserId, _userId)
-                .With(x => x.ParentDirectoryId, _userId)
+                .With(x => x.UserId, _user.Id)
+                .With(x => x.ParentDirectoryId, _user.Id)
                 .CreateMany(numberOfDirectories);
 
             await SetupTestData(mockDirectories);

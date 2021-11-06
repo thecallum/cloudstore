@@ -48,8 +48,8 @@ namespace DocumentService.Tests.E2ETests
             var numberOfDocuments = _random.Next(2, 5);
             var mockDocuments = _fixture
                 .Build<DocumentDb>()
-                .With(x => x.UserId, _userId)
-                .With(x => x.DirectoryId, _userId)
+                .With(x => x.UserId, _user.Id)
+                .With(x => x.DirectoryId, _user.Id)
                 .CreateMany(numberOfDocuments);
 
             await SetupTestData(mockDocuments);

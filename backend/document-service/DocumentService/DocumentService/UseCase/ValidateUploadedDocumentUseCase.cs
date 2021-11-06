@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 
 namespace DocumentService.UseCase
 {
@@ -20,51 +21,46 @@ namespace DocumentService.UseCase
         private readonly IDocumentGateway _documentGateway;
         private readonly IStorageServiceGateway _storageServiceGateway;
 
-        private readonly long _accountStorageCapacity = 1073741824;
-
         public ValidateUploadedDocumentUseCase(
             IS3Gateway s3Gateway, 
             IDocumentGateway documentGateway, 
-            IStorageServiceGateway storageServiceGateway,
-            long? accountStorageCapacity = null)
+            IStorageServiceGateway storageServiceGateway)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
             _storageServiceGateway = storageServiceGateway;
-
-            if (accountStorageCapacity != null) _accountStorageCapacity = (long) accountStorageCapacity;
         }
 
-        public async Task<Document> Execute(Guid userId, Guid documentId, ValidateUploadedDocumentRequest request)
+        public async Task<Document> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user)
         {
             LogHelper.LogUseCase("ValidateUploadedDocumentUseCase");
 
-            var key = $"{userId}/{documentId}";
+            var key = $"{user.Id}/{documentId}";
 
             var documentUploadResponse = await _s3Gateway.ValidateUploadedDocument(key);
             if (documentUploadResponse == null) return null;
 
-            var existingDocument = await _documentGateway.GetDocumentById(userId, documentId);
+            var existingDocument = await _documentGateway.GetDocumentById(user.Id, documentId);
             long? existingDocumentFileSize = existingDocument?.FileSize;
 
-            var canUploadDocument = await _storageServiceGateway.CanUploadFile(userId, _accountStorageCapacity, documentUploadResponse.FileSize, existingDocumentFileSize);
+            var canUploadDocument = await _storageServiceGateway.CanUploadFile(user, documentUploadResponse.FileSize, existingDocumentFileSize);
             if (canUploadDocument == false) throw new ExceededUsageCapacityException();
 
             await _s3Gateway.MoveDocumentToStoreDirectory(key);
 
             // directoryId is ignored if existing document
             // also ignore filename
-            var document = existingDocument?.ToDomain() ?? CreateEntity(documentId, userId, key, documentUploadResponse, request);
+            var document = existingDocument?.ToDomain() ?? CreateEntity(documentId, user.Id, key, documentUploadResponse, request);
             document.FileSize = documentUploadResponse.FileSize;
 
             await _documentGateway.SaveDocument(document);
 
             if (existingDocument == null)
             {
-                await _storageServiceGateway.AddFile(userId, documentUploadResponse.FileSize);
+                await _storageServiceGateway.AddFile(user.Id, documentUploadResponse.FileSize);
             } else
             {
-                await _storageServiceGateway.ReplaceFile(userId, documentUploadResponse.FileSize, existingDocument.FileSize);
+                await _storageServiceGateway.ReplaceFile(user.Id, documentUploadResponse.FileSize, existingDocument.FileSize);
             }
 
             return document;

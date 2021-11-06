@@ -32,7 +32,7 @@ namespace DocumentService.Controllers
 
             var user = (User)HttpContext.Items["user"];
 
-            var response = await _getStorageUsageUseCase.Execute(user.Id);
+            var response = await _getStorageUsageUseCase.Execute(user);
 
             return Ok(response);
         }

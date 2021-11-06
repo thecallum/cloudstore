@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 namespace DocumentService.Tests.UseCase
@@ -35,16 +36,16 @@ namespace DocumentService.Tests.UseCase
         public async Task WhenCalled_ReturnsStorageUsage()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Build<User>().With(x => x.StorageCapacity, long.MaxValue).Create();
 
             var gatewayResponse = _fixture.Create<StorageUsageResponse>();
 
             _mockServiceStorageGateway
-                .Setup(x => x.GetUsage(It.IsAny<Guid>(), It.IsAny<long>()))
+                .Setup(x => x.GetUsage(It.IsAny<User>()))
                 .ReturnsAsync(gatewayResponse);
 
             // Act
-            var result = await _useCase.Execute(userId);
+            var result = await _useCase.Execute(user);
 
             // Assert
             result.Capacity.Should().Be(gatewayResponse.Capacity);

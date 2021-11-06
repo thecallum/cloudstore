@@ -44,7 +44,7 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenEntityExists_ReturnsCorrectValue()
         {
             // Arrange
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = _fixture.Create<long>() };
+            var entity = new DocumentStorageDb { UserId = _user.Id, StorageUsage = _fixture.Create<long>() };
             await SetupTestData(entity);
 
             // Act

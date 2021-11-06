@@ -51,8 +51,12 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenDocumentTooLarge_Returns413()
         {
             // Arrange
+            var user = ContextHelper.CreateUser(200);
+            var token = ContextHelper.CreateToken(user);
+
+
             var documentId = Guid.NewGuid();
-            var key = $"{_userId}/{documentId}";
+            var key = $"{user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                             .With(x => x.DirectoryId, Guid.NewGuid())
@@ -61,7 +65,7 @@ namespace DocumentService.Tests.E2ETests
             await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _tooLargeFilePath);
 
             // Act
-            var response = await ValidateUploadedDocumentRequest(documentId, request);
+            var response = await ValidateUploadedDocumentRequest(documentId, request, token);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
@@ -72,7 +76,7 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var documentId = Guid.NewGuid();
-            var key = $"{_userId}/{documentId}";
+            var key = $"{_user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                             .With(x => x.DirectoryId, Guid.NewGuid())
@@ -92,11 +96,11 @@ namespace DocumentService.Tests.E2ETests
 
             responseContent.Should().NotBeNull();
             responseContent.Id.Should().Be(documentId);
-            responseContent.UserId.Should().Be(_userId);
+            responseContent.UserId.Should().Be(_user.Id);
             responseContent.DirectoryId.Should().Be((Guid)request.DirectoryId);
             responseContent.FileSize.Should().Be(200);
             responseContent.Name.Should().Be(request.FileName);
-            responseContent.S3Location.Should().Be($"{_userId}/{documentId}");
+            responseContent.S3Location.Should().Be($"{_user.Id}/{documentId}");
         }
 
         [Fact]
@@ -104,7 +108,7 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var documentId = Guid.NewGuid();
-            var key = $"{_userId}/{documentId}";
+            var key = $"{_user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -125,7 +129,7 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var documentId = Guid.NewGuid();
-            var key = $"{_userId}/{documentId}";
+            var key = $"{_user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
                 .With(x => x.DirectoryId, Guid.NewGuid())
@@ -137,15 +141,15 @@ namespace DocumentService.Tests.E2ETests
             var response = await ValidateUploadedDocumentRequest(documentId, request);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, documentId).ConfigureAwait(false);
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_user.Id, documentId).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.DocumentId.Should().Be(documentId);
-            databaseResponse.UserId.Should().Be(_userId);
+            databaseResponse.UserId.Should().Be(_user.Id);
             databaseResponse.DirectoryId.Should().Be((Guid)request.DirectoryId);
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.Name.Should().Be(request.FileName);
-            databaseResponse.S3Location.Should().Be($"{_userId}/{documentId}");
+            databaseResponse.S3Location.Should().Be($"{_user.Id}/{documentId}");
         }
 
         [Fact]
@@ -153,12 +157,12 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var existingDocument = _fixture.Build<DocumentDb>()
-                                        .With(x => x.UserId, _userId)
+                                        .With(x => x.UserId, _user.Id)
                                         .Create();
 
             await SetupTestData(existingDocument);
 
-            var key = $"{_userId}/{existingDocument.DocumentId}";
+            var key = $"{_user.Id}/{existingDocument.DocumentId}";
 
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
@@ -168,24 +172,24 @@ namespace DocumentService.Tests.E2ETests
             var response = await ValidateUploadedDocumentRequest(existingDocument.DocumentId, request);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, existingDocument.DocumentId).ConfigureAwait(false);
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_user.Id, existingDocument.DocumentId).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.DocumentId.Should().Be(existingDocument.DocumentId);
-            databaseResponse.UserId.Should().Be(_userId);
+            databaseResponse.UserId.Should().Be(_user.Id);
             databaseResponse.DirectoryId.Should().Be(existingDocument.DirectoryId);
             databaseResponse.FileSize.Should().Be(200);
             databaseResponse.Name.Should().Be(existingDocument.Name);
             databaseResponse.S3Location.Should().Be(existingDocument.S3Location);
         }
 
-        private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request)
+        private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request, string? token = null)
         {
             // setup request
             var uri = new Uri($"document-service/api/document/validate/{documentId}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             message.Method = HttpMethod.Post;
-            message.Headers.Add(TokenService.Constants.AuthToken, _token);
+            message.Headers.Add(TokenService.Constants.AuthToken, token ?? _token);
 
             message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 

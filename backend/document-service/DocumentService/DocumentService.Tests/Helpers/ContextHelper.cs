@@ -9,22 +9,23 @@ namespace DocumentService.Tests.Helpers
 {
     public static class ContextHelper
     {
-        public static User CreateUser(Guid? id = null)
+        public static User CreateUser(long? storageCapacity = long.MaxValue)
         {
             return new User
             {
-                Id = id ?? Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 FirstName = "FirstName",
                 LastName = "LastName",
-                Email = "email@email.com"
+                Email = "email@email.com", 
+                StorageCapacity = (long) storageCapacity
             };
         }
 
-        public static string CreateToken(Guid id)
+        public static string CreateToken(User user)
         {
             var tokenService = new TokenService.TokenService("askdjhaskjdasjkldasjkd");
 
-            return tokenService.CreateToken(CreateUser(id));
+            return tokenService.CreateToken(user);
         }
     }
 }

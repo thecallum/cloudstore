@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 
 namespace DocumentService.Gateways
 {
@@ -34,32 +35,32 @@ namespace DocumentService.Gateways
             await SaveStorageUsage(entity);
         }
 
-        public async Task<bool> CanUploadFile(Guid userId, long accountStorageCapacity, long fileSize, long? originalFileSize = null)
+        public async Task<bool> CanUploadFile(User user, long fileSize, long? originalFileSize = null)
         {
-            var entity = await LoadStorageUsage(userId);
+            var entity = await LoadStorageUsage(user.Id);
 
             // no files have been saved.
             if (entity == null)
             {
                 // assert that uploaded file is smaller than capacity
-                return fileSize < accountStorageCapacity;
+                return fileSize < user.StorageCapacity;
             }
 
             var expectedUsage = entity.StorageUsage + fileSize;
             if (originalFileSize != null) expectedUsage -= (long)originalFileSize;
 
-            return expectedUsage < accountStorageCapacity;
+            return expectedUsage < user.StorageCapacity;
         }
 
-        public async Task<StorageUsageResponse> GetUsage(Guid userId, long accountStorageCapacity)
+        public async Task<StorageUsageResponse> GetUsage(User user)
         {
             var response = new StorageUsageResponse
             {
                 StorageUsage = 0,
-                Capacity = accountStorageCapacity
+                Capacity = user.StorageCapacity
             };
 
-            var entity = await LoadStorageUsage(userId);
+            var entity = await LoadStorageUsage(user.Id);
 
             // return default response
             if (entity == null) return response;

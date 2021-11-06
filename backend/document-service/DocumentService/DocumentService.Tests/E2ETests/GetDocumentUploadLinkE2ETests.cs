@@ -40,7 +40,7 @@ namespace DocumentService.Tests.E2ETests
             // test presigned url
             _s3TestHelper.TestUploadWithPresignedUrl(responseContent.UploadUrl, _validFilePath);
 
-            var key = $"{_userId}/{responseContent.DocumentId}";
+            var key = $"{_user.Id}/{responseContent.DocumentId}";
 
             await _s3TestHelper.VerifyDocumentUploadedToS3($"upload/{key}");
         }

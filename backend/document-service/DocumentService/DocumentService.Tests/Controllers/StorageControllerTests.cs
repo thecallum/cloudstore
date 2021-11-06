@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 
@@ -45,7 +46,7 @@ namespace DocumentService.Tests.Controllers
             var useCaseResponse = _fixture.Create<GetStorageUsageResponse>();
 
             _mockGetStorageUsageUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<User>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act

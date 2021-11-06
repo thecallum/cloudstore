@@ -50,8 +50,8 @@ namespace DocumentService.Tests.E2ETests
         {
             // Arrange
             var document = _fixture.Build<DocumentDb>()
-                .With(x => x.UserId, _userId)
-                .With(x => x.DirectoryId, _userId)
+                .With(x => x.UserId, _user.Id)
+                .With(x => x.DirectoryId, _user.Id)
                 .Create();
 
             await SetupTestData(document);

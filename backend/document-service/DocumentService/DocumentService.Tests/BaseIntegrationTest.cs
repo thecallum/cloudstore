@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 namespace DocumentService.Tests
@@ -28,7 +29,7 @@ namespace DocumentService.Tests
         protected readonly Random _random = new Random();
         protected readonly List<Action> _cleanup = new List<Action>();
 
-        protected readonly Guid _userId;
+        protected readonly User _user;
         protected readonly string _token;
 
         public BaseIntegrationTest(DatabaseFixture<Startup> testFixture)
@@ -41,8 +42,8 @@ namespace DocumentService.Tests
 
             _s3Client = testFixture.S3Client;
 
-            _userId = Guid.NewGuid();
-            _token = ContextHelper.CreateToken(_userId);
+            _user = ContextHelper.CreateUser();
+            _token = ContextHelper.CreateToken(_user);
         }
 
         public void Dispose()

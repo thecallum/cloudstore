@@ -8,6 +8,8 @@ using AutoFixture;
 using FluentAssertions;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
+using DocumentService.Tests.Helpers;
+using TokenService.Models;
 
 namespace DocumentService.Tests.Gateways
 {
@@ -29,7 +31,7 @@ namespace DocumentService.Tests.Gateways
             var fileSize = accountStorageCapacity - 10;
 
             // Act
-            var response = await _gateway.CanUploadFile(_userId, accountStorageCapacity, fileSize);
+            var response = await _gateway.CanUploadFile(_user, accountStorageCapacity, fileSize);
 
             // Assert
             response.Should().BeTrue();
@@ -42,13 +44,14 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
             long accountStorageCapacity = 100;
+            var user = ContextHelper.CreateUser(accountStorageCapacity);
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var entity = new DocumentStorageDb { UserId = user.Id, StorageUsage = storageUsage };
 
             await SetupTestData(entity);
 
             // Act
-            var response = await _gateway.CanUploadFile(_userId, accountStorageCapacity, fileSize, originalFileSize);
+            var response = await _gateway.CanUploadFile(user, fileSize, originalFileSize);
 
             // Assert
             response.Should().BeFalse();
@@ -61,13 +64,14 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
             long accountStorageCapacity = 100;
+            var user = ContextHelper.CreateUser(accountStorageCapacity);
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var entity = new DocumentStorageDb { UserId = user.Id, StorageUsage = storageUsage };
 
             await SetupTestData(entity);
 
             // Act
-            var response = await _gateway.CanUploadFile(_userId, accountStorageCapacity, fileSize, originalFileSize);
+            var response = await _gateway.CanUploadFile(user, fileSize, originalFileSize);
 
             // Assert
             response.Should().BeTrue();
@@ -80,12 +84,14 @@ namespace DocumentService.Tests.Gateways
             var fileSize = _fixture.Create<long>();
 
             // Act
-            await _gateway.AddFile(_userId, fileSize);
+            await _gateway.AddFile(_user.Id, fileSize);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_user.Id);
 
             databaseResponse.StorageUsage.Should().Be(fileSize);
+
+            _cleanup.Add(async () => await _context.DeleteAsync<DocumentStorageDb>(_user.Id));
         }
 
         [Fact]
@@ -95,14 +101,14 @@ namespace DocumentService.Tests.Gateways
             var fileSize = _fixture.Create<long>();
             var storageUsage = _fixture.Create<long>();
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var entity = new DocumentStorageDb { UserId = _user.Id, StorageUsage = storageUsage };
             await SetupTestData(entity);
 
             // Act
-            await _gateway.AddFile(_userId, fileSize);
+            await _gateway.AddFile(_user.Id, fileSize);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_user.Id);
 
             databaseResponse.StorageUsage.Should().Be(fileSize + storageUsage);
         }
@@ -113,8 +119,12 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var accountStorageCapacity = _fixture.Create<long>();
 
+            var user = _fixture.Build<User>()
+               .With(x => x.StorageCapacity, accountStorageCapacity)
+               .Create();
+
             // Act
-            var response = await _gateway.GetUsage(_userId, accountStorageCapacity);
+            var response = await _gateway.GetUsage(user);
 
             // Assert
             response.Capacity.Should().Be(accountStorageCapacity);
@@ -128,11 +138,15 @@ namespace DocumentService.Tests.Gateways
             var accountStorageCapacity = _fixture.Create<long>();
             var storageUsage = _fixture.Create<long>();
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var user = _fixture.Build<User>()
+                .With(x => x.StorageCapacity, accountStorageCapacity)
+                .Create();
+
+            var entity = new DocumentStorageDb { UserId = user.Id, StorageUsage = storageUsage };
             await SetupTestData(entity);
 
             // Act
-            var response = await _gateway.GetUsage(_userId, accountStorageCapacity);
+            var response = await _gateway.GetUsage(user);
 
             // Assert
             response.Capacity.Should().Be(accountStorageCapacity);
@@ -146,7 +160,7 @@ namespace DocumentService.Tests.Gateways
             var fileSize = _fixture.Create<long>();
 
             // Act
-            Func<Task> func = async () => await _gateway.RemoveFile(_userId, fileSize);
+            Func<Task> func = async () => await _gateway.RemoveFile(_user.Id, fileSize);
 
             // Assert
             await func.Should().ThrowAsync<StorageUsageNotFoundException>();
@@ -159,14 +173,14 @@ namespace DocumentService.Tests.Gateways
             var fileSize = _fixture.Create<long>();
             var storageUsage = _fixture.Create<long>();
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var entity = new DocumentStorageDb { UserId = _user.Id, StorageUsage = storageUsage };
             await SetupTestData(entity);
 
             // Act
-            await _gateway.RemoveFile(_userId, fileSize);
+            await _gateway.RemoveFile(_user.Id, fileSize);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_user.Id);
 
             databaseResponse.StorageUsage.Should().Be(storageUsage - fileSize);
         }
@@ -179,7 +193,7 @@ namespace DocumentService.Tests.Gateways
             var originalFileSize = _fixture.Create<long>();
 
             // Act
-            Func<Task> func = async () => await _gateway.ReplaceFile(_userId, fileSize, originalFileSize);
+            Func<Task> func = async () => await _gateway.ReplaceFile(_user.Id, fileSize, originalFileSize);
 
             // Assert
             await func.Should().ThrowAsync<StorageUsageNotFoundException>();
@@ -194,14 +208,14 @@ namespace DocumentService.Tests.Gateways
             var originalFileSize = _fixture.Create<long>();
             var storageUsage = _fixture.Create<long>();
 
-            var entity = new DocumentStorageDb { UserId = _userId, StorageUsage = storageUsage };
+            var entity = new DocumentStorageDb { UserId = _user.Id, StorageUsage = storageUsage };
             await SetupTestData(entity);
 
             // Act
-            await _gateway.ReplaceFile(_userId, fileSize, originalFileSize);
+            await _gateway.ReplaceFile(_user.Id, fileSize, originalFileSize);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            var databaseResponse = await _context.LoadAsync<DocumentStorageDb>(_user.Id);
 
             databaseResponse.StorageUsage.Should().Be(storageUsage + originalFileSize - fileSize);
         }

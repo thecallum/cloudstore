@@ -48,10 +48,10 @@ namespace DocumentService.Tests.E2ETests
         public async Task DeleteDocument_WhenDocumentFound_ReturnsNoContentResponse()
         {
             // Arrange
-            var document = _fixture.Build<DocumentDb>().With(x => x.UserId, _userId).Create();
+            var document = _fixture.Build<DocumentDb>().With(x => x.UserId, _user.Id).Create();
             await SetupTestData(document);
 
-            var storageUsage = new DocumentStorageDb { UserId = _userId, StorageUsage = document.FileSize };
+            var storageUsage = new DocumentStorageDb { UserId = _user.Id, StorageUsage = document.FileSize };
             await SetupTestData(storageUsage);
 
             await _s3TestHelper.UploadDocumentToS3(document.S3Location, _validFilePath);
@@ -62,13 +62,13 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(_userId, document.DocumentId);
+            var databaseResponse = await _context.LoadAsync<DocumentDb>(_user.Id, document.DocumentId);
             databaseResponse.Should().BeNull();
 
             await _s3TestHelper.VerifyDocumentDeletedFromS3(document.S3Location);
 
             // check storage service
-            var databaseResponse2 = await _context.LoadAsync<DocumentStorageDb>(_userId);
+            var databaseResponse2 = await _context.LoadAsync<DocumentStorageDb>(_user.Id);
             databaseResponse2.StorageUsage.Should().Be(0);
         }
 
