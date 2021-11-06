@@ -32,22 +32,6 @@ namespace authservice.Tests.Boundary.Validation
         }
 
         [Fact]
-        public void Password_WhenTooLong_HasError()
-        {
-            // arrange
-            var model = new LoginRequestObject
-            {
-                Password = string.Concat(Enumerable.Repeat("a", 101))
-            };
-
-            // act
-            var result = _validator.TestValidate(model);
-
-            // assert
-            result.ShouldHaveValidationErrorFor(x => x.Password);
-        }
-
-        [Fact]
         public void WhenValid_HasNoErrors()
         {
             // arrange

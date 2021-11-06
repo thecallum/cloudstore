@@ -56,7 +56,7 @@ namespace authservice.Controllers
 
             var payload = user.ToPayload();
             var token = _tokenService.CreateToken(payload);
-            Response.Headers.Add(Constants.AuthToken, token);
+            Response.Headers.Add(TokenService.Constants.AuthToken, token);
 
             return Ok();
         }
