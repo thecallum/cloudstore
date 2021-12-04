@@ -42,7 +42,7 @@ namespace authservice.Gateways
             LogHelper.LogGateway("UserGateway", "RegisterUser");
 
             var existingUser = await _userContext.Users
-                .Where(x => x.Email == newUser.Email)
+                .Where(x => x.Email.ToLower() == newUser.Email.ToLower())
                 .SingleOrDefaultAsync();
 
             if (existingUser != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
@@ -66,7 +66,7 @@ namespace authservice.Gateways
             LogHelper.LogGateway("UserGateway", "GetUserByEmail");
 
             return await _userContext.Users
-                .Where(x => x.Email == email)
+                .Where(x => x.Email.ToLower() == email.ToLower())
                 .SingleOrDefaultAsync();
         }
     }
