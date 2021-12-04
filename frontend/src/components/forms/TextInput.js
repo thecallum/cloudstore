@@ -16,7 +16,7 @@ const TextInput = ({
         value={value}
         onChange={onChange}
       />
-      {errors.hasOwnProperty("name") && <span class="form">{errors[0]}</span>}
+      {errors.length > 0 && <span class="form">{errors[0]}</span>}
     </div>
   );
 };

@@ -15,6 +15,7 @@ const Login = ({ history }) => {
     password: "",
   });
   const [errors, setErrors] = useState({});
+  const [requestError, setRequestError] = useState(null);
 
   const onInput = (e) =>
     setFields({
@@ -61,11 +62,7 @@ const Login = ({ history }) => {
         console.log({ res });
 
         if (res.success === false) {
-          if (res.status === 401) {
-            alert("unauthorized");
-          } else {
-            alert("bad request");
-          }
+          setRequestError("Invalid password for the given email address");
 
           return;
         }
@@ -101,12 +98,16 @@ const Login = ({ history }) => {
           type="password"
         />
 
+        {requestError !== null && <span class="form">{requestError}</span>}
+
+        {loading && <p>Loading...</p>}
+
+        <br />
+
         <button type="submit" class="form">
           Login
         </button>
       </form>
-
-      {loading && <p>Loading...</p>}
     </Layout>
   );
 };

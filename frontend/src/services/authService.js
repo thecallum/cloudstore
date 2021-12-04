@@ -9,7 +9,7 @@ export const loadToken = () => {
   return window.localStorage.getItem(LOCAL_STORAGE_KEY);
 };
 
-const removeToken = () => {
+export const removeToken = () => {
   window.localStorage.removeItem(LOCAL_STORAGE_KEY);
 };
 

@@ -1,21 +1,8 @@
-import { Link } from "react-router-dom";
-
-const links = [
-  {
-    name: "Dashboard",
-    url: "/dashboard/",
-  },
-  {
-    name: "Account",
-    url: "/account/",
-  },
-  {
-    name: "Login",
-    url: "/login/",
-  },
-];
+import HeaderLinks from "./headerLinks";
 
 const header = () => {
+
+
   return (
     <header
       style={{
@@ -28,32 +15,8 @@ const header = () => {
     >
       <div>CloudStore</div>
 
-      <ul
-        style={{
-          margin: 0,
-          padding: 0,
-          display: "flex",
-        }}
-      >
-        {links.map((x, index) => (
-          <li
-            key={index}
-            style={{
-              display: "block",
-              marginLeft: "8px",
-            }}
-          >
-            <Link
-              style={{
-                color: "#0a0a0a",
-              }}
-              to={x.url}
-            >
-              {x.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <HeaderLinks />
+      
     </header>
   );
 };
