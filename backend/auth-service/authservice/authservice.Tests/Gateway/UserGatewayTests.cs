@@ -17,16 +17,9 @@ namespace authservice.Tests.Gateway
         private readonly UserGateway _gateway;
         private readonly Random _random = new Random();
 
-       // private readonly DatabaseFixture<Startup> _testFixture;
-
         public UserGatewayTests()
         {
-            //_client = testFixture.DynamoDb;
-            //_context = testFixture.DynamoDbContext;
-
             _gateway = new UserGateway(InMemoryDb.Instance);
-
-          //  _testFixture = testFixture;
         }
 
 
@@ -111,9 +104,31 @@ namespace authservice.Tests.Gateway
         {
             // Arrange
             var mockExistingUser = _fixture.Create<User>();
+            mockExistingUser.Email = "email20@gmail.com";
+
             await SetupTestData(mockExistingUser);
 
             var mockNewUser = _fixture.Build<User>().With(x => x.Email, mockExistingUser.Email).Create();
+
+            // Act 
+            Func<Task> func = async () => await _gateway.RegisterUser(mockNewUser).ConfigureAwait(false);
+
+            // Assert
+            await func.Should().ThrowAsync<UserWithEmailAlreadyExistsException>();
+        }
+
+        [Fact]
+        public async Task RegisterUser_WhenEmailAlreadyUsedWithDifferentCase_ThrowsException()
+        {
+            // Arrange
+            var mockExistingUser = _fixture.Create<User>();
+            mockExistingUser.Email = "email40@gmail.com";
+
+            var mockNewUserEmail = "EMAIL40@GMAIL.COM";
+
+            await SetupTestData(mockExistingUser);
+
+            var mockNewUser = _fixture.Build<User>().With(x => x.Email, mockNewUserEmail).Create();
 
             // Act 
             Func<Task> func = async () => await _gateway.RegisterUser(mockNewUser).ConfigureAwait(false);
@@ -139,6 +154,50 @@ namespace authservice.Tests.Gateway
             databaseResponse.Email.Should().Be(mockNewUser.Email);
             databaseResponse.FirstName.Should().Be(mockNewUser.FirstName);
             databaseResponse.LastName.Should().Be(mockNewUser.LastName);
+        }
+
+        [Fact]
+        public async Task GetUserByEmail_WhenEntityDoesntExist_ReturnsNull()
+        {
+            // Arrange
+            var mockEmail = "email@email.com";
+
+            // Act 
+            var response = await _gateway.GetUserByEmail(mockEmail);
+
+            // Assert
+            response.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetUserByEmail_WhenEntityExists_ReturnsUser()
+        {
+            // Arrange
+            var mockExistingUser = _fixture.Create<User>();
+            await SetupTestData(mockExistingUser);
+
+            // Act 
+            var response = await _gateway.GetUserByEmail(mockExistingUser.Email);
+
+            // Assert
+            response.Should().Be(mockExistingUser);
+        }
+
+        [Fact]
+        public async Task GetUserByEmail_WhenEntityExistsWithEmailInDifferentCase_ReturnsUser()
+        {
+            // Arrange
+            var mockExistingUser = _fixture.Create<User>();
+            mockExistingUser.Email = "email100@email.com";
+            await SetupTestData(mockExistingUser);
+
+            var differentCaseEmail = "EMAIL100@EMAIL.COM";
+
+            // Act 
+            var response = await _gateway.GetUserByEmail(differentCaseEmail);
+
+            // Assert
+            response.Should().Be(mockExistingUser);
         }
     }
 }

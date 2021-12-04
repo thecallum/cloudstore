@@ -32,22 +32,6 @@ namespace authservice.Tests.Boundary.Validation
         }
 
         [Fact]
-        public void FirstName_WhenContainsUppercaseLetters_HasError()
-        {
-            // arrange
-            var model = new RegisterRequestObject
-            {
-                FirstName = "AAAA"
-            };
-
-            // act
-            var result = _validator.TestValidate(model);
-
-            // assert
-            result.ShouldHaveValidationErrorFor(x => x.FirstName);
-        }
-
-        [Fact]
         public void FirstName_WhenContainsNumbers_HasError()
         {
             // arrange
@@ -70,22 +54,6 @@ namespace authservice.Tests.Boundary.Validation
             var model = new RegisterRequestObject
             {
                 LastName = string.Concat(Enumerable.Repeat("a", 100))
-            };
-
-            // act
-            var result = _validator.TestValidate(model);
-
-            // assert
-            result.ShouldHaveValidationErrorFor(x => x.LastName);
-        }
-
-        [Fact]
-        public void LastName_WhenContainsUppercaseLetters_HasError()
-        {
-            // arrange
-            var model = new RegisterRequestObject
-            {
-                LastName = "JJJDD"
             };
 
             // act
