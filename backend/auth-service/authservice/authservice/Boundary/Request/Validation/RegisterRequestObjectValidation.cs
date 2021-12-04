@@ -10,13 +10,13 @@ namespace authservice.Boundary.Request.Validation
             RuleFor(x => x.FirstName)
                 .NotNull()
                 .Length(1, 50)
-                .Must(x => IsOnlyLowerCaseAlphabetical(x))
+                .Must(x => IsOnlyAlphabetical(x))
                 .WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
 
             RuleFor(x => x.LastName)
                 .NotNull()
                 .Length(1, 50)
-                .Must(x => IsOnlyLowerCaseAlphabetical(x))
+                .Must(x => IsOnlyAlphabetical(x))
                 .WithMessage("{PropertyName} must be lowercase and only contain alphabetical characters.");
 
             RuleFor(x => x.Email)
@@ -30,11 +30,11 @@ namespace authservice.Boundary.Request.Validation
                 .MaximumLength(100);
         }
 
-        private static bool IsOnlyLowerCaseAlphabetical(string? value)
+        private static bool IsOnlyAlphabetical(string? value)
         {
             if (value == null) return false;
 
-            var pattern = @"^[a-z]*$";
+            var pattern = @"^[a-zA-Z]*$";
 
             return Regex.IsMatch(value, pattern);
         }
