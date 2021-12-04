@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace authservice.UseCase.Interfaces
 {
     public interface IDeleteUseCase
     {
-        Task Execute(string email);
+        Task Execute(Guid id);
     }
 }

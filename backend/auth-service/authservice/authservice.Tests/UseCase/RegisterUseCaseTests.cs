@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using authservice.Boundary.Request;
-using authservice.Domain;
 using authservice.Gateways;
+using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
 using authservice.UseCase;
 using authservice.UseCase.Interfaces;

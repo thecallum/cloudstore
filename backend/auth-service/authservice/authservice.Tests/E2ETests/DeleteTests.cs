@@ -2,53 +2,41 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using authservice.Infrastructure;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using TokenService.Models;
 using Xunit;
+using User = authservice.Infrastructure.User;
+using authservice.Tests;
+using Microsoft.EntityFrameworkCore;
 
 namespace authservice.Tests.E2ETests
 {
     [Collection("Database collection")]
     public class DeleteTests : IDisposable
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
         private readonly Fixture _fixture = new Fixture();
 
         private readonly HttpClient _httpClient;
 
-        private readonly Random _random = new Random();
-
-        private readonly DatabaseFixture<Startup> _testFixture;
-
         private readonly TokenService.TokenService _tokenService;
 
-        public DeleteTests(DatabaseFixture<Startup> testFixture)
+        private readonly DatabaseFixture<Startup> _dbFixture;
+
+        public DeleteTests(DatabaseFixture<Startup> fixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
-
-            _testFixture = testFixture;
-
-            _httpClient = testFixture.Client;
+            _dbFixture = fixture;
+            _httpClient = _dbFixture.Client;
 
             _tokenService = new TokenService.TokenService(Environment.GetEnvironmentVariable("SECRET"));
         }
 
         public void Dispose()
         {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
+            InMemoryDb.Teardown();
         }
-
-        private async Task SetupTestData(UserDb user)
-        {
-            await _context.SaveAsync(user).ConfigureAwait(false);
-        }
-
 
         [Fact]
         public async Task Delete_WhenTokenIsInvalid_ReturnsUnauthorized()
@@ -82,9 +70,9 @@ namespace authservice.Tests.E2ETests
         public async Task Delete_WhenValid_DeletesUserFromDatabase()
         {
             // Arrange
-            var mockUser = _fixture.Create<UserDb>();
+            var mockUser = _fixture.Create<User>();
 
-            await SetupTestData(mockUser);
+            await _dbFixture.SetupTestData(mockUser);
 
             var payload = new TokenService.Models.User
             {
@@ -102,7 +90,7 @@ namespace authservice.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var databaseResponse = await _context.LoadAsync<UserDb>(mockUser.Email).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.GetUserById(mockUser.Id);
             databaseResponse.Should().BeNull();
         }
 

@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Infrastructure;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -18,8 +18,6 @@ namespace authservice.Tests.E2ETests
     [Collection("Database collection")]
     public class RegisterTests : IDisposable
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
         private readonly Fixture _fixture = new Fixture();
 
         private readonly HttpClient _httpClient;
@@ -28,35 +26,26 @@ namespace authservice.Tests.E2ETests
 
         private readonly Random _random = new Random();
 
-        private readonly DatabaseFixture<Startup> _testFixture;
+        private readonly DatabaseFixture<Startup> _dbFixture;
 
-        public RegisterTests(DatabaseFixture<Startup> testFixture)
+        public RegisterTests(DatabaseFixture<Startup> fixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
-
-            _testFixture = testFixture;
-
-            _httpClient = testFixture.Client;
+            _dbFixture = fixture;
+            _httpClient = _dbFixture.Client;
 
             _passwordHasher = new PasswordHasher();
         }
 
         public void Dispose()
         {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
-        }
-
-        private async Task SetupTestData(UserDb user)
-        {
-            await _context.SaveAsync(user).ConfigureAwait(false);
+            InMemoryDb.Teardown();
         }
 
         [Fact]
         public async Task Register_WhenInvalidRequest_ReturnsBadRequest()
         {
             // Arrange
-            var invalidRequest = (RegisterRequestObject) null;
+            var invalidRequest = (RegisterRequestObject)null;
 
             // Act
             var response = await RegisterRequest(invalidRequest);
@@ -69,11 +58,11 @@ namespace authservice.Tests.E2ETests
         public async Task Register_WhenEmailAlreadyUsed_ReturnsConflictResponse()
         {
             // Arrange
-            var mockUser = _fixture.Build<UserDb>()
-                .With(x => x.Email, "email@email.com")
+            var mockUser = _fixture.Build<User>()
+                .With(x => x.Email, "email3@email.com")
                 .Create();
 
-            await SetupTestData(mockUser);
+            await _dbFixture.SetupTestData(mockUser);
 
             var mockRequest = new RegisterRequestObject
             {
@@ -88,7 +77,7 @@ namespace authservice.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        }
+        }      
 
         [Fact]
         public async Task Register_WhenValidRequest_CreatesUserInDatabase()
@@ -96,25 +85,19 @@ namespace authservice.Tests.E2ETests
             // Arrange
             var mockRequest = new RegisterRequestObject
             {
-                Email = "email@email.com",
+                Email = "email4@email.com",
                 Password = "aaaaaaaa",
                 FirstName = "aaaaa",
                 LastName = "aaaaa"
             };
 
-            _fixture.Build<RegisterRequestObject>()
-                .With(x => x.Email, "email@email.com")
-                .With(x => x.Password, "aaaaaaaa")
-                .With(x => x.FirstName, "aaaaa")
-                .With(x => x.LastName, "aaaaa")
-                .Create();
             // Act
             var response = await RegisterRequest(mockRequest);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<UserDb>(mockRequest.Email).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.GetUserByEmail(mockRequest.Email);
 
             databaseResponse.FirstName.Should().Be(mockRequest.FirstName);
             databaseResponse.LastName.Should().Be(mockRequest.LastName);

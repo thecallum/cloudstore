@@ -28,16 +28,16 @@ namespace authservice.Tests.UseCase
         public async Task WhenUserWithEmailDoesntExist_ThrowsUserNotFoundException()
         {
             // Arrange
-            var mockEmail = _fixture.Create<string>();
+            var mockId = Guid.NewGuid();
 
-            var exception = new UserNotFoundException(mockEmail);
+            var exception = new UserNotFoundException(mockId.ToString());
 
             _mockUserGateway
-                .Setup(x => x.DeleteUser(It.IsAny<string>()))
+                .Setup(x => x.DeleteUser(It.IsAny<Guid>()))
                 .ThrowsAsync(exception);
 
             // Act
-            Func<Task> func = async () => { await _deleteUseCase.Execute(mockEmail).ConfigureAwait(false); };
+            Func<Task> func = async () => { await _deleteUseCase.Execute(mockId).ConfigureAwait(false); };
 
             // Assert
             await func.Should().ThrowAsync<UserNotFoundException>();
@@ -47,11 +47,10 @@ namespace authservice.Tests.UseCase
         public async Task WhenUserWithEmailExists_DoesntThrowException()
         {
             // Arrange
-            var mockEmail = _fixture.Create<string>();
-
+            var mockId = Guid.NewGuid();
 
             // Act
-            Func<Task> func = async () => { await _deleteUseCase.Execute(mockEmail).ConfigureAwait(false); };
+            Func<Task> func = async () => { await _deleteUseCase.Execute(mockId).ConfigureAwait(false); };
 
             // Assert
             await func.Should().NotThrowAsync<UserNotFoundException>();

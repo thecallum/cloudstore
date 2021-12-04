@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using authservice.Domain;
 using authservice.Factories;
 using authservice.Gateways;
+using authservice.Infrastructure;
 using authservice.Logging;
 using authservice.UseCase.Interfaces;
 
@@ -20,10 +20,9 @@ namespace authservice.UseCase
         {
             LogHelper.LogUseCase("LoginUseCase");
 
-            var user = await _userGateway.GetUserByEmailAddress(email).ConfigureAwait(false);
-            if (user == null) return null;
+            var user = await _userGateway.GetUserByEmail(email).ConfigureAwait(false);
 
-            return user.ToDomain();
+            return user;
         }
     }
 }

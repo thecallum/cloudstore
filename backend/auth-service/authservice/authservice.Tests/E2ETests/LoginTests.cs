@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using authservice.Boundary.Request;
 using authservice.Encryption;
 using authservice.Infrastructure;
@@ -19,9 +17,6 @@ namespace authservice.Tests.E2ETests
     [Collection("Database collection")]
     public class LoginTests : IDisposable
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
-
         private readonly Fixture _fixture = new Fixture();
 
         private readonly HttpClient _httpClient;
@@ -30,35 +25,28 @@ namespace authservice.Tests.E2ETests
 
         private readonly Random _random = new Random();
 
-        private readonly DatabaseFixture<Startup> _testFixture;
+        private readonly DatabaseFixture<Startup> _dbFixture;
 
-        public LoginTests(DatabaseFixture<Startup> testFixture)
+        public LoginTests(DatabaseFixture<Startup> fixture)
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
 
-            _testFixture = testFixture;
+            _dbFixture = fixture;
 
-            _httpClient = testFixture.Client;
+            _httpClient = _dbFixture.Client;
 
             _passwordHasher = new PasswordHasher();
         }
 
         public void Dispose()
         {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
-        }
-
-        private async Task SetupTestData(UserDb user)
-        {
-            await _context.SaveAsync(user).ConfigureAwait(false);
+            InMemoryDb.Teardown();
         }
 
         [Fact]
         public async Task Login_WhenRequestObjectIsInvalid_ReturnsBadRequest()
         {
             // Arrange
-            var invalidRequest = (LoginRequestObject) null;
+            var invalidRequest = (LoginRequestObject)null;
 
             // Act
             var response = await LoginRequest(invalidRequest);
@@ -92,12 +80,12 @@ namespace authservice.Tests.E2ETests
             // Arrange
             var randomHash = CreateHash(_fixture.Create<string>());
 
-            var mockUser = _fixture.Build<UserDb>()
+            var mockUser = _fixture.Build<User>()
                 .With(x => x.Email, "email@email.com")
                 .With(x => x.Hash, randomHash)
                 .Create();
 
-            await SetupTestData(mockUser);
+            await _dbFixture.SetupTestData(mockUser);
 
             var mockRequest = new LoginRequestObject
             {
@@ -120,13 +108,12 @@ namespace authservice.Tests.E2ETests
             var password = _fixture.Create<string>();
             var hash = CreateHash(password);
 
-            var mockUser = _fixture.Build<UserDb>()
+            var mockUser = _fixture.Build<User>()
                 .With(x => x.Hash, hash)
-                .With(x => x.Email, "email@email.com")
+                .With(x => x.Email, "email5@email.com")
                 .Create();
 
-            await SetupTestData(mockUser);
-
+            await _dbFixture.SetupTestData(mockUser);
 
             var mockRequest = new LoginRequestObject
             {

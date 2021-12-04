@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using authservice.Domain;
 using authservice.Gateways;
 using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
@@ -15,45 +12,47 @@ namespace authservice.Tests.Gateway
     [Collection("Database collection")]
     public class UserGatewayTests : IDisposable
     {
-        private readonly IAmazonDynamoDB _client;
-        private readonly IDynamoDBContext _context;
         private readonly Fixture _fixture = new Fixture();
 
         private readonly UserGateway _gateway;
         private readonly Random _random = new Random();
 
-        private readonly DatabaseFixture<Startup> _testFixture;
+       // private readonly DatabaseFixture<Startup> _testFixture;
 
-        public UserGatewayTests(DatabaseFixture<Startup> testFixture)
+        public UserGatewayTests()
         {
-            _client = testFixture.DynamoDb;
-            _context = testFixture.DynamoDbContext;
+            //_client = testFixture.DynamoDb;
+            //_context = testFixture.DynamoDbContext;
 
-            _gateway = new UserGateway(_context);
+            _gateway = new UserGateway(InMemoryDb.Instance);
 
-            _testFixture = testFixture;
+          //  _testFixture = testFixture;
         }
 
 
         public void Dispose()
         {
-            _testFixture.ResetDatabase().GetAwaiter().GetResult();
+            InMemoryDb.Teardown();
+
+            //_testFixture.ResetDatabase().GetAwaiter().GetResult();
         }
 
 
-        private async Task SetupTestData(UserDb user)
+        private async Task SetupTestData(User user)
         {
-            await _context.SaveAsync(user).ConfigureAwait(false);
+            InMemoryDb.Instance.Users.Add(user);
+
+            await InMemoryDb.Instance.SaveChangesAsync();
         }
 
         [Fact]
         public async Task DeleteUser_WhenUserDoesntExist_ThrowsException()
         {
             // Arrange
-            var mockEmail = _fixture.Create<string>();
+            var mockId = Guid.NewGuid();
 
             // Act 
-            Func<Task> func = async () => await _gateway.DeleteUser(mockEmail).ConfigureAwait(false);
+            Func<Task> func = async () => await _gateway.DeleteUser(mockId).ConfigureAwait(false);
 
             // Assert
             await func.Should().ThrowAsync<UserNotFoundException>();
@@ -63,16 +62,16 @@ namespace authservice.Tests.Gateway
         public async Task DeleteUser_WhenUserExists_DeletesUserFromDatabase()
         {
             // Arrange
-            var mockUser = _fixture.Create<UserDb>();
+            var mockUser = _fixture.Create<User>();
             await SetupTestData(mockUser);
 
             // Act 
-            Func<Task> func = async () => await _gateway.DeleteUser(mockUser.Email).ConfigureAwait(false);
+            Func<Task> func = async () => await _gateway.DeleteUser(mockUser.Id).ConfigureAwait(false);
 
             // Assert
             await func.Should().NotThrowAsync<UserNotFoundException>();
 
-            var databaseResult = await _context.LoadAsync<UserDb>(mockUser.Email).ConfigureAwait(false);
+            var databaseResult = await InMemoryDb.Instance.Users.FindAsync(mockUser.Id);
             databaseResult.Should().BeNull();
         }
 
@@ -80,10 +79,10 @@ namespace authservice.Tests.Gateway
         public async Task GetUser_WhenUserDoesntExist_ReturnsNull()
         {
             // Arrange
-            var mockEmail = _fixture.Create<string>();
+            var mockId = Guid.NewGuid();
 
             // Act 
-            var response = await _gateway.GetUserByEmailAddress(mockEmail).ConfigureAwait(false);
+            var response = await _gateway.GetUserById(mockId).ConfigureAwait(false);
 
             // Assert
             response.Should().BeNull();
@@ -93,11 +92,11 @@ namespace authservice.Tests.Gateway
         public async Task GetUser_WhenUserExists_ReturnsUser()
         {
             // Arrange
-            var mockUser = _fixture.Create<UserDb>();
+            var mockUser = _fixture.Create<User>();
             await SetupTestData(mockUser);
 
             // Act 
-            var response = await _gateway.GetUserByEmailAddress(mockUser.Email).ConfigureAwait(false);
+            var response = await _gateway.GetUserById(mockUser.Id).ConfigureAwait(false);
 
             // Assert
             response.Should().NotBeNull();
@@ -111,7 +110,7 @@ namespace authservice.Tests.Gateway
         public async Task RegisterUser_WhenEmailAlreadyUsed_ThrowsException()
         {
             // Arrange
-            var mockExistingUser = _fixture.Create<UserDb>();
+            var mockExistingUser = _fixture.Create<User>();
             await SetupTestData(mockExistingUser);
 
             var mockNewUser = _fixture.Build<User>().With(x => x.Email, mockExistingUser.Email).Create();
@@ -133,7 +132,7 @@ namespace authservice.Tests.Gateway
             await _gateway.RegisterUser(mockNewUser).ConfigureAwait(false);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<UserDb>(mockNewUser.Email).ConfigureAwait(false);
+            var databaseResponse = await InMemoryDb.Instance.Users.FindAsync(mockNewUser.Id);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Id.Should().Be(mockNewUser.Id);

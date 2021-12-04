@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using authservice.Gateways;
 using authservice.Infrastructure;
 using authservice.UseCase;
@@ -29,7 +30,7 @@ namespace authservice.Tests.UseCase
             // Arrange
             var mockEmail = _fixture.Create<string>();
 
-            _mockUserGateway.Setup(x => x.GetUserByEmailAddress(It.IsAny<string>())).ReturnsAsync((UserDb) null);
+            _mockUserGateway.Setup(x => x.GetUserById(It.IsAny<Guid>())).ReturnsAsync((User) null);
 
             // Act
             var response = await _loginUseCase.Execute(mockEmail);
@@ -42,13 +43,12 @@ namespace authservice.Tests.UseCase
         public async Task WhenUserExists_ReturnsUser()
         {
             // Arrange
-            var mockEmail = _fixture.Create<string>();
-            var mockUser = _fixture.Create<UserDb>();
+            var mockUser = _fixture.Create<User>();
 
-            _mockUserGateway.Setup(x => x.GetUserByEmailAddress(It.IsAny<string>())).ReturnsAsync(mockUser);
+            _mockUserGateway.Setup(x => x.GetUserByEmail(It.IsAny<string>())).ReturnsAsync(mockUser);
 
             // Act
-            var response = await _loginUseCase.Execute(mockEmail);
+            var response = await _loginUseCase.Execute(mockUser.Email);
 
             // Assert
             response.Should().NotBeNull();
