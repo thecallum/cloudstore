@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace authservice.Infrastructure
 {
-    [Table("User")]
+    [Table("user_table")]
     public class User
     {
         [Key]
