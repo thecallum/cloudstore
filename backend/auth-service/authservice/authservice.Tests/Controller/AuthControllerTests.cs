@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using authservice.Boundary.Request;
 using authservice.Controllers;
-using authservice.Domain;
 using authservice.Encryption;
+using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
 using authservice.UseCase.Interfaces;
 using AutoFixture;
@@ -13,7 +14,7 @@ using Moq;
 using TokenService;
 using TokenService.Models;
 using Xunit;
-using User = authservice.Domain.User;
+using User = authservice.Infrastructure.User;
 
 namespace authservice.Tests.Controller
 {
@@ -191,7 +192,7 @@ namespace authservice.Tests.Controller
             // setup usecase to throw not found exception
             var exception = new UserNotFoundException(mockPayload.Email);
             _mockDeleteUseCase
-                .Setup(x => x.Execute(It.IsAny<string>()))
+                .Setup(x => x.Execute(It.IsAny<Guid>()))
                 .ThrowsAsync(exception);
 
             // Act
@@ -222,41 +223,6 @@ namespace authservice.Tests.Controller
 
             // Assert
             result.Should().BeOfType(typeof(NoContentResult));
-        }
-
-        [Fact]
-        public async Task Check_WhenTokenIsInvalid_Returns401Unauthorized()
-        {
-            // Arrange    
-            var mockToken = _fixture.Create<string>();
-
-            // setup jwtService to return user
-            var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(false);
-
-            // Act
-            var result = await _authController.CheckAuth(mockToken);
-
-            // Assert
-            result.Should().BeOfType(typeof(UnauthorizedResult));
-        }
-
-        [Fact]
-        public async Task Check_WhenTokenIsValid_Returns200Ok()
-        {
-            // Arrange    
-            var mockPayload = _fixture.Create<Payload>();
-            var mockToken = _fixture.Create<string>();
-
-            // setup jwtService to return user
-            var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
-
-            // Act
-            var result = await _authController.CheckAuth(mockToken);
-
-            // Assert
-            result.Should().BeOfType(typeof(OkResult));
         }
     }
 }

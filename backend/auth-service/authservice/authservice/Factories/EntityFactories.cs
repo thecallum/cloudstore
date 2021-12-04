@@ -1,9 +1,6 @@
 ﻿using System;
 using authservice.Boundary.Request;
-using authservice.Domain;
-using authservice.Infrastructure;
-using TokenService.Models;
-using User = authservice.Domain.User;
+using User = authservice.Infrastructure.User;
 
 namespace authservice.Factories
 {
@@ -21,18 +18,6 @@ namespace authservice.Factories
             };
         }
 
-        public static User ToDomain(this UserDb entity)
-        {
-            return new User
-            {
-                Id = entity.Id,
-                FirstName = entity.FirstName,
-                LastName = entity.LastName,
-                Email = entity.Email,
-                Hash = entity.Hash
-            };
-        }
-
         public static User ToDomain(this RegisterRequestObject requestObject)
         {
             return new User
@@ -41,18 +26,6 @@ namespace authservice.Factories
                 FirstName = requestObject.FirstName,
                 LastName = requestObject.LastName,
                 Email = requestObject.Email
-            };
-        }
-
-        public static UserDb ToDatabase(this User domain)
-        {
-            return new UserDb
-            {
-                Id = domain.Id,
-                FirstName = domain.FirstName,
-                LastName = domain.LastName,
-                Email = domain.Email,
-                Hash = domain.Hash
             };
         }
     }

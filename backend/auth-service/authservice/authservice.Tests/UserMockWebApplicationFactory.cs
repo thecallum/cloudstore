@@ -1,89 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using authservice.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace authservice.Tests
 {
     public class UserMockWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup : class
     {
-        private const string UserTableName = "User";
-        public IAmazonDynamoDB DynamoDb { get; private set; }
-        public IDynamoDBContext DynamoDbContext { get; private set; }
+        private readonly string _connection = null;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
-                .UseStartup<Startup>();
-
             builder.ConfigureServices(services =>
             {
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                services.RemoveAll(typeof(DbContextOptions<UserContext>));
+
+                services.AddDbContext<UserContext>(options =>
                 {
-                    var clientConfig = new AmazonDynamoDBConfig {ServiceURL = "http://localhost:8000"};
-                    return new AmazonDynamoDBClient(clientConfig);
+                    if (_connection != null)
+                    {
+                        options.UseNpgsql(_connection);
+                    }
+                    else
+                    {
+                        options.UseInMemoryDatabase("integration");
+                        options.ConfigureWarnings(warningOptions =>
+                        {
+                            warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                        });
+                    }
                 });
 
-                services.ConfigureAws();
-
                 var serviceProvider = services.BuildServiceProvider();
-                DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
-                DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
-
-                EnsureTableExist();
+                InitialiseDB(serviceProvider);
             });
         }
 
-        private void EnsureTableExist()
+        private static void InitialiseDB(ServiceProvider serviceProvider)
         {
-            // initialise data in the test database
-            try
-            {
-                CreateUserTable().GetAwaiter().GetResult();
-            }
-            catch (Exception)
-            {
-                // table exists
-            }
+            using var scope = serviceProvider.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<UserContext>();
+
+            dbContext.Database.EnsureCreated();
+            dbContext.SaveChanges();
         }
 
-        public async Task CreateUserTable()
+        public ScopedContext GetContext()
         {
-            var request = new CreateTableRequest
-            {
-                TableName = UserTableName,
-                AttributeDefinitions = new List<AttributeDefinition>
-                {
-                    new AttributeDefinition
-                    {
-                        AttributeName = "email",
-                        AttributeType = "S"
-                    }
-                },
-                KeySchema = new List<KeySchemaElement>
-                {
-                    new KeySchemaElement
-                    {
-                        AttributeName = "email",
-                        KeyType = "HASH" //Partition key
-                    }
-                },
-                ProvisionedThroughput = new ProvisionedThroughput
-                {
-                    ReadCapacityUnits = 2,
-                    WriteCapacityUnits = 2
-                }
-            };
+            return new ScopedContext(Services);
+        }
+    }
 
-            await DynamoDb.CreateTableAsync(request).ConfigureAwait(false);
+
+    public sealed class ScopedContext : IDisposable
+    {
+        private readonly IServiceScope _scope;
+
+        public UserContext DB { get; private set; }
+
+        public ScopedContext(IServiceProvider services)
+        {
+            _scope = services.CreateScope();
+            DB = _scope.ServiceProvider.GetRequiredService<UserContext>();
+        }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
         }
     }
 }

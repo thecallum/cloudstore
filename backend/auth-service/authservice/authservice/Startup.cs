@@ -12,6 +12,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,8 +44,9 @@ namespace authservice
 
             RegisterValidators(services);
 
+            ConfigureDbContext(services);
 
-            services.ConfigureAws();
+           // services.ConfigureAws();
 
             RegisterGateways(services);
             RegisterUseCases(services);
@@ -70,6 +72,17 @@ namespace authservice
             services.AddScoped<IRegisterUseCase, RegisterUseCase>();
             services.AddScoped<IDeleteUseCase, DeleteUseCase>();
         }
+
+        private void ConfigureDbContext(IServiceCollection services)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                                ?? Configuration.GetValue<string>("DatabaseConnectionString");
+
+            services.AddDbContext<UserContext>(
+                opt => opt.UseNpgsql(connectionString)
+            );
+        }
+
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

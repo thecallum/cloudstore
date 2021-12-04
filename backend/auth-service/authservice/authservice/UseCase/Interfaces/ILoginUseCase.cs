@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using authservice.Domain;
+﻿using authservice.Infrastructure;
+using System.Threading.Tasks;
 
 namespace authservice.UseCase.Interfaces
 {

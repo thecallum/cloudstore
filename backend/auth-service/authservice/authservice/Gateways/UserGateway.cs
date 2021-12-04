@@ -1,54 +1,73 @@
-﻿using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DataModel;
-using authservice.Domain;
-using authservice.Factories;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using authservice.Infrastructure;
 using authservice.Infrastructure.Exceptions;
 using authservice.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace authservice.Gateways
 {
     public class UserGateway : IUserGateway
     {
-        private readonly IDynamoDBContext _context;
+        private readonly UserContext _userContext;
 
-        public UserGateway(IDynamoDBContext databaseContext)
+        public UserGateway(UserContext userContext)
         {
-            _context = databaseContext;
+            _userContext = userContext;
         }
 
-        public async Task DeleteUser(string email)
+        public async Task DeleteUser(Guid id)
         {
             LogHelper.LogGateway("UserGateway", "DeleteUser");
 
-            var user = await LoadUser(email);
-            if (user == null) throw new UserNotFoundException(email);
+            var users = await _userContext.Users.ToListAsync();
 
-            await _context.DeleteAsync<UserDb>(email);
+            var user = await LoadUser(id);
+            if (user == null) throw new UserNotFoundException(id.ToString());
+
+            _userContext.Users.Remove(user);
+            await _userContext.SaveChangesAsync();
         }
 
-        public async Task<UserDb> GetUserByEmailAddress(string email)
+        public async Task<User> GetUserById(Guid id)
         {
-            LogHelper.LogGateway("UserGateway", "GetUserByEmailAddress");
+            LogHelper.LogGateway("UserGateway", "GetUserById");
 
-            return await LoadUser(email);
+            return await LoadUser(id);
         }
 
         public async Task RegisterUser(User newUser)
         {
             LogHelper.LogGateway("UserGateway", "RegisterUser");
 
-            var user = await LoadUser(newUser.Email);
-            if (user != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
+            var existingUser = await _userContext.Users
+                .Where(x => x.Email == newUser.Email)
+                .SingleOrDefaultAsync();
 
-            await _context.SaveAsync(newUser.ToDatabase()).ConfigureAwait(false);
+            if (existingUser != null) throw new UserWithEmailAlreadyExistsException(newUser.Email);
+
+            _userContext.Users.Add(newUser);
+
+            await _userContext.SaveChangesAsync();
         }
 
-        public async Task<UserDb> LoadUser(string email)
+        public async Task<User> LoadUser(Guid id)
         {
             LogHelper.LogGateway("UserGateway", "LoadUser");
 
-            return await _context.LoadAsync<UserDb>(email).ConfigureAwait(false);
+            var user = await _userContext.Users.FindAsync(id);
+
+            return user;
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            LogHelper.LogGateway("UserGateway", "GetUserByEmail");
+
+            return await _userContext.Users
+                .Where(x => x.Email == email)
+                .SingleOrDefaultAsync();
         }
     }
 }

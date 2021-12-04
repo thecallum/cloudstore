@@ -1,21 +1,26 @@
-﻿using System;
+﻿using authservice.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
+
 using Xunit;
 
 namespace authservice.Tests
 {
     public class DatabaseFixture<TStartup> : IDisposable where TStartup : class
     {
-        private const string UserTableName = "User";
-
         private readonly UserMockWebApplicationFactory<TStartup> _factory;
 
+        public ScopedContext GetContext()
+        {
+            return _factory.GetContext();
+        }
+        
+  
         public DatabaseFixture()
         {
-            EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("SECRET", "abcdefg");
 
             _factory = new UserMockWebApplicationFactory<TStartup>();
@@ -24,14 +29,6 @@ namespace authservice.Tests
 
         public HttpClient Client { get; }
 
-        public IAmazonDynamoDB DynamoDb => _factory.DynamoDb;
-        public IDynamoDBContext DynamoDbContext => _factory.DynamoDbContext;
-
-        public void Dispose()
-        {
-            // cleanup database
-            DynamoDb.DeleteTableAsync(UserTableName).GetAwaiter().GetResult();
-        }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
@@ -39,11 +36,48 @@ namespace authservice.Tests
                 Environment.SetEnvironmentVariable(name, defaultValue);
         }
 
-        public async Task ResetDatabase()
+        public void Dispose()
         {
-            await DynamoDb.DeleteTableAsync(UserTableName);
-            await _factory.CreateUserTable();
+            InMemoryDb.Teardown();
+
         }
+
+        public async Task SetupTestData(User user)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                db.Users.Add(user);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var user = await db.Users.Where(x => x.Email == email).SingleOrDefaultAsync();
+
+                return user;
+            }
+        }
+
+        public async Task<User> GetUserById(Guid id)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var user = await db.Users.FindAsync(id);
+
+                return user;
+            }
+        }
+
+
     }
 
     [CollectionDefinition("Database collection", DisableParallelization = true)]

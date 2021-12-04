@@ -1,15 +1,16 @@
-﻿using System.Threading.Tasks;
-using authservice.Domain;
-using authservice.Infrastructure;
+﻿using authservice.Infrastructure;
+using System;
+using System.Threading.Tasks;
 
 namespace authservice.Gateways
 {
     public interface IUserGateway
     {
-        Task<UserDb> GetUserByEmailAddress(string email);
+        Task<User> GetUserById(Guid id);
+        Task<User> GetUserByEmail(string email);
 
         Task RegisterUser(User newUser);
 
-        Task DeleteUser(string email);
+        Task DeleteUser(Guid id);
     }
 }

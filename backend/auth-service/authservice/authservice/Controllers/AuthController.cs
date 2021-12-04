@@ -101,29 +101,14 @@ namespace authservice.Controllers
 
             try
             {
-                await _deleteUseCase.Execute(user.Email);
+                await _deleteUseCase.Execute(user.Id);
 
                 return NoContent();
             }
             catch (UserNotFoundException)
             {
-                return NotFound(user.Email);
+                return NotFound(user.Id);
             }
-        }
-
-        [HttpGet]
-        [Route("check")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CheckAuth([FromHeader] string authorizationToken)
-        {
-            LogHelper.LogController("CheckAuth");
-
-            var validToken = _tokenService.ValidateToken(authorizationToken);
-            if (validToken == false) return Unauthorized();
-
-            return Ok();
         }
     }
 }
