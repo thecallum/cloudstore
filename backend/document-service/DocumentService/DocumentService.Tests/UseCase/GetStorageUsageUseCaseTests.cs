@@ -22,14 +22,14 @@ namespace DocumentService.Tests.UseCase
     public class GetStorageUsageUseCaseTests
     {
         private readonly GetStorageUsageUseCase _useCase;
-        private readonly Mock<IStorageServiceGateway> _mockServiceStorageGateway;
+        private readonly Mock<IDocumentGateway> _mockDocumentGateway;
 
         private readonly Fixture _fixture = new Fixture();
         public GetStorageUsageUseCaseTests()
         {
-            _mockServiceStorageGateway = new Mock<IStorageServiceGateway>();
+            _mockDocumentGateway = new Mock<IDocumentGateway>();
 
-            _useCase = new GetStorageUsageUseCase(_mockServiceStorageGateway.Object);
+            _useCase = new GetStorageUsageUseCase(_mockDocumentGateway.Object);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace DocumentService.Tests.UseCase
 
             var gatewayResponse = _fixture.Create<StorageUsageResponse>();
 
-            _mockServiceStorageGateway
+            _mockDocumentGateway
                 .Setup(x => x.GetUsage(It.IsAny<User>()))
                 .ReturnsAsync(gatewayResponse);
 

@@ -66,7 +66,8 @@ namespace DocumentService.Controllers
             {
                 await _renameDirectoryUseCase.Execute(query, request, user.Id);
                 return Ok();
-            } catch(DirectoryNotFoundException)
+            }
+            catch (DirectoryNotFoundException)
             {
                 return NotFound(query.Id);
             }
@@ -89,7 +90,7 @@ namespace DocumentService.Controllers
                 await _delteDirectoryUseCase.Execute(query, user.Id);
                 return Ok();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e is DirectoryNotFoundException)
                 {

@@ -41,7 +41,7 @@ namespace DocumentService.Tests.Gateways
 
             // Assert
             response.Should().NotBeNull();
-            response.Should().Contain("AWSAccessKeyId");
+            response.Should().Contain(key);
         }
 
         [Fact]

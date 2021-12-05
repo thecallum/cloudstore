@@ -73,7 +73,7 @@ namespace DocumentService.Gateways
 
             request.ResponseHeaderOverrides = new ResponseHeaderOverrides
             {
-              ContentDisposition = $"attachment; filename = \"{fileName}\""
+                ContentDisposition = $"attachment; filename = \"{fileName}\""
             };
 
             return _amazonS3.GetPreSignedURL(request);
@@ -119,8 +119,8 @@ namespace DocumentService.Gateways
                 SourceBucket = _bucketName,
                 DestinationBucket = _bucketName,
                 SourceKey = $"upload/{key}",
-                DestinationKey = $"store/{key}",            
-                
+                DestinationKey = $"store/{key}",
+
             };
 
             await _amazonS3.CopyObjectAsync(request);

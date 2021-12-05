@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;      
+using Xunit;
 
 namespace DocumentService.Tests.UseCase
 {
@@ -43,7 +43,7 @@ namespace DocumentService.Tests.UseCase
 
             _mockDocumentGateway
                 .Setup(x => x.GetDocumentById(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((DocumentDb) null);
+                .ReturnsAsync((DocumentDomain)null);
 
             // Act
             Func<Task<string>> func = async () => await _getDocumentDownloadLinkUseCase.Execute(userId, documentId);
@@ -59,7 +59,7 @@ namespace DocumentService.Tests.UseCase
             var userId = Guid.NewGuid();
             var documentId = Guid.NewGuid();
 
-            var document = _fixture.Create<DocumentDb>();
+            var document = _fixture.Create<DocumentDomain>();
 
             _mockDocumentGateway
                 .Setup(x => x.GetDocumentById(It.IsAny<Guid>(), It.IsAny<Guid>()))

@@ -74,7 +74,8 @@ namespace DocumentService.Controllers
                 if (document == null) return NotFound(query.DocumentId);
 
                 return Created($"/document-service/api/document/{query.DocumentId}", document);
-            } catch (ExceededUsageCapacityException)
+            }
+            catch (ExceededUsageCapacityException)
             {
                 return StatusCode(StatusCodes.Status413RequestEntityTooLarge);
             }

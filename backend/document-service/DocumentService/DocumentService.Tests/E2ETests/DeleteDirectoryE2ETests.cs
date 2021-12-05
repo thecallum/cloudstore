@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Tests.Helpers;
 using FluentAssertions;
@@ -44,12 +46,13 @@ namespace DocumentService.Tests.E2ETests
             // Arrange
             var directoryId = Guid.NewGuid();
 
-            var document = _fixture.Build<DocumentDb>()
-                            .With(x => x.UserId, _user.Id)
-                            .With(x => x.DirectoryId, directoryId)
-                            .Create();
+            var document = _fixture.Build<DocumentDomain>()
+                .With(x => x.UserId, _user.Id)
+                .With(x => x.DirectoryId, directoryId)
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(document);
+            await _dbFixture.SetupTestData(document);
 
             // Act
             var response = await DeleteDirectoryRequest(directoryId);
@@ -62,22 +65,24 @@ namespace DocumentService.Tests.E2ETests
         public async Task Delete_WhenDirectoryContainsChildDirectories_ReturnsBadRequest()
         {
             // Arrange
-            var parentDirectory = _fixture.Build<DirectoryDb>()
+            var parentDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
                 .With(x => x.ParentDirectoryId, _user.Id)
-                .Create();
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(parentDirectory);
+            await _dbFixture.SetupTestData(parentDirectory);
 
-            var childDirectory = _fixture.Build<DirectoryDb>()
+            var childDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
-                .With(x => x.ParentDirectoryId, parentDirectory.DirectoryId)
-                .Create();
+                .With(x => x.ParentDirectoryId, parentDirectory.Id)
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(childDirectory);
+            await _dbFixture.SetupTestData(childDirectory);
 
             // Act
-            var response = await DeleteDirectoryRequest(parentDirectory.DirectoryId);
+            var response = await DeleteDirectoryRequest(parentDirectory.Id);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -87,19 +92,20 @@ namespace DocumentService.Tests.E2ETests
         public async Task DeleteDirectory_WhenValid_ShouldRemoveDirectoryFromDatabase()
         {
             // Arrange
-            var mockDirectory = _fixture.Build<DirectoryDb>()
+            var mockDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
-                .Create();
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(mockDirectory);
+            await _dbFixture.SetupTestData(mockDirectory);
 
             // Act
-            var response = await DeleteDirectoryRequest(mockDirectory.DirectoryId);
+            var response = await DeleteDirectoryRequest(mockDirectory.Id);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, mockDirectory.DirectoryId);
+            var databaseResponse = await _dbFixture.GetDirectoryById(mockDirectory.Id);
 
             databaseResponse.Should().BeNull();
         }

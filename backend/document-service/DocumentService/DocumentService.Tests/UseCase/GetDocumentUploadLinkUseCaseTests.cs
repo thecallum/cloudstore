@@ -65,7 +65,7 @@ namespace DocumentService.Tests.UseCase
 
             // Assert
             response.UploadUrl.Should().Be(mockUrl);
-            response.DocumentId.Should().Be((Guid) query.ExistingDocumentId);
+            response.DocumentId.Should().Be((Guid)query.ExistingDocumentId);
         }
     }
 }

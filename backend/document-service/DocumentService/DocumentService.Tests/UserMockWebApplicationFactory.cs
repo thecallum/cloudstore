@@ -1,29 +1,21 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DocumentService.Gateways;
 using Amazon.S3;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using DocumentService.Infrastructure;
-using Amazon.DynamoDBv2.Model;
 using Amazon.S3.Model;
-using DocumentService.Tests.Infrastructure;
 using DocumentService.Tests.Helpers;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DocumentService.Tests
 {
     public class UserMockWebApplicationFactory<TStartup>
-    : WebApplicationFactory<TStartup> where TStartup : class
+        : WebApplicationFactory<TStartup> where TStartup : class
     {
-        public IAmazonDynamoDB DynamoDb { get; private set; }
-        public IDynamoDBContext DynamoDbContext { get; private set; }
-
+        private readonly string _connection = null;
         public IAmazonS3 S3Client { get; private set; }
 
         public string ValidFilePath { get; private set; }
@@ -31,20 +23,37 @@ namespace DocumentService.Tests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(b => b.AddEnvironmentVariables())
-                .UseStartup<Startup>();
-
             builder.ConfigureServices(services =>
             {
                 services.ConfigureAws();
 
+                services.RemoveAll(typeof(DbContextOptions<DocumentServiceContext>));
+
+                services.AddDbContext<DocumentServiceContext>(options =>
+                {
+                    if (_connection != null)
+                    {
+                        options.UseNpgsql(_connection);
+                    }
+                    else
+                    {
+                        options.UseInMemoryDatabase("integration");
+                        options.ConfigureWarnings(warningOptions =>
+                        {
+                            warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                        });
+                    }
+                });
+
                 var serviceProvider = services.BuildServiceProvider();
-                DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();
-                DynamoDbContext = serviceProvider.GetRequiredService<IDynamoDBContext>();
+                InitialiseDB(serviceProvider);
+
                 S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
+
 
                 EnsureBucketExists();
                 CreateTestFiles();
+
             });
         }
 
@@ -70,5 +79,36 @@ namespace DocumentService.Tests
             }
         }
 
+        private static void InitialiseDB(ServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DocumentServiceContext>();
+
+            dbContext.Database.EnsureCreated();
+            dbContext.SaveChanges();
+        }
+
+        public ScopedContext GetContext()
+        {
+            return new ScopedContext(Services);
+        }
+    }
+
+    public sealed class ScopedContext : IDisposable
+    {
+        private readonly IServiceScope _scope;
+
+        public DocumentServiceContext DB { get; private set; }
+
+        public ScopedContext(IServiceProvider services)
+        {
+            _scope = services.CreateScope();
+            DB = _scope.ServiceProvider.GetRequiredService<DocumentServiceContext>();
+        }
+
+        public void Dispose()
+        {
+            _scope.Dispose();
+        }
     }
 }

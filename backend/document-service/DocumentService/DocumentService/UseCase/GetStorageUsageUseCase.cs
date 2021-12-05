@@ -11,16 +11,16 @@ namespace DocumentService.UseCase
 {
     public class GetStorageUsageUseCase : IGetStorageUsageUseCase
     {
-        private readonly IStorageServiceGateway _storageServiceGateway;
+        private readonly IDocumentGateway _documentGateway;
 
-        public GetStorageUsageUseCase(IStorageServiceGateway storageServiceGateway)
+        public GetStorageUsageUseCase(IDocumentGateway documentGateway)
         {
-            _storageServiceGateway = storageServiceGateway;
+            _documentGateway = documentGateway;
         }
 
         public async Task<GetStorageUsageResponse> Execute(User user)
         {
-            var storageUsageResponse = await _storageServiceGateway.GetUsage(user);
+            var storageUsageResponse = await _documentGateway.GetUsage(user);
 
             return new GetStorageUsageResponse
             {

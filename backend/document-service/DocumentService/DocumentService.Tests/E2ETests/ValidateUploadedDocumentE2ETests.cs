@@ -14,6 +14,7 @@ using System.Net;
 using DocumentService.Domain;
 using DocumentService.Infrastructure;
 using System.Net.Http.Headers;
+using DocumentService.Factories;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -37,8 +38,8 @@ namespace DocumentService.Tests.E2ETests
             // Arrange
             var documentId = Guid.NewGuid();
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
-                            .With(x => x.DirectoryId, Guid.NewGuid())
-                            .Create();
+                .With(x => x.DirectoryId, Guid.NewGuid())
+                .Create();
 
             // Act
             var response = await ValidateUploadedDocumentRequest(documentId, request);
@@ -54,13 +55,12 @@ namespace DocumentService.Tests.E2ETests
             var user = ContextHelper.CreateUser(200);
             var token = ContextHelper.CreateToken(user);
 
-
             var documentId = Guid.NewGuid();
             var key = $"{user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
-                            .With(x => x.DirectoryId, Guid.NewGuid())
-                            .Create();
+                .With(x => x.DirectoryId, Guid.NewGuid())
+                .Create();
 
             await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _tooLargeFilePath);
 
@@ -79,8 +79,8 @@ namespace DocumentService.Tests.E2ETests
             var key = $"{_user.Id}/{documentId}";
 
             var request = _fixture.Build<ValidateUploadedDocumentRequest>()
-                            .With(x => x.DirectoryId, Guid.NewGuid())
-                            .Create();
+                .With(x => x.DirectoryId, Guid.NewGuid())
+                .Create();
 
             await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
 
@@ -92,7 +92,7 @@ namespace DocumentService.Tests.E2ETests
 
             response.Headers.Location.ToString().Should().Contain(documentId.ToString());
 
-            var responseContent = await DecodeResponse<Document>(response);
+            var responseContent = await DecodeResponse<DocumentDomain>(response);
 
             responseContent.Should().NotBeNull();
             responseContent.Id.Should().Be(documentId);
@@ -141,10 +141,10 @@ namespace DocumentService.Tests.E2ETests
             var response = await ValidateUploadedDocumentRequest(documentId, request);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(_user.Id, documentId).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.GetDocumentById(documentId);
 
             databaseResponse.Should().NotBeNull();
-            databaseResponse.DocumentId.Should().Be(documentId);
+            databaseResponse.Id.Should().Be(documentId);
             databaseResponse.UserId.Should().Be(_user.Id);
             databaseResponse.DirectoryId.Should().Be((Guid)request.DirectoryId);
             databaseResponse.FileSize.Should().Be(200);
@@ -156,26 +156,27 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenExistingDocument_UpdatesDocumentIntoDatabase()
         {
             // Arrange
-            var existingDocument = _fixture.Build<DocumentDb>()
-                                        .With(x => x.UserId, _user.Id)
-                                        .Create();
+            var existingDocument = _fixture.Build<DocumentDomain>()
+                .With(x => x.UserId, _user.Id)
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(existingDocument);
+            await _dbFixture.SetupTestData(existingDocument);
 
-            var key = $"{_user.Id}/{existingDocument.DocumentId}";
+            var key = $"{_user.Id}/{existingDocument.Id}";
 
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
             await _s3TestHelper.UploadDocumentToS3($"upload/{key}", _validFilePath);
 
             // Act
-            var response = await ValidateUploadedDocumentRequest(existingDocument.DocumentId, request);
+            var response = await ValidateUploadedDocumentRequest(existingDocument.Id, request);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DocumentDb>(_user.Id, existingDocument.DocumentId).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.GetDocumentById(existingDocument.Id);
 
             databaseResponse.Should().NotBeNull();
-            databaseResponse.DocumentId.Should().Be(existingDocument.DocumentId);
+            databaseResponse.Id.Should().Be(existingDocument.Id);
             databaseResponse.UserId.Should().Be(_user.Id);
             databaseResponse.DirectoryId.Should().Be(existingDocument.DirectoryId);
             databaseResponse.FileSize.Should().Be(200);

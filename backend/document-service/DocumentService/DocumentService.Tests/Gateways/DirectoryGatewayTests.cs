@@ -1,4 +1,6 @@
 ﻿using AutoFixture;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
@@ -8,38 +10,59 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Directory = DocumentService.Domain.Directory;
 
 namespace DocumentService.Tests.Gateways
 {
-    public class DirectoryGatewayTests : BaseIntegrationTest
+    [Collection("Database collection")]
+    public class DirectoryGatewayTests : IDisposable
     {
         private readonly DirectoryGateway _gateway;
+        private readonly Fixture _fixture = new Fixture();
+        private readonly Random _random = new Random();
 
-        public DirectoryGatewayTests(DatabaseFixture<Startup> testFixture)
-            : base(testFixture)
+        public DirectoryGatewayTests()
         {
-            _gateway = new DirectoryGateway(_context);
+            _gateway = new DirectoryGateway(InMemoryDb.Instance);
         }
 
+        private async Task SetupTestData(DirectoryDb directory)
+        {
+            InMemoryDb.Instance.Directories.Add(directory);
+
+            await InMemoryDb.Instance.SaveChangesAsync();
+        }
+
+        private async Task SetupTestData(IEnumerable<DirectoryDb> directories)
+        {
+            foreach(var directory in directories)
+            {
+                await SetupTestData(directory);
+            }
+        }
+
+        public void Dispose()
+        {
+            InMemoryDb.Teardown();
+        }
 
         [Fact]
         public async Task CreateDirectory_WhenCalled_IsSavedToDatabase()
         {
             // Arrange
-            var newDirectory = _fixture.Create<Directory>();
+            var newDirectory = _fixture.Create<DirectoryDomain>();
 
             // Act 
             await _gateway.CreateDirectory(newDirectory);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(newDirectory.UserId, newDirectory.DirectoryId);
+           // var databaseResponse = await _context.LoadAsync<DirectoryDb>(newDirectory.UserId, newDirectory.DirectoryId);
+            var databaseResponse = await InMemoryDb.Instance.Directories.FindAsync(newDirectory.Id);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Name.Should().Be(newDirectory.Name);
             databaseResponse.ParentDirectoryId.Should().Be(newDirectory.ParentDirectoryId);
 
-            _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(newDirectory.UserId, newDirectory.DirectoryId));
+            //_cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(newDirectory.UserId, newDirectory.DirectoryId));
         }
 
         [Fact]
@@ -61,15 +84,15 @@ namespace DocumentService.Tests.Gateways
         public async Task DeleteDirectory_WhenValid_DeletesDirectoryFromDatabase()
         {
             // Arrange
-            var mockDirectory = _fixture.Create<DirectoryDb>();
+            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase();
 
             await SetupTestData(mockDirectory);
 
             // Act 
-            await _gateway.DeleteDirectory(mockDirectory.DirectoryId, mockDirectory.UserId);
+            await _gateway.DeleteDirectory(mockDirectory.Id, mockDirectory.UserId);
 
             // Assert
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(mockDirectory.UserId, mockDirectory.DirectoryId);
+            var databaseResponse = await InMemoryDb.Instance.Directories.FindAsync(mockDirectory.Id);
 
             databaseResponse.Should().BeNull();
         }
@@ -94,23 +117,24 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
 
-            var mockDirectory = _fixture.Create<DirectoryDb>();
+            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase();
 
             await SetupTestData(mockDirectory);
 
             var newName = _fixture.Create<string>();
 
             // Act 
-            await _gateway.RenameDirectory(newName, mockDirectory.DirectoryId, mockDirectory.UserId);
+            await _gateway.RenameDirectory(newName, mockDirectory.Id, mockDirectory.UserId);
 
             // Assert
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(mockDirectory.UserId, mockDirectory.DirectoryId);
+//            var databaseResponse = await _context.LoadAsync<DirectoryDb>(mockDirectory.UserId, mockDirectory.Id);
+            var databaseResponse = await InMemoryDb.Instance.Directories.FindAsync(mockDirectory.Id);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Name.Should().Be(newName);
 
-            _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(mockDirectory.UserId, mockDirectory.DirectoryId));
+          //  _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(mockDirectory.UserId, mockDirectory.DirectoryId));
 
         }
 
@@ -137,15 +161,17 @@ namespace DocumentService.Tests.Gateways
             var numberOfDirectoriesInRootDirectory = _random.Next(2, 5);
             var numberOfDirectoriesChildDirectory = _random.Next(2, 5);
 
-            var directoriesInRootDirectory = _fixture.Build<DirectoryDb>()
+            var directoriesInRootDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.ParentDirectoryId, userId)
                 .With(x => x.UserId, userId)
-                .CreateMany(numberOfDirectoriesInRootDirectory);
+                .CreateMany(numberOfDirectoriesInRootDirectory)
+                .Select(x => x.ToDatabase());
 
-            var directoriesInChildDirectory = _fixture.Build<DirectoryDb>()
+            var directoriesInChildDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.ParentDirectoryId, childParentDirectoryId)
                 .With(x => x.UserId, userId)
-                .CreateMany(numberOfDirectoriesChildDirectory);
+                .CreateMany(numberOfDirectoriesChildDirectory)
+                .Select(x => x.ToDatabase());
 
             await SetupTestData(directoriesInRootDirectory);
             await SetupTestData(directoriesInChildDirectory);
@@ -175,12 +201,13 @@ namespace DocumentService.Tests.Gateways
         public async Task CheckDirectoryExists_WhenItExists_ReturnsTrue()
         {
             // Arrange
-            var directory = _fixture.Create<DirectoryDb>();
+            var directory = _fixture.Create<DirectoryDomain>()
+                .ToDatabase();
 
             await SetupTestData(directory);
 
             // Act 
-            var response = await _gateway.CheckDirectoryExists(directory.DirectoryId, directory.UserId);
+            var response = await _gateway.CheckDirectoryExists(directory.Id, directory.UserId);
 
             // Assert
             response.Should().BeTrue();
@@ -192,15 +219,16 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var userId = Guid.NewGuid();
 
-            var parentDirectory = _fixture.Build<DirectoryDb>()
+            var parentDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, userId)
                 .With(x => x.ParentDirectoryId, userId)
-                .Create();
+                .Create()
+                .ToDatabase();
 
             await SetupTestData(parentDirectory);
 
             // Act
-            var response = await _gateway.ContainsChildDirectories(parentDirectory.DirectoryId, userId);
+            var response = await _gateway.ContainsChildDirectories(parentDirectory.Id, userId);
 
             // Assert
             response.Should().BeFalse();
@@ -212,22 +240,24 @@ namespace DocumentService.Tests.Gateways
             // Arrange
             var userId = Guid.NewGuid();
 
-            var parentDirectory = _fixture.Build<DirectoryDb>()
+            var parentDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, userId)
                 .With(x => x.ParentDirectoryId, userId)
-                .Create();
+                .Create()
+                .ToDatabase();
 
             await SetupTestData(parentDirectory);
 
-            var childDirectory = _fixture.Build<DirectoryDb>()
+            var childDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, userId)
-                .With(x => x.ParentDirectoryId, parentDirectory.DirectoryId)
-                .Create();
+                .With(x => x.ParentDirectoryId, parentDirectory.Id)
+                .Create()
+                .ToDatabase();
 
             await SetupTestData(childDirectory);
 
             // Act
-            var response = await _gateway.ContainsChildDirectories(parentDirectory.DirectoryId, userId);
+            var response = await _gateway.ContainsChildDirectories(parentDirectory.Id, userId);
 
             // Assert
             response.Should().BeTrue();

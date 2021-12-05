@@ -18,7 +18,8 @@ namespace DocumentService.Tests.Request.Validation
         public void WhenNameTooShort_HasError()
         {
             // Arrange
-            var model = new RenameDirectoryRequest { 
+            var model = new RenameDirectoryRequest
+            {
                 Name = ""
             };
 
