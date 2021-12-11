@@ -65,7 +65,7 @@ namespace DocumentService.Factories
                 Id = Guid.NewGuid(),
                 UserId = userId,
                 Name = request.Name,
-                ParentDirectoryId = (request.ParentDirectoryId ?? userId)
+                ParentDirectoryId = request.ParentDirectoryId
             };
         }
 

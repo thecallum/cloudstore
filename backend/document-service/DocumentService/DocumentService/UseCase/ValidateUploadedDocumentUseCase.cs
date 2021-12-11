@@ -33,15 +33,22 @@ namespace DocumentService.UseCase
             var documentUploadResponse = await _s3Gateway.ValidateUploadedDocument(key);
             if (documentUploadResponse == null) return null;
 
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Checking document uploaded");
+
             var existingDocument = await _documentGateway.GetDocumentById(user.Id, documentId);
+
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - loading existing document");
 
             // check if document can be uploaded / updated
             var canUploadDocument = await _documentGateway.CanUploadFile(user, documentUploadResponse.FileSize, existingDocument?.FileSize);
             if (canUploadDocument == false) throw new ExceededUsageCapacityException();
 
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Within storage capacity");
 
             if (existingDocument == null)
             {
+                LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Uploading new document");
+
                 var newDocument = new DocumentDomain
                 {
                     Id = documentId,
@@ -54,6 +61,8 @@ namespace DocumentService.UseCase
 
                 return await UploadNewDocument(newDocument, key);
             }
+
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Updating existing document");
 
             return await UpdateExistingDocument(existingDocument, documentUploadResponse, key);
         }
