@@ -27,7 +27,7 @@ const Directory = ({ directory, urlComponents }) => {
     directoryUrl += urlComponents[urlComponents.length - 1].full;
   }
 
-  directoryUrl += `/` + directory.directoryId;
+  directoryUrl += `/` + directory.id;
 
   return (
     <StyledDirectory>

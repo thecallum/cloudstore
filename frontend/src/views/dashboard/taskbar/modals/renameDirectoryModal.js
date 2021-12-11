@@ -52,7 +52,7 @@ const RenameDirectoryModal = ({ directory, closeModal }) => {
 
     const token = loadToken();
 
-    renameDirectoryRequest(token, directory.directoryId, fields.name)
+    renameDirectoryRequest(token, directory.id, fields.name)
       .then((res) => {
         if (!res.success) {
           // do nothing

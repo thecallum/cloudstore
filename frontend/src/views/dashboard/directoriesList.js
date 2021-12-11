@@ -22,18 +22,16 @@ const StyledDirectoriesList = styled.ul`
 `;
 
 const DirectoriesList = ({ directories, urlComponents }) => {
-  let filteredDirectories;
+  console.log({ directories, urlComponents });
 
-  if (urlComponents.length === 0) {
-    filteredDirectories = directories.filter(
-      (x) => x.userId === x.parentDirectoryId
-    );
-  } else {
-    filteredDirectories = directories.filter(
-      (x) =>
-        x.parentDirectoryId === urlComponents[urlComponents.length - 1].name
-    );
-  }
+  const parentDirectoryId =
+    urlComponents.length === 0
+      ? null
+      : urlComponents[urlComponents.length - 1].name;
+
+  const filteredDirectories = directories.filter(
+    (x) => x.parentDirectoryId == parentDirectoryId
+  );
 
   if (filteredDirectories.length === 0) return null;
 
