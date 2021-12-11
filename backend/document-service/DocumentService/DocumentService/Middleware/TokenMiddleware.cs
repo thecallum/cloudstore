@@ -35,11 +35,12 @@ namespace DocumentService.Middleware
 
                 httpContext.Items["user"] = payload;
 
-                LambdaLogger.Log("Payload decoded: " +  payload);
+                LambdaLogger.Log("Payload decoded: " + payload);
 
 
                 await _next(httpContext);
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 LambdaLogger.Log("Exception user is null");
                 LambdaLogger.Log(e.Message);
@@ -52,7 +53,7 @@ namespace DocumentService.Middleware
         }
     }
 
-   // Extension method used to add the middleware to the HTTP request pipeline.
+    // Extension method used to add the middleware to the HTTP request pipeline.
     public static class MyMiddlewareExtensions
     {
         public static IApplicationBuilder UseTokenMiddleware(this IApplicationBuilder builder)

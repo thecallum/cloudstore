@@ -1,23 +1,31 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DocumentService.Infrastructure
 {
-    // Default table for CRUD
-    [DynamoDBTable("Directory", LowerCamelCaseProperties = true)]
+    [Table("directory_table")]
     public class DirectoryDb
     {
-        [DynamoDBHashKey] // Partition Key
+        [Key]
+        [Column("id")]
+        public Guid Id { get; set; }
+
+        [Column("user_id")]
         public Guid UserId { get; set; }
 
-        [DynamoDBRangeKey] // Range Key
-        public Guid DirectoryId { get; set; }
+        //public ICollection<DocumentDb> Documents { get; set; }
 
-        [DynamoDBProperty]
+        [Column("name")]
         public string Name { get; set; }
 
-        [DynamoDBProperty]
-        public Guid ParentDirectoryId { get; set; }
+        [Column("parent_directory_id")]
+        public Guid? ParentDirectoryId { get; set; }
+
+        //public DirectoryDb()
+        //{
+        //    Documents = new HashSet<DocumentDb>();
+        //}
     }
 }
-

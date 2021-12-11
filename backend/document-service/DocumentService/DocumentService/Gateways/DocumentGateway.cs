@@ -1,35 +1,39 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Document = DocumentService.Domain.Document;
+using TokenService.Models;
 
 namespace DocumentService.Gateways
 {
     public class DocumentGateway : IDocumentGateway
     {
-        private readonly IDynamoDBContext _context;
-        public DocumentGateway(IDynamoDBContext databaseContext)
+        private readonly DocumentServiceContext _documentStorageContext;
+
+        public DocumentGateway(DocumentServiceContext documentStorageContext)
         {
-            _context = databaseContext;
+            _documentStorageContext = documentStorageContext;
         }
 
-        public async Task<DocumentDb> DeleteDocument(Guid userId, Guid documentId)
+        public async Task<DocumentDomain> DeleteDocument(Guid userId, Guid documentId)
         {
             LogHelper.LogGateway("DocumentGateway", "DeleteDocument");
 
-            var existingDocument = await GetDocumentById(userId, documentId);
+            var existingDocument = await LoadDocument(userId, documentId);
             if (existingDocument == null) throw new DocumentNotFoundException();
 
-            await _context.DeleteAsync<DocumentDb>(userId, documentId);
+            _documentStorageContext.Documents.Remove(existingDocument);
 
-            return existingDocument;
+            await _documentStorageContext.SaveChangesAsync();
+
+            return existingDocument.ToDomain();
         }
 
         public async Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId)
@@ -41,66 +45,84 @@ namespace DocumentService.Gateways
             return documents.Count() > 0;
         }
 
-        public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid? directoryId = null)
+        public async Task<IEnumerable<DocumentDomain>> GetAllDocuments(Guid userId, Guid? directoryId = null)
         {
             LogHelper.LogGateway("DocumentGateway", "GetAllDocuments");
 
-            var documentList = new List<DocumentDb>();
+            var documents = await _documentStorageContext.Documents
+                .Where(x => x.UserId == userId && x.DirectoryId == directoryId)
+                .ToListAsync();
 
-            var selectedDirectoryId = (directoryId != null) ? (Guid)directoryId : userId;
-
-            var config = new DynamoDBOperationConfig
-            {
-                IndexName = "DirectoryId_Name",
-            };
-
-            var search = _context.QueryAsync<DocumentDb>(selectedDirectoryId, config);
-
-            //var queryConfig = new QueryOperationConfig
-            //{
-            //    IndexName = "DirectoryId_Name",
-            //    Limit = 2,
-            //    Select = SelectValues.AllAttributes,
-            //    //Filter = new QueryFilter("directoryId", QueryOperator.Equal, selectedDirectoryId),
-
-            //    PaginationToken = null,
-            //    KeyExpression = new Expression
-            //    {
-            //        ExpressionStatement = "directoryId = :directoryId"
-            //    },
-            //};
-
-            //// queryConfig.KeyExpression.ExpressionAttributeNames.Add("directoryId", $"\"S\": \"{selectedDirectoryId}\"");
-            //queryConfig.KeyExpression.ExpressionAttributeValues.Add(":directoryId", $"{selectedDirectoryId}");
-
-            //// Add(":directoryId", selectedDirectoryId.ToString());
-
-            //var search = _context.FromQueryAsync<DocumentDb>(queryConfig);
-
-            do
-            {
-                var newDocuments = await search.GetNextSetAsync();
-                
-                
-                documentList.AddRange(newDocuments);
-
-            } while (search.IsDone == false);
-
-            return documentList;
+            return documents.Select(x => x.ToDomain());
         }
 
-        public async Task<DocumentDb> GetDocumentById(Guid userId, Guid documentId)
+        public async Task<DocumentDomain> GetDocumentById(Guid userId, Guid documentId)
         {
             LogHelper.LogGateway("DocumentGateway", "GetDocumentById");
 
-            return await _context.LoadAsync<DocumentDb>(userId, documentId);
+            var document = await LoadDocument(userId, documentId);
+
+            return document?.ToDomain();
         }
 
-        public async Task SaveDocument(Document document)
+        private async Task<DocumentDb> LoadDocument(Guid userId, Guid documentId)
+        {
+            LogHelper.LogGateway("DocumentGateway", "GetDocumentById");
+
+            var document = await _documentStorageContext.Documents
+                .Where(x => x.UserId == userId && x.Id == documentId)
+                .SingleOrDefaultAsync();
+
+            return document;
+        }
+
+        public async Task SaveDocument(DocumentDomain document)
         {
             LogHelper.LogGateway("DocumentGateway", "SaveDocument");
 
-            await _context.SaveAsync(document.ToDatabase());
+            _documentStorageContext.Documents.Add(document.ToDatabase());
+
+            await _documentStorageContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateDocument(DocumentDomain document)
+        {
+            LogHelper.LogGateway("DocumentGateway", "UpdateDocument");
+
+            var existingDocument = await LoadDocument(document.UserId, document.Id);
+
+            // only filesize can be changed
+            existingDocument.FileSize = document.FileSize;
+
+            await _documentStorageContext.SaveChangesAsync();
+        }
+
+        public async Task<StorageUsageResponse> GetUsage(User user)
+        {
+            var total = await LoadStorageUsage(user.Id);
+
+            return new StorageUsageResponse
+            {
+                StorageUsage = total,
+                Capacity = user.StorageCapacity
+            };
+        }
+
+        public async Task<bool> CanUploadFile(User user, long fileSize, long? originalFileSize = null)
+        {
+            var totalUsage = await LoadStorageUsage(user.Id);
+
+            var expectedUsage = totalUsage + fileSize;
+            if (originalFileSize != null) expectedUsage -= (long)originalFileSize;
+            return expectedUsage < user.StorageCapacity;
+        }
+        private async Task<long> LoadStorageUsage(Guid userId)
+        {
+            var total = await _documentStorageContext.Documents
+                .Where(x => x.UserId == userId)
+                .SumAsync(x => x.FileSize);
+
+            return total;
         }
     }
 }

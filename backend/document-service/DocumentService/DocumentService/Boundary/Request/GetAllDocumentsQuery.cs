@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DocumentService.Boundary.Request
 {
     public class GetAllDocumentsQuery
-    { 
+    {
         [FromQuery(Name = "directoryId")]
         public Guid? DirectoryId { get; set; } = null;
     }

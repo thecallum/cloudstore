@@ -1,7 +1,6 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.S3;
-using DocumentService.Tests.Infrastructure;
+﻿using Amazon.S3;
+using DocumentService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,44 +13,20 @@ namespace DocumentService.Tests
     public class DatabaseFixture<TStartup> : IDisposable where TStartup : class
     {
         private readonly UserMockWebApplicationFactory<TStartup> _factory;
+
+        public ScopedContext GetContext()
+        {
+            return _factory.GetContext();
+        }
+
         public DatabaseFixture()
         {
-            EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
-
             _factory = new UserMockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
-
-            ResetDatabase().GetAwaiter().GetResult();
         }
 
-        private async Task ResetDatabase()
-        {
-            var tables = await DynamoDb.ListTablesAsync();
-
-            if (tables.TableNames.Contains("Document"))
-            {
-                await DynamoDb.DeleteTableAsync("Document");
-            }
-
-            if (tables.TableNames.Contains("Directory"))
-            {
-                await DynamoDb.DeleteTableAsync("Directory");
-            }
-
-            if (tables.TableNames.Contains("DocumentStorage"))
-            {
-                await DynamoDb.DeleteTableAsync("DocumentStorage");
-            }
-
-            await DatabaseBuilder.CreateDocumentTable(DynamoDb);
-            await DatabaseBuilder.CreateDirectoryTable(DynamoDb);
-            await DatabaseBuilder.CreateDocumentStorageTable(DynamoDb);
-        }
 
         public HttpClient Client { get; }
-
-        public IAmazonDynamoDB DynamoDb => _factory.DynamoDb;
-        public IDynamoDBContext DynamoDbContext => _factory.DynamoDbContext;
 
         public IAmazonS3 S3Client => _factory.S3Client;
 
@@ -61,6 +36,7 @@ namespace DocumentService.Tests
 
         public void Dispose()
         {
+            InMemoryDb.Teardown();
         }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
@@ -68,6 +44,96 @@ namespace DocumentService.Tests
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
                 Environment.SetEnvironmentVariable(name, defaultValue);
         }
+
+  
+
+
+        public async Task<DirectoryDb> GetDirectoryById(Guid id)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var directory = await db.Directories.Where(x => x.Id == id).SingleOrDefaultAsync();
+
+                return directory;
+            }
+        }
+
+        public async Task<DocumentDb> GetDocumentById(Guid id)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var document = await db.Documents.Where(x => x.Id == id).SingleOrDefaultAsync();
+
+                return document;
+            }
+        }
+
+        public async Task SetupTestData(DocumentDb document)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                db.Documents.Add(document);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public async Task SetupTestData(DirectoryDb directory)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                db.Directories.Add(directory);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public async Task SetupTestData(IEnumerable<DirectoryDb> directories)
+        {
+            foreach (var directory in directories)
+            {
+                await SetupTestData(directory);
+            }
+        }
+
+        public async Task SetupTestData(IEnumerable<DocumentDb> documents)
+        {
+            foreach (var document in documents)
+            {
+                await SetupTestData(document);
+            }
+        }
+
+        //public async Task<User> GetUserByEmail(string email)
+        //{
+        //    using (var ctx = GetContext())
+        //    {
+        //        var db = ctx.DB;
+
+        //        var user = await db.Users.Where(x => x.Email == email).SingleOrDefaultAsync();
+
+        //        return user;
+        //    }
+        //}
+
+        //public async Task<User> GetUserById(Guid id)
+        //{
+        //    using (var ctx = GetContext())
+        //    {
+        //        var db = ctx.DB;
+
+        //        var user = await db.Users.FindAsync(id);
+
+        //        return user;
+        //    }
+        //}
+
     }
 
     [CollectionDefinition("Database collection", DisableParallelization = true)]

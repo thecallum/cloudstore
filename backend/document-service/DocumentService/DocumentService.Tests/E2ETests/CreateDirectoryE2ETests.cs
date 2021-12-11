@@ -57,14 +57,18 @@ namespace DocumentService.Tests.E2ETests
 
             var responseId = Guid.Parse(response.Headers.Location.ToString());
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, responseId);
+           // var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, responseId);
+            var databaseResponse = await _dbFixture.GetDirectoryById(responseId);
+
+          
+
             databaseResponse.Should().NotBeNull();
 
             databaseResponse.UserId.Should().Be(_user.Id);
             databaseResponse.Name.Should().Be(request.Name);
-            databaseResponse.ParentDirectoryId.Should().Be((Guid) request.ParentDirectoryId);
+            databaseResponse.ParentDirectoryId.Should().Be((Guid)request.ParentDirectoryId);
 
-            _cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(_user.Id, responseId));
+            //_cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(_user.Id, responseId));
         }
 
         private async Task<HttpResponseMessage> CreateDirectoryRequest(CreateDirectoryRequest request)

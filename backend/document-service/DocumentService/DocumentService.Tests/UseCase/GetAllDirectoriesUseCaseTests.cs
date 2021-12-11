@@ -59,7 +59,7 @@ namespace DocumentService.Tests.UseCase
             // Arrange
             var userId = Guid.NewGuid();
 
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(0);
 
             _mockDirectoryGateway
                 .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
@@ -79,7 +79,7 @@ namespace DocumentService.Tests.UseCase
             var userId = Guid.NewGuid();
 
             var numberOfDirectories = _random.Next(2, 5);
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(numberOfDirectories);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(numberOfDirectories);
 
             _mockDirectoryGateway
                 .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))

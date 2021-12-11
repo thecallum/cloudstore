@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Tests.Helpers;
 using FluentAssertions;
@@ -44,16 +46,17 @@ namespace DocumentService.Tests.E2ETests
         public async Task RenameDirectory(string name)
         {
             // Arrange
-            var mockDirectory = _fixture.Build<DirectoryDb>()
+            var mockDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
-                .Create();
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(mockDirectory);
+            await _dbFixture.SetupTestData(mockDirectory);
 
             var request = new RenameDirectoryRequest { Name = name };
 
             // Act
-            var response = await RenameDirectoryRequest(mockDirectory.DirectoryId, request);
+            var response = await RenameDirectoryRequest(mockDirectory.Id, request);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -67,11 +70,11 @@ namespace DocumentService.Tests.E2ETests
                 .With(x => x.UserId, _user.Id)
                 .Create();
 
-            await SetupTestData(mockDirectory);
+            await _dbFixture.SetupTestData(mockDirectory);
 
             var request = new RenameDirectoryRequest { Name = "sssss" };
 
-            var directoryId = mockDirectory.DirectoryId;
+            var directoryId = mockDirectory.Id;
 
             // Act
             var response = await RenameDirectoryRequest(directoryId, request);
@@ -79,7 +82,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, mockDirectory.DirectoryId);
+            var databaseResponse = await _dbFixture.GetDirectoryById(mockDirectory.Id);
 
             databaseResponse.Should().NotBeNull();
             databaseResponse.Name.Should().Be(request.Name);

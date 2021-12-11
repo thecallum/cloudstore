@@ -10,11 +10,11 @@ namespace DocumentService.Factories
 {
     public static class EntityFactories
     {
-        public static DocumentDb ToDatabase(this Document domain)
+        public static DocumentDb ToDatabase(this DocumentDomain domain)
         {
             return new DocumentDb
             {
-                DocumentId = domain.Id,
+                Id = domain.Id,
                 Name = domain.Name,
                 UserId = domain.UserId,
                 FileSize = domain.FileSize,
@@ -23,11 +23,11 @@ namespace DocumentService.Factories
             };
         }
 
-        public static Document ToDomain(this DocumentDb entity)
+        public static DocumentDomain ToDomain(this DocumentDb entity)
         {
-            return new Document
+            return new DocumentDomain
             {
-                Id = entity.DocumentId,
+                Id = entity.Id,
                 Name = entity.Name,
                 UserId = entity.UserId,
                 FileSize = entity.FileSize,
@@ -36,50 +36,38 @@ namespace DocumentService.Factories
             };
         }
 
-        public static Directory ToDomain(this DirectoryDb entity)
+        public static DirectoryDomain ToDomain(this DirectoryDb entity)
         {
-            return new Directory
+            return new DirectoryDomain
             {
-                DirectoryId = entity.DirectoryId,
+                Id = entity.Id,
                 ParentDirectoryId = entity.ParentDirectoryId,
                 UserId = entity.UserId,
                 Name = entity.Name
             };
         }
 
-        public static DirectoryDb ToDatabase(this Directory domain)
+        public static DirectoryDb ToDatabase(this DirectoryDomain domain)
         {
             return new DirectoryDb
             {
+                Id = domain.Id,
                 UserId = domain.UserId,
-                DirectoryId = domain.DirectoryId,
                 Name = domain.Name,
                 ParentDirectoryId = domain.ParentDirectoryId
             };
         }
 
-        public static Directory ToDomain(this CreateDirectoryRequest request, Guid userId)
+        public static DirectoryDomain ToDomain(this CreateDirectoryRequest request, Guid userId)
         {
-            return new Directory
+            return new DirectoryDomain
             {
+                Id = Guid.NewGuid(),
                 UserId = userId,
-                DirectoryId = Guid.NewGuid(),
                 Name = request.Name,
-                ParentDirectoryId = (request.ParentDirectoryId ?? userId)
+                ParentDirectoryId = request.ParentDirectoryId
             };
         }
 
-        //public static Document ToDomain(this UploadDocumentRequest request, Guid userId, Guid documentId, DocumentUploadResponse response)
-        //{
-        //    return new Document
-        //    {
-        //        Id = documentId,
-        //        UserId = userId,
-        //        Name = response.DocumentName,
-        //        FileSize = response.FileSize,
-        //        S3Location = response.S3Location,
-        //        DirectoryId = (request.DirectoryId ?? userId)
-        //    };
-        //}
     }
 }

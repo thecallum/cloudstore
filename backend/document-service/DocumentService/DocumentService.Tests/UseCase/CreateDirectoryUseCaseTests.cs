@@ -2,6 +2,7 @@
 using DocumentService.Boundary.Request;
 using DocumentService.Domain;
 using DocumentService.Gateways.Interfaces;
+using DocumentService.Infrastructure;
 using DocumentService.UseCase.Interfaces;
 using Moq;
 using System;
@@ -34,7 +35,7 @@ namespace DocumentService.Tests.UseCase
             await _useCase.Execute(request, userId);
 
             // Assert
-            _mockDirectoryGateway.Verify(x => x.CreateDirectory(It.IsAny<Directory>()));
+            _mockDirectoryGateway.Verify(x => x.CreateDirectory(It.IsAny<DirectoryDomain>()));
         }
     }
 }

@@ -1,11 +1,8 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Factories;
-using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DocumentService.UseCase.Interfaces
@@ -27,7 +24,7 @@ namespace DocumentService.UseCase.Interfaces
 
             await _directoryGateway.CreateDirectory(directory);
 
-            return directory.DirectoryId;
+            return directory.Id;
         }
     }
 }

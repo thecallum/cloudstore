@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,15 +37,18 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-                        services.AddCors();
+            services.AddCors();
 
-            services.AddMvc(setup => {
+            services.AddMvc(setup =>
+            {
                 //...mvc setup...
             }).AddFluentValidation();
 
             services.AddTransient<IValidator<CreateDirectoryRequest>, CreateDirectoryRequestValidator>();
             services.AddTransient<IValidator<RenameDirectoryRequest>, RenameDirectoryRequestValidator>();
             services.AddTransient<IValidator<ValidateUploadedDocumentRequest>, ValidateUploadedDocumentRequestValidator>();
+
+            ConfigureDbContext(services);
 
             services.AddControllers();
 
@@ -54,11 +58,21 @@ namespace DocumentService
             SetupUseCases(services);
         }
 
+        private void ConfigureDbContext(IServiceCollection services)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                                ?? Configuration.GetValue<string>("DatabaseConnectionString");
+
+            services.AddDbContext<DocumentServiceContext>(
+                opt => opt.UseNpgsql(connectionString)
+            );
+        }
+
+
         private void SetupGateways(IServiceCollection services)
         {
             services.AddScoped<IDocumentGateway, DocumentGateway>();
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
-            services.AddScoped<IStorageServiceGateway, StorageServiceGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
         }
 

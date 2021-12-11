@@ -42,13 +42,13 @@ namespace DocumentService.Tests.UseCase
             var userId = Guid.NewGuid();
             var query = _fixture.Create<GetAllDocumentsQuery>();
 
-            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(0);
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDomain>(0);
 
             _mockDocumentGateway
                 .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(documentGatewayResponse);
 
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(0);
 
             _mockDirectoryGateway
                 .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
@@ -69,13 +69,13 @@ namespace DocumentService.Tests.UseCase
             var query = _fixture.Create<GetAllDocumentsQuery>();
 
             var numberOfDocuments = _random.Next(2, 5);
-            var documentGatewayResponse = _fixture.CreateMany<DocumentDb>(numberOfDocuments);
+            var documentGatewayResponse = _fixture.CreateMany<DocumentDomain>(numberOfDocuments);
 
             _mockDocumentGateway
                 .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(documentGatewayResponse);
 
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(0);
 
             _mockDirectoryGateway
                 .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))

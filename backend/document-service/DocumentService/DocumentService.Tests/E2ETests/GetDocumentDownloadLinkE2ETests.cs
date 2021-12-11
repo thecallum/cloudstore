@@ -15,6 +15,8 @@ using System.IO;
 using Amazon.S3.Model;
 using DocumentService.Tests.Helpers;
 using System.Net.Http.Headers;
+using DocumentService.Domain;
+using DocumentService.Factories;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -49,17 +51,18 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenDocumentExists_ReturnsNotFound()
         {
             // Arrange
-            var document = _fixture.Build<DocumentDb>()
+            var document = _fixture.Build<DocumentDomain>()
                 .With(x => x.UserId, _user.Id)
-                .With(x => x.DirectoryId, _user.Id)
-                .Create();
+                .With(x => x.DirectoryId, (Guid?) null)
+                .Create()
+                .ToDatabase();
 
-            await SetupTestData(document);
+            await _dbFixture.SetupTestData(document);
 
             await _s3TestHelper.UploadDocumentToS3($"store/{document.S3Location}", _validFilePath);
 
             // Act
-            var response = await GetDocumentDownloadLinkRequest(document.DocumentId);
+            var response = await GetDocumentDownloadLinkRequest(document.Id);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -67,7 +70,7 @@ namespace DocumentService.Tests.E2ETests
             var responseContent = await DecodeResponse<GetDocumentLinkResponse>(response);
 
             responseContent.DocumentLink.Should().NotBeNull();
-            responseContent.DocumentLink.Should().Contain("AWSAccessKeyId");
+            responseContent.DocumentLink.Should().Contain(document.S3Location);
         }
 
         private async Task<HttpResponseMessage> GetDocumentDownloadLinkRequest(Guid documentId)

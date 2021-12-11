@@ -1,4 +1,5 @@
 ﻿using DocumentService.Domain;
+using DocumentService.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace DocumentService.Boundary.Response
 {
     public class GetAllDirectoriesResponse
     {
-        public List<Directory> Directories { get; set; }
+        public List<DirectoryDomain> Directories { get; set; }
     }
 }

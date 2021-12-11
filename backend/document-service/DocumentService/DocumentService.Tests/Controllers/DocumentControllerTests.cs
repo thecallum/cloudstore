@@ -3,6 +3,7 @@ using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Controllers;
 using DocumentService.Domain;
+using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Tests.Helpers;
 using DocumentService.UseCase.Interfaces;
@@ -43,7 +44,7 @@ namespace DocumentService.Tests.Controllers
                 _mockGetAllDocumentsUseCase.Object,
                 _mockGetDocumentDownloadLinkUseCase.Object,
                 _mockGetDocumentUploadLinkUseCase.Object,
-                _mockValidateUploadedDocumentUseCase.Object, 
+                _mockValidateUploadedDocumentUseCase.Object,
                 _mockDeleteDocumentUseCase.Object);
 
             _documentController.ControllerContext = new ControllerContext();
@@ -59,7 +60,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDocumentsResponse
             {
-                Documents = new List<Document>()
+                Documents = new List<DocumentDomain>()
             };
 
             _mockGetAllDocumentsUseCase
@@ -85,7 +86,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDocumentsResponse
             {
-                Documents = _fixture.CreateMany<Document>(numberOfDocuments).ToList()
+                Documents = _fixture.CreateMany<DocumentDomain>(numberOfDocuments).ToList()
             };
 
             _mockGetAllDocumentsUseCase
@@ -208,7 +209,7 @@ namespace DocumentService.Tests.Controllers
 
             _mockValidateUploadedDocumentUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
-                .ReturnsAsync((Document) null);
+                .ReturnsAsync((DocumentDomain)null);
 
             // Act
             var response = await _documentController.ValidateUploadedDocument(query, request);
@@ -225,7 +226,7 @@ namespace DocumentService.Tests.Controllers
             var query = _fixture.Create<ValidateUploadedDocumentQuery>();
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
-            var document = _fixture.Create<Document>();
+            var document = _fixture.Create<DocumentDomain>();
 
             _mockValidateUploadedDocumentUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
@@ -246,7 +247,7 @@ namespace DocumentService.Tests.Controllers
             var query = _fixture.Create<ValidateUploadedDocumentQuery>();
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
-            var document = _fixture.Create<Document>();
+            var document = _fixture.Create<DocumentDomain>();
 
             var exception = new ExceededUsageCapacityException();
 

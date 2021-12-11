@@ -16,8 +16,8 @@ namespace DocumentService.Tests.Helpers
                 Id = Guid.NewGuid(),
                 FirstName = "FirstName",
                 LastName = "LastName",
-                Email = "email@email.com", 
-                StorageCapacity = (long) storageCapacity
+                Email = "email@email.com",
+                StorageCapacity = (long)storageCapacity
             };
         }
 

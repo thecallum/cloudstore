@@ -4,6 +4,7 @@ using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
+using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
@@ -27,17 +28,11 @@ namespace DocumentService.UseCase
         {
             LogHelper.LogUseCase("GetAllDocumentsUseCase");
 
-            var documents = new List<Document>();
-
             var documentGatewayResponse = await _documentGateway.GetAllDocuments(userId, query.DirectoryId);
-
-            documents.AddRange(
-                documentGatewayResponse.Select(x => x.ToDomain())
-            );
 
             return new GetAllDocumentsResponse
             {
-                Documents = documents
+                Documents = documentGatewayResponse.ToList()
             };
         }
     }

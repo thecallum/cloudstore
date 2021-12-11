@@ -1,6 +1,8 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Tests.Helpers;
 using FluentAssertions;
@@ -44,12 +46,13 @@ namespace DocumentService.Tests.E2ETests
             // Arrange
             var numberOfDirectories = _random.Next(2, 5);
             var mockDirectories = _fixture
-                .Build<DirectoryDb>()
+                .Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
                 .With(x => x.ParentDirectoryId, _user.Id)
-                .CreateMany(numberOfDirectories);
+                .CreateMany(numberOfDirectories)
+                .Select(x => x.ToDatabase());
 
-            await SetupTestData(mockDirectories);
+            await _dbFixture.SetupTestData(mockDirectories);
 
             // Act
             var response = await GetAllDirectoriesRequest();

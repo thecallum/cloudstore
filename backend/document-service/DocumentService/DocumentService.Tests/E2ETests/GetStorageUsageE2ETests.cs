@@ -1,6 +1,8 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Tests.Helpers;
 using FluentAssertions;
@@ -44,8 +46,15 @@ namespace DocumentService.Tests.E2ETests
         public async Task WhenEntityExists_ReturnsCorrectValue()
         {
             // Arrange
-            var entity = new DocumentStorageDb { UserId = _user.Id, StorageUsage = _fixture.Create<long>() };
-            await SetupTestData(entity);
+            var numberOfDocuments = _random.Next(2, 5);
+            var mockDocuments = _fixture
+                .Build<DocumentDomain>()
+                .With(x => x.UserId, _user.Id)
+                .With(x => x.DirectoryId, (Guid?)null)
+                .CreateMany(numberOfDocuments)
+                .Select(x => x.ToDatabase());
+
+            await _dbFixture.SetupTestData(mockDocuments);
 
             // Act
             var response = await GetStorageUsageRequest();
@@ -53,8 +62,10 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
+            var expectedStorageUsage = mockDocuments.Sum(x => x.FileSize);
+
             var responseContent = await DecodeResponse<GetStorageUsageResponse>(response);
-            responseContent.StorageUsage.Should().Be(entity.StorageUsage);
+            responseContent.StorageUsage.Should().Be(expectedStorageUsage);
         }
 
         private async Task<HttpResponseMessage> GetStorageUsageRequest()

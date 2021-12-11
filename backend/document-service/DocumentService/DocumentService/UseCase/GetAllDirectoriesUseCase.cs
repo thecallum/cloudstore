@@ -30,7 +30,7 @@ namespace DocumentService.UseCase
 
             return new GetAllDirectoriesResponse
             {
-                Directories = directoryGatewayResponse.Select(x => x.ToDomain()).ToList()
+                Directories = directoryGatewayResponse.ToList()
             };
         }
     }

@@ -3,6 +3,7 @@ using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Controllers;
 using DocumentService.Domain;
+using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Tests.Helpers;
 using DocumentService.UseCase.Interfaces;
@@ -37,8 +38,8 @@ namespace DocumentService.Tests.Controllers
             _mockGetAllDirectoriesUseCase = new Mock<IGetAllDirectoriesUseCase>();
 
             _directoryController = new DirectoryController(
-                _mockCreateDirectoryUseCase.Object, 
-                _mockRenameDirectoryUseCase.Object, 
+                _mockCreateDirectoryUseCase.Object,
+                _mockRenameDirectoryUseCase.Object,
                 _mockDeleteDirectoryUseCase.Object,
                 _mockGetAllDirectoriesUseCase.Object);
 
@@ -178,7 +179,7 @@ namespace DocumentService.Tests.Controllers
             // Arrange
             var useCaseResponse = new GetAllDirectoriesResponse
             {
-                Directories = new List<Directory>()
+                Directories = new List<DirectoryDomain>()
             };
 
             _mockGetAllDirectoriesUseCase
@@ -202,7 +203,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDirectoriesResponse
             {
-                Directories = _fixture.CreateMany<Directory>(numberOfDirectories).ToList()
+                Directories = _fixture.CreateMany<DirectoryDomain>(numberOfDirectories).ToList()
             };
 
             _mockGetAllDirectoriesUseCase
