@@ -15,17 +15,14 @@ namespace DocumentService.Infrastructure
         [Column("user_id")]
         public Guid UserId { get; set; }
 
-        //public ICollection<DocumentDb> Documents { get; set; }
-
         [Column("name")]
         public string Name { get; set; }
 
         [Column("parent_directory_id")]
         public Guid? ParentDirectoryId { get; set; }
 
-        //public DirectoryDb()
-        //{
-        //    Documents = new HashSet<DocumentDb>();
-        //}
+#nullable enable
+        [Column("parent_directory_ids")]
+        public string? ParentDirectoryIds { get; set; }
     }
 }

@@ -15,6 +15,7 @@ using DocumentService.Domain;
 using DocumentService.Infrastructure;
 using System.Net.Http.Headers;
 using DocumentService.Factories;
+using DocumentService.Boundary.Response;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -92,11 +93,10 @@ namespace DocumentService.Tests.E2ETests
 
             response.Headers.Location.ToString().Should().Contain(documentId.ToString());
 
-            var responseContent = await DecodeResponse<DocumentDomain>(response);
+            var responseContent = await DecodeResponse<DocumentResponse>(response);
 
             responseContent.Should().NotBeNull();
             responseContent.Id.Should().Be(documentId);
-            responseContent.UserId.Should().Be(_user.Id);
             responseContent.DirectoryId.Should().Be((Guid)request.DirectoryId);
             responseContent.FileSize.Should().Be(200);
             responseContent.Name.Should().Be(request.FileName);

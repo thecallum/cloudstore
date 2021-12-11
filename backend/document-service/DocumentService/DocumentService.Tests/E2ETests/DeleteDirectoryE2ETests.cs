@@ -69,7 +69,7 @@ namespace DocumentService.Tests.E2ETests
                 .With(x => x.UserId, _user.Id)
                 .With(x => x.ParentDirectoryId, _user.Id)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await _dbFixture.SetupTestData(parentDirectory);
 
@@ -77,7 +77,7 @@ namespace DocumentService.Tests.E2ETests
                 .With(x => x.UserId, _user.Id)
                 .With(x => x.ParentDirectoryId, parentDirectory.Id)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await _dbFixture.SetupTestData(childDirectory);
 
@@ -95,7 +95,7 @@ namespace DocumentService.Tests.E2ETests
             var mockDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, _user.Id)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await _dbFixture.SetupTestData(mockDirectory);
 

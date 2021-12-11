@@ -179,7 +179,7 @@ namespace DocumentService.Tests.Controllers
             // Arrange
             var useCaseResponse = new GetAllDirectoriesResponse
             {
-                Directories = new List<DirectoryDomain>()
+                Directories = new List<DirectoryResponse>()
             };
 
             _mockGetAllDirectoriesUseCase
@@ -203,7 +203,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDirectoriesResponse
             {
-                Directories = _fixture.CreateMany<DirectoryDomain>(numberOfDirectories).ToList()
+                Directories = _fixture.CreateMany<DirectoryResponse>(numberOfDirectories).ToList()
             };
 
             _mockGetAllDirectoriesUseCase

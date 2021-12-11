@@ -9,6 +9,6 @@ namespace DocumentService.UseCase.Interfaces
 {
     public interface IGetDocumentUploadLinkUseCase
     {
-        GetDocumentUploadResponse Execute(Guid userId, GetDocumentUploadLinkQuery query);
+        GetDocumentUploadLinkResponse Execute(Guid userId, GetDocumentUploadLinkQuery query);
     }
 }

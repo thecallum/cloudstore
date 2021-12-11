@@ -1,5 +1,7 @@
 ﻿using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
@@ -24,7 +26,7 @@ namespace DocumentService.UseCase
             _documentGateway = documentGateway;
         }
 
-        public async Task<DocumentDomain> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user)
+        public async Task<DocumentResponse> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user)
         {
             LogHelper.LogUseCase("ValidateUploadedDocumentUseCase");
 
@@ -59,12 +61,15 @@ namespace DocumentService.UseCase
                     S3Location = key,
                 };
 
-                return await UploadNewDocument(newDocument, key);
+                await UploadNewDocument(newDocument, key);
+
+                return newDocument.ToResponse();
             }
 
             LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Updating existing document");
 
-            return await UpdateExistingDocument(existingDocument, documentUploadResponse, key);
+            await UpdateExistingDocument(existingDocument, documentUploadResponse, key);
+            return existingDocument.ToResponse();
         }
 
         private async Task<DocumentDomain> UpdateExistingDocument(DocumentDomain existingDocument, DocumentUploadResponse documentUploadResponse, string key)

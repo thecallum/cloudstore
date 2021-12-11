@@ -60,7 +60,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDocumentsResponse
             {
-                Documents = new List<DocumentDomain>()
+                Documents = new List<DocumentResponse>()
             };
 
             _mockGetAllDocumentsUseCase
@@ -86,7 +86,7 @@ namespace DocumentService.Tests.Controllers
 
             var useCaseResponse = new GetAllDocumentsResponse
             {
-                Documents = _fixture.CreateMany<DocumentDomain>(numberOfDocuments).ToList()
+                Documents = _fixture.CreateMany<DocumentResponse>(numberOfDocuments).ToList()
             };
 
             _mockGetAllDocumentsUseCase
@@ -178,7 +178,7 @@ namespace DocumentService.Tests.Controllers
         public void GetDocumentUploadLink_WhenCalled_ReturnsLink()
         {
             // Arrange
-            var uploadResponseObject = new GetDocumentUploadResponse
+            var uploadResponseObject = new GetDocumentUploadLinkResponse
             {
                 UploadUrl = _fixture.Create<string>(),
                 DocumentId = Guid.NewGuid()
@@ -196,8 +196,8 @@ namespace DocumentService.Tests.Controllers
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
 
-            ((response as OkObjectResult).Value as GetDocumentUploadResponse).UploadUrl.Should().Be(uploadResponseObject.UploadUrl);
-            ((response as OkObjectResult).Value as GetDocumentUploadResponse).DocumentId.Should().Be(uploadResponseObject.DocumentId);
+            ((response as OkObjectResult).Value as GetDocumentUploadLinkResponse).UploadUrl.Should().Be(uploadResponseObject.UploadUrl);
+            ((response as OkObjectResult).Value as GetDocumentUploadLinkResponse).DocumentId.Should().Be(uploadResponseObject.DocumentId);
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace DocumentService.Tests.Controllers
 
             _mockValidateUploadedDocumentUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))
-                .ReturnsAsync((DocumentDomain)null);
+                .ReturnsAsync((DocumentResponse)null);
 
             // Act
             var response = await _documentController.ValidateUploadedDocument(query, request);
@@ -226,7 +226,7 @@ namespace DocumentService.Tests.Controllers
             var query = _fixture.Create<ValidateUploadedDocumentQuery>();
             var request = _fixture.Create<ValidateUploadedDocumentRequest>();
 
-            var document = _fixture.Create<DocumentDomain>();
+            var document = _fixture.Create<DocumentResponse>();
 
             _mockValidateUploadedDocumentUseCase
                 .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<ValidateUploadedDocumentRequest>(), It.IsAny<User>()))

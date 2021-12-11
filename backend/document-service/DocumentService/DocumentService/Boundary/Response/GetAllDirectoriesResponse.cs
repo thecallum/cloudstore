@@ -9,6 +9,6 @@ namespace DocumentService.Boundary.Response
 {
     public class GetAllDirectoriesResponse
     {
-        public List<DirectoryDomain> Directories { get; set; }
+        public List<DirectoryResponse> Directories { get; set; }
     }
 }

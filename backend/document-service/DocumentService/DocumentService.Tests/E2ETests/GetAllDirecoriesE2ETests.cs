@@ -50,7 +50,7 @@ namespace DocumentService.Tests.E2ETests
                 .With(x => x.UserId, _user.Id)
                 .With(x => x.ParentDirectoryId, _user.Id)
                 .CreateMany(numberOfDirectories)
-                .Select(x => x.ToDatabase());
+                .Select(x => x.ToDatabase(null));
 
             await _dbFixture.SetupTestData(mockDirectories);
 

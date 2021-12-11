@@ -97,11 +97,11 @@ namespace DocumentService.Gateways
             await _documentStorageContext.SaveChangesAsync();
         }
 
-        public async Task<StorageUsageResponse> GetUsage(User user)
+        public async Task<StorageUsageDomain> GetUsage(User user)
         {
             var total = await LoadStorageUsage(user.Id);
 
-            return new StorageUsageResponse
+            return new StorageUsageDomain
             {
                 StorageUsage = total,
                 Capacity = user.StorageCapacity

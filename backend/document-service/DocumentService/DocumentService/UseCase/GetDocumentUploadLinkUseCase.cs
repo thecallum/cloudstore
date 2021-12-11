@@ -20,7 +20,7 @@ namespace DocumentService.UseCase
             _s3Gateway = s3Gateway;
         }
 
-        public GetDocumentUploadResponse Execute(Guid userId, GetDocumentUploadLinkQuery query)
+        public GetDocumentUploadLinkResponse Execute(Guid userId, GetDocumentUploadLinkQuery query)
         {
             LogHelper.LogUseCase("GetDocumentUploadLinkUseCase");
 
@@ -30,7 +30,7 @@ namespace DocumentService.UseCase
 
             var uploadUrl = _s3Gateway.GetDocumentUploadPresignedUrl(key);
 
-            return new GetDocumentUploadResponse
+            return new GetDocumentUploadLinkResponse
             {
                 DocumentId = documentId,
                 UploadUrl = uploadUrl

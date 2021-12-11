@@ -57,10 +57,20 @@ namespace DocumentService.Gateways
         {
             LogHelper.LogGateway("DirectoryGateway", "CreateDirectory");
 
-            _documentServiceContext.Directories.Add(directory.ToDatabase());
+            var parentDirectory = await GetParentDirectory(directory.ParentDirectoryId);
+
+            _documentServiceContext.Directories.Add(directory.ToDatabase(parentDirectory));
 
             await _documentServiceContext.SaveChangesAsync();
         }
+
+        private async Task<DirectoryDb> GetParentDirectory(Guid? parentDirectoryID)
+        {
+            if (parentDirectoryID == null) return null;
+
+            return await _documentServiceContext.Directories.FindAsync(parentDirectoryID);
+        }
+
 
         public async Task DeleteDirectory(Guid directoryId, Guid userId)
         {

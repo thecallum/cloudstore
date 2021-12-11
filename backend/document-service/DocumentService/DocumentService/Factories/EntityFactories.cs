@@ -47,14 +47,33 @@ namespace DocumentService.Factories
             };
         }
 
-        public static DirectoryDb ToDatabase(this DirectoryDomain domain)
+#nullable enable
+        private static string? GenerateParentDirectoryIds(DirectoryDb? parentDirectory)
+        {
+            // if null, must be root directory. cannot be parent of parent
+            if (parentDirectory == null) return null;
+
+            // parent must exist, return "{...so on}{parentOfParentId}/{parentId}"
+
+            if (parentDirectory.ParentDirectoryId == null)
+            {
+                // parent is a root directory. therefore, only return its id
+                return parentDirectory.Id.ToString();
+            }
+
+            // parent directory must have parent directories
+            return $"{parentDirectory.ParentDirectoryIds}/{parentDirectory.Id}";
+        }
+
+        public static DirectoryDb ToDatabase(this DirectoryDomain domain, DirectoryDb? parentDirectory = null)
         {
             return new DirectoryDb
             {
                 Id = domain.Id,
                 UserId = domain.UserId,
                 Name = domain.Name,
-                ParentDirectoryId = domain.ParentDirectoryId
+                ParentDirectoryId = domain.ParentDirectoryId,
+                ParentDirectoryIds = GenerateParentDirectoryIds(parentDirectory)
             };
         }
 
