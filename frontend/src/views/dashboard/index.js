@@ -108,9 +108,7 @@ const Dashboard = (props) => {
           directories = directoriesResponse.message.directories;
 
           if (directoryId !== null) {
-            directory = directories.filter(
-              (x) => x.directoryId === directoryId
-            )[0];
+            directory = directories.filter((x) => x.id === directoryId)[0];
 
             if (directory === undefined) setDirectoryNotFound(true);
           }

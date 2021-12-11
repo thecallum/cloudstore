@@ -37,13 +37,10 @@ const DashboardBreadcrumb = ({ urlComponents, directories }) => {
             }}
           >
             {index === lastIndex ? (
-              <>
-                {directories.filter((d) => d.directoryId === x.name)[0]["name"]}
-                /
-              </>
+              <>{directories.filter((d) => d.id === x.name)[0]["name"]}/</>
             ) : (
               <Link to={`/dashboard${x.full}`}>
-                {directories.filter((d) => d.directoryId === x.name)[0].name}/
+                {directories.filter((d) => d.id === x.name)[0].name}/
               </Link>
             )}
           </li>
