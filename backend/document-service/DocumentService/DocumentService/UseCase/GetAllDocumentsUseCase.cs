@@ -30,10 +30,7 @@ namespace DocumentService.UseCase
 
             var documentGatewayResponse = await _documentGateway.GetAllDocuments(userId, query.DirectoryId);
 
-            return new GetAllDocumentsResponse
-            {
-                Documents = documentGatewayResponse.ToList()
-            };
+            return documentGatewayResponse.ToResponse();
         }
     }
 }

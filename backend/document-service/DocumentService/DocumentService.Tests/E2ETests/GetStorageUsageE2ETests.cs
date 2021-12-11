@@ -38,7 +38,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseContent = await DecodeResponse<GetStorageUsageResponse>(response);
+            var responseContent = await DecodeResponse<StorageUsageResponse>(response);
             responseContent.StorageUsage.Should().Be(0);
         }
 
@@ -64,7 +64,7 @@ namespace DocumentService.Tests.E2ETests
 
             var expectedStorageUsage = mockDocuments.Sum(x => x.FileSize);
 
-            var responseContent = await DecodeResponse<GetStorageUsageResponse>(response);
+            var responseContent = await DecodeResponse<StorageUsageResponse>(response);
             responseContent.StorageUsage.Should().Be(expectedStorageUsage);
         }
 

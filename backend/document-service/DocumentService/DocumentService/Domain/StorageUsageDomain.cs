@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Domain
 {
-    public class StorageUsageResponse
+    public class StorageUsageDomain
     {
         public long StorageUsage { get; set; }
         public long Capacity { get; set; }

@@ -18,11 +18,11 @@ namespace DocumentService.UseCase
             _documentGateway = documentGateway;
         }
 
-        public async Task<GetStorageUsageResponse> Execute(User user)
+        public async Task<StorageUsageResponse> Execute(User user)
         {
             var storageUsageResponse = await _documentGateway.GetUsage(user);
 
-            return new GetStorageUsageResponse
+            return new StorageUsageResponse
             {
                 Capacity = storageUsageResponse.Capacity,
                 StorageUsage = storageUsageResponse.StorageUsage

@@ -38,7 +38,7 @@ namespace DocumentService.Tests.UseCase
             // Arrange
             var user = _fixture.Build<User>().With(x => x.StorageCapacity, long.MaxValue).Create();
 
-            var gatewayResponse = _fixture.Create<StorageUsageResponse>();
+            var gatewayResponse = _fixture.Create<StorageUsageDomain>();
 
             _mockDocumentGateway
                 .Setup(x => x.GetUsage(It.IsAny<User>()))

@@ -43,7 +43,7 @@ namespace DocumentService.Tests.Controllers
         public async Task GetStorageUsage_WhenCalled_CallsUseCase()
         {
             // Arrange
-            var useCaseResponse = _fixture.Create<GetStorageUsageResponse>();
+            var useCaseResponse = _fixture.Create<StorageUsageResponse>();
 
             _mockGetStorageUsageUseCase
                 .Setup(x => x.Execute(It.IsAny<User>()))
@@ -54,9 +54,9 @@ namespace DocumentService.Tests.Controllers
 
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
-            (response as OkObjectResult).Value.Should().BeOfType(typeof(GetStorageUsageResponse));
-            ((response as OkObjectResult).Value as GetStorageUsageResponse).Capacity.Should().Be(useCaseResponse.Capacity);
-            ((response as OkObjectResult).Value as GetStorageUsageResponse).StorageUsage.Should().Be(useCaseResponse.StorageUsage);
+            (response as OkObjectResult).Value.Should().BeOfType(typeof(StorageUsageResponse));
+            ((response as OkObjectResult).Value as StorageUsageResponse).Capacity.Should().Be(useCaseResponse.Capacity);
+            ((response as OkObjectResult).Value as StorageUsageResponse).StorageUsage.Should().Be(useCaseResponse.StorageUsage);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace DocumentService.UseCase.Interfaces
 {
     public interface IGetStorageUsageUseCase
     {
-        Task<GetStorageUsageResponse> Execute(User user);
+        Task<StorageUsageResponse> Execute(User user);
     }
 }

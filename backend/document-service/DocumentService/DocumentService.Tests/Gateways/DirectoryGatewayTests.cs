@@ -84,7 +84,7 @@ namespace DocumentService.Tests.Gateways
         public async Task DeleteDirectory_WhenValid_DeletesDirectoryFromDatabase()
         {
             // Arrange
-            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase();
+            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase(null);
 
             await SetupTestData(mockDirectory);
 
@@ -117,7 +117,7 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
 
-            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase();
+            var mockDirectory = _fixture.Create<DirectoryDomain>().ToDatabase(null);
 
             await SetupTestData(mockDirectory);
 
@@ -165,13 +165,13 @@ namespace DocumentService.Tests.Gateways
                 .With(x => x.ParentDirectoryId, userId)
                 .With(x => x.UserId, userId)
                 .CreateMany(numberOfDirectoriesInRootDirectory)
-                .Select(x => x.ToDatabase());
+                .Select(x => x.ToDatabase(null));
 
             var directoriesInChildDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.ParentDirectoryId, childParentDirectoryId)
                 .With(x => x.UserId, userId)
                 .CreateMany(numberOfDirectoriesChildDirectory)
-                .Select(x => x.ToDatabase());
+                .Select(x => x.ToDatabase(null));
 
             await SetupTestData(directoriesInRootDirectory);
             await SetupTestData(directoriesInChildDirectory);
@@ -202,7 +202,7 @@ namespace DocumentService.Tests.Gateways
         {
             // Arrange
             var directory = _fixture.Create<DirectoryDomain>()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await SetupTestData(directory);
 
@@ -223,7 +223,7 @@ namespace DocumentService.Tests.Gateways
                 .With(x => x.UserId, userId)
                 .With(x => x.ParentDirectoryId, userId)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await SetupTestData(parentDirectory);
 
@@ -244,7 +244,7 @@ namespace DocumentService.Tests.Gateways
                 .With(x => x.UserId, userId)
                 .With(x => x.ParentDirectoryId, userId)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await SetupTestData(parentDirectory);
 
@@ -252,7 +252,7 @@ namespace DocumentService.Tests.Gateways
                 .With(x => x.UserId, userId)
                 .With(x => x.ParentDirectoryId, parentDirectory.Id)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await SetupTestData(childDirectory);
 

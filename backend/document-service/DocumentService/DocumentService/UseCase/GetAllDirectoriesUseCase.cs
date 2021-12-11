@@ -28,10 +28,7 @@ namespace DocumentService.UseCase
 
             var directoryGatewayResponse = await _directoryGateway.GetAllDirectories(userId);
 
-            return new GetAllDirectoriesResponse
-            {
-                Directories = directoryGatewayResponse.ToList()
-            };
+            return directoryGatewayResponse.ToResponse();
         }
     }
 }

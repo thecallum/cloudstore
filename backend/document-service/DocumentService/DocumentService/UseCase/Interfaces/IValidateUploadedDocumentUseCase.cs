@@ -1,4 +1,5 @@
 ﻿using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Infrastructure;
 using System;
@@ -9,6 +10,6 @@ namespace DocumentService.UseCase.Interfaces
 {
     public interface IValidateUploadedDocumentUseCase
     {
-        Task<DocumentDomain> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user);
+        Task<DocumentResponse> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user);
     }
 }

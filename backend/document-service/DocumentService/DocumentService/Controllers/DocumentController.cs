@@ -42,7 +42,7 @@ namespace DocumentService.Controllers
 
         [Route("upload/{existingDocumentId?}")]
         [HttpGet]
-        [ProducesResponseType(typeof(GetDocumentUploadResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetDocumentUploadLinkResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult GetDocumentUploadLink([FromRoute] GetDocumentUploadLinkQuery query)
         {

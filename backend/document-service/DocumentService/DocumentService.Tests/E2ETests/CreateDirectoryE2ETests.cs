@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Infrastructure;
 using DocumentService.Tests.Helpers;
 using FluentAssertions;
@@ -57,10 +59,44 @@ namespace DocumentService.Tests.E2ETests
 
             var responseId = Guid.Parse(response.Headers.Location.ToString());
 
-           // var databaseResponse = await _context.LoadAsync<DirectoryDb>(_user.Id, responseId);
-            var databaseResponse = await _dbFixture.GetDirectoryById(responseId);
+            var databaseResponse = await _dbFixture.GetDirectoryById(responseId); 
 
-          
+            databaseResponse.Should().NotBeNull();
+
+            databaseResponse.UserId.Should().Be(_user.Id);
+            databaseResponse.Name.Should().Be(request.Name);
+            databaseResponse.ParentDirectoryId.Should().Be((Guid)request.ParentDirectoryId);
+        }
+
+        [Fact]
+        public async Task CreateDirectory_WhenParentDirectoryExists_IncludesParentDirectoryIds()
+        {
+            // Arrange
+            var mockParentDirectory = _fixture.Build<DirectoryDomain>()
+                .With(x => x.UserId, _user.Id)
+                .Create()
+                .ToDatabase(null);
+
+            mockParentDirectory.ParentDirectoryId = Guid.NewGuid();
+            mockParentDirectory.ParentDirectoryIds = $"{Guid.NewGuid()}/{mockParentDirectory.ParentDirectoryId}";
+
+            await _dbFixture.SetupTestData(mockParentDirectory);
+
+            var request = new CreateDirectoryRequest
+            {
+                Name = _fixture.Create<string>(),
+                ParentDirectoryId = mockParentDirectory.Id
+            };
+
+            // Act
+            var response = await CreateDirectoryRequest(request);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            var responseId = Guid.Parse(response.Headers.Location.ToString());
+
+            var databaseResponse = await _dbFixture.GetDirectoryById(responseId);
 
             databaseResponse.Should().NotBeNull();
 
@@ -68,7 +104,8 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.Name.Should().Be(request.Name);
             databaseResponse.ParentDirectoryId.Should().Be((Guid)request.ParentDirectoryId);
 
-            //_cleanup.Add(async () => await _context.DeleteAsync<DirectoryDb>(_user.Id, responseId));
+            var expectedParentDirectoryIds = $"{mockParentDirectory.ParentDirectoryIds}/{mockParentDirectory.Id}";
+            databaseResponse.ParentDirectoryIds.Should().Be(expectedParentDirectoryIds);
         }
 
         private async Task<HttpResponseMessage> CreateDirectoryRequest(CreateDirectoryRequest request)

@@ -35,7 +35,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseContent = await DecodeResponse<GetDocumentUploadResponse>(response);
+            var responseContent = await DecodeResponse<GetDocumentUploadLinkResponse>(response);
 
             // test presigned url
             _s3TestHelper.TestUploadWithPresignedUrl(responseContent.UploadUrl, _validFilePath);
@@ -57,7 +57,7 @@ namespace DocumentService.Tests.E2ETests
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var responseContent = await DecodeResponse<GetDocumentUploadResponse>(response);
+            var responseContent = await DecodeResponse<GetDocumentUploadLinkResponse>(response);
 
             responseContent.DocumentId.Should().Be(existingDocumentId);
         }

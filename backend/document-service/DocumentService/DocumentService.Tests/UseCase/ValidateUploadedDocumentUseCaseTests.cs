@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using DocumentService.Boundary.Request;
+using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Factories;
 using DocumentService.Gateways;
@@ -84,7 +85,7 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(documentUploadResponse);
 
             // Act
-            Func<Task<DocumentDomain>> func = async () => await _useCase.Execute(documentId, request, user);
+            Func<Task<DocumentResponse>> func = async () => await _useCase.Execute(documentId, request, user);
 
             // Assert
             await func.Should().ThrowAsync<ExceededUsageCapacityException>();
@@ -148,7 +149,6 @@ namespace DocumentService.Tests.UseCase
 
             response.Should().NotBeNull();
             response.Id.Should().Be(documentId);
-            response.UserId.Should().Be(user.Id);
             response.DirectoryId.Should().Be((Guid)request.DirectoryId);
             response.FileSize.Should().Be(documentUploadResponse.FileSize);
             response.Name.Should().Be(request.FileName);
@@ -189,10 +189,7 @@ namespace DocumentService.Tests.UseCase
             // Assert
             _mockDocumentGateway.Verify(x => x.UpdateDocument(It.IsAny<DocumentDomain>()), Times.Once);
 
-            response.Should().BeEquivalentTo(existingDocument, config =>
-            {
-                return config.Excluding(x => x.FileSize);
-            });
+            response.Should().BeEquivalentTo(existingDocument.ToResponse());
         }
     }
 }

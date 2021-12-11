@@ -24,7 +24,7 @@ namespace DocumentService.Controllers
 
         [Route("usage")]
         [HttpGet]
-        [ProducesResponseType(typeof(GetStorageUsageResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(StorageUsageResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetStorageUsage()
         {

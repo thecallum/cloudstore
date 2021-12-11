@@ -161,7 +161,7 @@ namespace DocumentService.Tests.Gateways
             var mockDirectory = _fixture.Build<DirectoryDomain>()
                 .With(x => x.UserId, userId)
                 .Create()
-                .ToDatabase();
+                .ToDatabase(null);
 
             await SetupTestData(mockDirectory);
 

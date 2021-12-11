@@ -15,7 +15,7 @@ namespace DocumentService.Gateways.Interfaces
         Task<IEnumerable<DocumentDomain>> GetAllDocuments(Guid userId, Guid? directoryId = null);
         Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId);
         Task<DocumentDomain> DeleteDocument(Guid userId, Guid documentId);
-        Task<StorageUsageResponse> GetUsage(User user);
+        Task<StorageUsageDomain> GetUsage(User user);
         Task<bool> CanUploadFile(User user, long fileSize, long? originalFileSize = null);
         Task UpdateDocument(DocumentDomain document);
     }
