@@ -24,9 +24,28 @@ const StyledDocumentTop = styled.div`
   height: 100px;
   margin-bottom: 15px;
   width: 100%;
+  overflow: hidden;
+  positoin
 `;
 
 const StyledDocumentBottom = styled.div``;
+
+const DocumentImage = ({ src, alt }) => {
+  return (
+    <StyledDocumentTop>
+      <div
+        style={{
+          backgroundImage: `url('${src}')`,
+          width: "100%",
+          height: "100%",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+        }}
+      ></div>
+    </StyledDocumentTop>
+  );
+};
 
 const Document = ({ document }) => {
   const showDocumentPreview = () => {
@@ -41,7 +60,11 @@ const Document = ({ document }) => {
 
   return (
     <StyledDocument onClick={showDocumentPreview}>
-      <StyledDocumentTop />
+      {document.thumbnail === null ? (
+        <StyledDocumentTop />
+      ) : (
+        <DocumentImage src={document.thumbnail} alt={document.name} />
+      )}
 
       <StyledDocumentBottom>{document.name}</StyledDocumentBottom>
     </StyledDocument>
