@@ -12,5 +12,6 @@ namespace DocumentService.Boundary.Response
         public string Name { get; set; }
         public long FileSize { get; set; }
         public string S3Location { get; set; }
+        public string Thumbnail { get; set; }
     }
 }

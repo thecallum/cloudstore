@@ -43,7 +43,8 @@ namespace DocumentService.Factories
                 DirectoryId = domain.DirectoryId,
                 FileSize = domain.FileSize,
                 Name = domain.Name,
-                S3Location = domain.S3Location
+                S3Location = domain.S3Location,
+                Thumbnail = domain.Thumbnail
             };
         }
     }

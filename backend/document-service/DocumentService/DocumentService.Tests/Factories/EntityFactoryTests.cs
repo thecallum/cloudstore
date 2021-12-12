@@ -32,6 +32,7 @@ namespace DocumentService.Tests.Factories
             response.FileSize.Should().Be(model.FileSize);
             response.S3Location.Should().Be(model.S3Location);
             response.DirectoryId.Should().Be(model.DirectoryId);
+            response.Thumbnail.Should().Be(model.Thumbnail);
         }
 
         [Fact]
@@ -45,7 +46,8 @@ namespace DocumentService.Tests.Factories
                 UserId = _fixture.Create<Guid>(),
                 FileSize = _fixture.Create<long>(),
                 S3Location = _fixture.Create<string>(),
-                DirectoryId = _fixture.Create<Guid>()
+                DirectoryId = _fixture.Create<Guid>(),
+                Thumbnail = _fixture.Create<string>()
             };
 
             // Act
@@ -58,6 +60,7 @@ namespace DocumentService.Tests.Factories
             response.FileSize.Should().Be(model.FileSize);
             response.S3Location.Should().Be(model.S3Location);
             response.DirectoryId.Should().Be(model.DirectoryId);
+            response.Thumbnail.Should().Be(model.Thumbnail);
         }
 
         [Fact]
