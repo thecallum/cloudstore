@@ -13,7 +13,9 @@ namespace DocumentService.Infrastructure
             var localMode = false;
             _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out localMode);
 
-            if (localMode)
+            bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production";
+
+            if (isDevelopment || localMode)
             {
                 services.AddScoped<IAmazonS3>(x =>
                 {

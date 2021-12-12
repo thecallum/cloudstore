@@ -13,5 +13,6 @@ namespace DocumentService.Domain
         public string Name { get; set; }
         public string S3Location { get; set; }
         public long FileSize { get; set; }
+        public string Thumbnail { get; set; }
     }
 }

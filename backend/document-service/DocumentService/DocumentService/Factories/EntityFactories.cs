@@ -19,7 +19,8 @@ namespace DocumentService.Factories
                 UserId = domain.UserId,
                 FileSize = domain.FileSize,
                 S3Location = domain.S3Location,
-                DirectoryId = domain.DirectoryId
+                DirectoryId = domain.DirectoryId,
+                Thumbnail = domain.Thumbnail
             };
         }
 
@@ -32,7 +33,8 @@ namespace DocumentService.Factories
                 UserId = entity.UserId,
                 FileSize = entity.FileSize,
                 S3Location = entity.S3Location,
-                DirectoryId = entity.DirectoryId
+                DirectoryId = entity.DirectoryId,
+                Thumbnail = entity.Thumbnail
             };
         }
 
