@@ -16,5 +16,7 @@ namespace DocumentService.Infrastructure
         public DbSet<DocumentDb> Documents { get; set; }
 
         public DbSet<DirectoryDb> Directories { get; set; }
+        public DbSet<UserDb> Users { get; set; }
+
     }
 }

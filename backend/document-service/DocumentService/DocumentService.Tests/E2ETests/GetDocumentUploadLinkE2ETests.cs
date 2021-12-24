@@ -65,7 +65,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> GetDocumentUploadLinkRequest(Guid? existingDocumentId = null)
         {
             // setup request
-            var url = $"/document-service/api/document/upload/";
+            var url = $"/api/document/upload/";
             if (existingDocumentId != null) url += existingDocumentId;
 
             var uri = new Uri(url, UriKind.Relative);

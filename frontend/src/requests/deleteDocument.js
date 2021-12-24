@@ -5,7 +5,7 @@ const deleteDocument = (token, documentId) =>
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
 
-    let url = API_BASE_URL + `document-service/api/document/${documentId}`;
+    let url = API_BASE_URL + `api/document/${documentId}`;
 
     headers.append("authorization", token);
 

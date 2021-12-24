@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Request.Validation;
+using DocumentService.Encryption;
 using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TokenService;
 
 namespace DocumentService
 {
@@ -47,6 +49,11 @@ namespace DocumentService
             services.AddTransient<IValidator<CreateDirectoryRequest>, CreateDirectoryRequestValidator>();
             services.AddTransient<IValidator<RenameDirectoryRequest>, RenameDirectoryRequestValidator>();
             services.AddTransient<IValidator<ValidateUploadedDocumentRequest>, ValidateUploadedDocumentRequestValidator>();
+            services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
+            services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
+
+            services.AddTransient<ITokenService>(x => new TokenService.TokenService(Environment.GetEnvironmentVariable("SECRET")));
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
 
             ConfigureDbContext(services);
 
@@ -74,6 +81,7 @@ namespace DocumentService
             services.AddScoped<IDocumentGateway, DocumentGateway>();
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
+            services.AddScoped<IUserGateway, UserGateway>();
         }
 
         private void SetupUseCases(IServiceCollection services)
@@ -88,6 +96,10 @@ namespace DocumentService
             services.AddScoped<IValidateUploadedDocumentUseCase, ValidateUploadedDocumentUseCase>();
             services.AddScoped<IGetAllDirectoriesUseCase, GetAllDirectoriesUseCase>();
             services.AddScoped<IGetStorageUsageUseCase, GetStorageUsageUseCase>();
+            services.AddScoped<ILoginUseCase, LoginUseCase>();
+            services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+            services.AddScoped<IDeleteUserUseCase, DeleteUserUseCase>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -97,33 +109,30 @@ namespace DocumentService
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithExposedHeaders("location"));
+                .WithExposedHeaders("location", "authorization", "x-amzn-Remapped-Authorization"));
 
-            app.Map("/document-service", mainApp =>
+            if (env.IsDevelopment())
             {
-                if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseTokenMiddleware();
+
+            app.UseEndpoints(endpoints =>
+            {
+
+                endpoints.MapControllers();
+                endpoints.MapGet("/", async context =>
                 {
-                    mainApp.UseDeveloperExceptionPage();
-                }
-
-                mainApp.UseHttpsRedirection();
-
-                mainApp.UseRouting();
-
-                mainApp.UseAuthorization();
-
-                mainApp.UseTokenMiddleware();
-
-                mainApp.UseEndpoints(endpoints =>
-                {
-
-                    endpoints.MapControllers();
-                    endpoints.MapGet("/", async context =>
-                    {
-                        await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
-                    });
-
+                    await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
+
             });
         }
     }

@@ -5,7 +5,7 @@ const createDirectory = (token, { name, parentDirectoryId = null }) =>
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
 
-    const url = API_BASE_URL + "document-service/api/directory";
+    const url = API_BASE_URL + "api/directory";
 
     headers.append("authorization", token);
 

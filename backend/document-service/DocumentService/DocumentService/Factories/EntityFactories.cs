@@ -90,5 +90,28 @@ namespace DocumentService.Factories
             };
         }
 
+        public static TokenService.Models.User ToPayload(this UserDb user)
+        {
+            return new TokenService.Models.User
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                StorageCapacity = Constants.AccountStorageCapacity
+            };
+        }
+
+        public static UserDb ToDomain(this RegisterRequestObject requestObject)
+        {
+            return new UserDb
+            {
+                Id = Guid.NewGuid(),
+                FirstName = requestObject.FirstName,
+                LastName = requestObject.LastName,
+                Email = requestObject.Email
+            };
+        }
+
     }
 }

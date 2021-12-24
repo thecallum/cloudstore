@@ -85,6 +85,37 @@ namespace DocumentService.Migrations
                     b.ToTable("document_table");
                 });
 
+            modelBuilder.Entity("DocumentService.Infrastructure.UserDb", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hash");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("user_table");
+                });
+
             modelBuilder.Entity("DocumentService.Infrastructure.DocumentDb", b =>
                 {
                     b.HasOne("DocumentService.Infrastructure.DirectoryDb", "Directory")

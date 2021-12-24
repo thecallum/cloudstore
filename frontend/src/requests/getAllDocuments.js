@@ -4,7 +4,7 @@ const getAllDocuments = (token, directoryId = null) =>
   new Promise((resolve) => {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    let url = API_BASE_URL + "document-service/api/document/";
+    let url = API_BASE_URL + "api/document/";
 
     if (!!directoryId !== false) url += `?directoryId=${directoryId}`;
 

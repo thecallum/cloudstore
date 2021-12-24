@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using TokenService.Models;
 using Xunit;
+using User = TokenService.Models.User;
 
 namespace DocumentService.Tests
 {

@@ -5,7 +5,7 @@ headers.append("Content-Type", "application/json");
 
 const login = ({ email, password }) =>
   new Promise((resolve) => {
-    const url = API_BASE_URL + "auth-service/api/auth/login";
+    const url = API_BASE_URL + "api/auth/login";
 
     var body = JSON.stringify({
       email,

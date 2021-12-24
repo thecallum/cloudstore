@@ -76,7 +76,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> GetDocumentDownloadLinkRequest(Guid documentId)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/document/download/{documentId}", UriKind.Relative);
+            var uri = new Uri($"/api/document/download/{documentId}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
             message.Headers.Add(TokenService.Constants.AuthToken, _token);
