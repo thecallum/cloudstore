@@ -6,11 +6,11 @@ using DocumentService.UseCase.Interfaces;
 
 namespace DocumentService.UseCase
 {
-    public class DeleteUseCase : IDeleteUseCase
+    public class DeleteUserUseCase : IDeleteUserUseCase
     {
         private readonly IUserGateway _userGateway;
 
-        public DeleteUseCase(IUserGateway userGateway)
+        public DeleteUserUseCase(IUserGateway userGateway)
         {
             _userGateway = userGateway;
         }

@@ -21,6 +21,8 @@ namespace DocumentService.Tests
 
         public DatabaseFixture()
         {
+            EnsureEnvVarConfigured("SECRET", "abcdefg");
+
             _factory = new UserMockWebApplicationFactory<TStartup>();
             Client = _factory.CreateClient();
         }
@@ -37,6 +39,41 @@ namespace DocumentService.Tests
         public void Dispose()
         {
             InMemoryDb.Teardown();
+        }
+
+        public async Task SetupTestData(UserDb user)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                db.Users.Add(user);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public async Task<UserDb> GetUserByEmail(string email)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var user = await db.Users.Where(x => x.Email == email).SingleOrDefaultAsync();
+
+                return user;
+            }
+        }
+
+        public async Task<UserDb> GetUserById(Guid id)
+        {
+            using (var ctx = GetContext())
+            {
+                var db = ctx.DB;
+
+                var user = await db.Users.FindAsync(id);
+
+                return user;
+            }
         }
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)

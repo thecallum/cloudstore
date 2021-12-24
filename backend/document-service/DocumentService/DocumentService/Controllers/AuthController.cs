@@ -16,7 +16,7 @@ namespace DocumentService.Controllers
     [Produces("application/json")]
     public class AuthController : ControllerBase
     {
-        private readonly IDeleteUseCase _deleteUseCase;
+        private readonly IDeleteUserUseCase _deleteUseCase;
         private readonly IPasswordHasher _hashService;
 
         private readonly ILoginUseCase _loginUseCase;
@@ -26,7 +26,7 @@ namespace DocumentService.Controllers
         public AuthController(
             ILoginUseCase loginUseCase,
             IRegisterUseCase registerUseCase,
-            IDeleteUseCase deleteUseCase,
+            IDeleteUserUseCase deleteUseCase,
             ITokenService tokenService,
             IPasswordHasher hashService)
         {
