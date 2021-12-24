@@ -1,4 +1,4 @@
- psql -h cloudstore.cd16st0hnkxg.eu-west-1.rds.amazonaws.com -p 5432 -d cloudstore -U userservice -W
+ psql -h cloudstore.cd16st0hnkxg.eu-west-1.rds.amazonaws.com -p 5432 -d cloudstore -U postgres -W
 
  0Kg6bNuw4PBnTyH8YxD3GT3ynUcWs1
 

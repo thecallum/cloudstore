@@ -32,7 +32,6 @@ namespace DocumentService.Tests
 
         public readonly DatabaseFixture<Startup> _dbFixture;
 
-          private readonly UserMockWebApplicationFactory<Startup> _factory;
 
         public BaseIntegrationTest(DatabaseFixture<Startup> testFixture)
         {
