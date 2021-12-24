@@ -1,6 +1,0 @@
- psql -h cloudstore.cd16st0hnkxg.eu-west-1.rds.amazonaws.com -p 5432 -d cloudstore -U postgres -W
-
- 0Kg6bNuw4PBnTyH8YxD3GT3ynUcWs1
-
-
- "Host=cloudstore.cd16st0hnkxg.eu-west-1.rds.amazonaws.com;Port=5432;Username=userservice;Password=0Kg6bNuw4PBnTyH8YxD3GT3ynUcWs1;Database=cloudstore"
