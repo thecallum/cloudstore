@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TokenService.Models;
 using Xunit;
+using User = TokenService.Models.User;
 
 namespace DocumentService.Tests.UseCase
 {
