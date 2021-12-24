@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 using Xunit;
 using DocumentService.Tests;
 
-namespace DocumentService.TestsE2ETests
+namespace DocumentService.Tests.E2ETests
 {
     [Collection("Database collection")]
     public class RegisterTests : IDisposable
@@ -107,7 +107,7 @@ namespace DocumentService.TestsE2ETests
 
         private async Task<HttpResponseMessage> RegisterRequest(RegisterRequestObject request)
         {
-            var uri = new Uri("/document-service/api/auth/register", UriKind.Relative);
+            var uri = new Uri("/api/auth/register", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

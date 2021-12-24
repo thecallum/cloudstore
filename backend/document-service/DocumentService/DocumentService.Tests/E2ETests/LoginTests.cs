@@ -13,7 +13,7 @@ using TokenService;
 using Xunit;
 using DocumentService.Tests;
 
-namespace DocumentService.TestsE2ETests
+namespace DocumentService.Tests.E2ETests
 {
     [Collection("Database collection")]
     public class LoginTests : IDisposable
@@ -137,7 +137,7 @@ namespace DocumentService.TestsE2ETests
 
         private async Task<HttpResponseMessage> LoginRequest(LoginRequestObject request)
         {
-            var uri = new Uri("/document-service/api/auth/login", UriKind.Relative);
+            var uri = new Uri("/api/auth/login", UriKind.Relative);
 
             var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, Encoding.UTF8, "application/json");

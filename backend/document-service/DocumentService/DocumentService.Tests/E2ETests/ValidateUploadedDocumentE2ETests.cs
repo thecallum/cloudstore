@@ -187,7 +187,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request, string? token = null)
         {
             // setup request
-            var uri = new Uri($"document-service/api/document/validate/{documentId}", UriKind.Relative);
+            var uri = new Uri($"api/document/validate/{documentId}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             message.Method = HttpMethod.Post;
             message.Headers.Add(TokenService.Constants.AuthToken, token ?? _token);

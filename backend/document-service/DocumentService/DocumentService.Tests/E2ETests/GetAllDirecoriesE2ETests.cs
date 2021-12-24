@@ -69,7 +69,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> GetAllDirectoriesRequest()
         {
             // setup request
-            var url = "/document-service/api/directory";
+            var url = "/api/directory";
 
             var uri = new Uri(url, UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);

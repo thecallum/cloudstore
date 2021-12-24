@@ -73,7 +73,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> GetAllDocumentsRequest(GetAllDocumentsQuery query)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/document/", UriKind.Relative);
+            var uri = new Uri($"/api/document/", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
             message.Headers.Add(TokenService.Constants.AuthToken, _token);

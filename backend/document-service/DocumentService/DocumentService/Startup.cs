@@ -109,33 +109,30 @@ namespace DocumentService
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithExposedHeaders("location"));
+                .WithExposedHeaders("location", "authorization", "x-amzn-Remapped-Authorization"));
 
-            app.Map("/document-service", mainApp =>
+            if (env.IsDevelopment())
             {
-                if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseTokenMiddleware();
+
+            app.UseEndpoints(endpoints =>
+            {
+
+                endpoints.MapControllers();
+                endpoints.MapGet("/", async context =>
                 {
-                    mainApp.UseDeveloperExceptionPage();
-                }
-
-                mainApp.UseHttpsRedirection();
-
-                mainApp.UseRouting();
-
-                mainApp.UseAuthorization();
-
-                mainApp.UseTokenMiddleware();
-
-                mainApp.UseEndpoints(endpoints =>
-                {
-
-                    endpoints.MapControllers();
-                    endpoints.MapGet("/", async context =>
-                    {
-                        await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
-                    });
-
+                    await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
+
             });
         }
     }

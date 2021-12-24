@@ -111,7 +111,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> CreateDirectoryRequest(CreateDirectoryRequest request)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/directory/", UriKind.Relative);
+            var uri = new Uri($"/api/directory/", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             message.Method = HttpMethod.Post;
             message.Headers.Add(TokenService.Constants.AuthToken, _token);

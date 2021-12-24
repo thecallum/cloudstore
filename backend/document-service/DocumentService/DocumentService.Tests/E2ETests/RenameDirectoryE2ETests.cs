@@ -91,7 +91,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> RenameDirectoryRequest(Guid id, RenameDirectoryRequest request)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/directory/{id}", UriKind.Relative);
+            var uri = new Uri($"/api/directory/{id}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Patch, uri);
             message.Method = HttpMethod.Patch;
             message.Headers.Add(TokenService.Constants.AuthToken, _token);

@@ -113,7 +113,7 @@ namespace DocumentService.Tests.E2ETests
         private async Task<HttpResponseMessage> DeleteDirectoryRequest(Guid id)
         {
             // setup request
-            var uri = new Uri($"/document-service/api/directory/{id}", UriKind.Relative);
+            var uri = new Uri($"/api/directory/{id}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
             message.Method = HttpMethod.Delete;
             message.Headers.Add(TokenService.Constants.AuthToken, _token);

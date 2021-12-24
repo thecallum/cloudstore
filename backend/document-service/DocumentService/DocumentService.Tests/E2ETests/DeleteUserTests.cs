@@ -11,10 +11,10 @@ using Xunit;
 using DocumentService.Tests;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocumentService.TestsE2ETests
+namespace DocumentService.Tests.E2ETests
 {
     [Collection("Database collection")]
-    public class DeleteTests : IDisposable
+    public class DeleteUserTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
 
@@ -24,7 +24,7 @@ namespace DocumentService.TestsE2ETests
 
         private readonly DatabaseFixture<Startup> _dbFixture;
 
-        public DeleteTests(DatabaseFixture<Startup> fixture)
+        public DeleteUserTests(DatabaseFixture<Startup> fixture)
         {
             _dbFixture = fixture;
             _httpClient = _dbFixture.Client;
@@ -95,7 +95,7 @@ namespace DocumentService.TestsE2ETests
 
         private async Task<HttpResponseMessage> DeleteRequest(string token)
         {
-            var uri = new Uri("/document-service/api/auth/delete", UriKind.Relative);
+            var uri = new Uri("/api/auth/delete", UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
 
