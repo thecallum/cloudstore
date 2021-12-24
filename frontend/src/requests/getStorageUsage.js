@@ -5,7 +5,7 @@ const getStorageUsage = (token) =>
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
 
-    const url = API_BASE_URL + "document-service/api/storage/usage";
+    const url = API_BASE_URL + "api/storage/usage";
 
     headers.append("authorization", token);
 

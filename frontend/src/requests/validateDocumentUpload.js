@@ -25,7 +25,7 @@ const validateDocumentUploaded = (
     };
 
     const url =
-      API_BASE_URL + `document-service/api/document/validate/${documentId}`;
+      API_BASE_URL + `api/document/validate/${documentId}`;
 
     fetch(url, requestOptions)
       .then((response) => {

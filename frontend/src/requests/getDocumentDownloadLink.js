@@ -6,7 +6,7 @@ const getDocumentDownloadLink = (token, documentId) =>
     headers.append("Content-Type", "application/json");
 
     let url =
-      API_BASE_URL + `document-service/api/document/download/${documentId}`;
+      API_BASE_URL + `api/document/download/${documentId}`;
 
     headers.append("authorization", token);
 

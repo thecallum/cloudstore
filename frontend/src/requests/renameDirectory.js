@@ -5,7 +5,7 @@ const renameDirectory = (token, directoryId, newName) =>
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
 
-    let url = API_BASE_URL + `document-service/api/directory/${directoryId}`;
+    let url = API_BASE_URL + `api/directory/${directoryId}`;
 
     headers.append("authorization", token);
 

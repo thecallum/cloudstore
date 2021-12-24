@@ -5,7 +5,7 @@ headers.append("Content-Type", "application/json");
 
 const register = ({ firstName, lastName, email, password }) =>
   new Promise((resolve) => {
-    const url = API_BASE_URL + "auth-service/api/auth/register";
+    const url = API_BASE_URL + "api/auth/register";
 
     var body = JSON.stringify({
       firstName,  

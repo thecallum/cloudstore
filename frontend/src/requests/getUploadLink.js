@@ -13,7 +13,7 @@ const getUploadLink = (token) =>
       redirect: "follow",
     };
 
-    const url = API_BASE_URL + `document-service/api/document/upload`;
+    const url = API_BASE_URL + `api/document/upload`;
 
     fetch(url, requestOptions)
       .then((response) => {
