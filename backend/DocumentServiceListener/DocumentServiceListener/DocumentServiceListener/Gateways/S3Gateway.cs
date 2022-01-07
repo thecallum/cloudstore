@@ -1,39 +1,79 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using DocumentServiceListener.Infrastructure;
+using DocumentServiceListener.Gateways.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace DocumentServiceListener.Gateways
+namespace AWSServerless1.Gateways
 {
     public class S3Gateway : IS3Gateway
     {
         private readonly IAmazonS3 _amazonS3;
         private readonly string _bucketName;
+
         public S3Gateway(IAmazonS3 amazonS3)
         {
             _bucketName = "uploadfromcs";
             _amazonS3 = amazonS3;
         }
 
-        public async Task DeleteDocuments(List<DocumentDb> documents, Guid userId)
+        public async Task<ObjectMetadata> GetObjectMetadata(string key)
         {
-            var request = new DeleteObjectsRequest
+            Console.WriteLine($"Getting metadata for object {key}");
+
+            var request = new GetObjectMetadataRequest
             {
                 BucketName = _bucketName,
-                Objects = new List<KeyVersion>()
+                Key = $"store/{key}"
             };
 
-            foreach(var document in documents)
+            try
             {
-                var keyObject = new KeyVersion { Key = $"store/{document.UserId}/{document.DocumentId}" };
+                var response = await _amazonS3.GetObjectMetadataAsync(request);
 
-                request.Objects.Add(keyObject);
+                return new ObjectMetadata { ContentLength = response.ContentLength };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<DownloadedImage> DownloadImage(string key)
+        { 
+            var request = new GetObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = $"store/{key}"
+            };
+
+            byte[] imageBytes = null;
+            var contentType = "";
+
+            using (var objectResponse = await _amazonS3.GetObjectAsync(request))
+            using (var ms = new MemoryStream())
+            {
+                contentType = objectResponse.Headers.ContentType;
+                await objectResponse.ResponseStream.CopyToAsync(ms);
+                imageBytes = ms.ToArray();
             }
 
-            await _amazonS3.DeleteObjectsAsync(request);
+            return new DownloadedImage { ImageBytes = imageBytes, ContentType = contentType };
+        }
+
+        public async Task SaveThumbnail(string key, string contentType, MemoryStream outStream)
+        {
+            var putObjectRequest = new PutObjectRequest
+            {
+                Key = $"thumbnails/{key}",
+                BucketName = _bucketName,
+                ContentType = contentType,
+                InputStream = outStream
+            };
+            await _amazonS3.PutObjectAsync(putObjectRequest);
         }
     }
 }

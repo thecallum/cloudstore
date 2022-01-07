@@ -1,53 +1,49 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using DocumentServiceListener.Gateways.Exceptions;
 using DocumentServiceListener.Infrastructure;
+using DocumentServiceListener.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DocumentServiceListener.Gateways
 {
+
     public class DocumentGateway : IDocumentGateway
     {
-        private readonly IDynamoDBContext _context;
+        private readonly DocumentServiceContext _documentStorageContext;
+        private const string S3BaseThumbnailPath = "https://uploadfromcs.s3.eu-west-1.amazonaws.com/thumbnails";
 
-        public DocumentGateway(IDynamoDBContext databaseContext)
+        public DocumentGateway(DocumentServiceContext documentStorageContext)
         {
-            _context = databaseContext;
+            _documentStorageContext = documentStorageContext;
         }
 
-        public async Task DeleteDocuments(List<DocumentDb> documents, Guid userId)
+        public async Task UpdateThumbnail(Guid userId, Guid documentId)
         {
-            var taskList = new List<Task>();
+            LogHelper.LogGateway("DocumentGateway", "UpdateThumbnail");
 
-            foreach (var document in documents)
-            {
-                taskList.Add(_context.DeleteAsync<DocumentDb>(userId, document.DocumentId));
-            }
+            var document = await LoadDocument(userId, documentId);
+            if (document == null) throw new DocumentDbNotFoundException(userId, documentId);
+            
+            var newPath = $"{S3BaseThumbnailPath}/{userId}/{documentId}";
 
-            await Task.WhenAll(taskList);
+            document.Thumbnail = newPath;
+
+            await _documentStorageContext.SaveChangesAsync();
         }
 
-        public async Task<List<DocumentDb>> GetAllDocuments(Guid directoryId, Guid userId)
+        private async Task<DocumentDb> LoadDocument(Guid userId, Guid documentId)
         {
-            var documentList = new List<DocumentDb>();
+            LogHelper.LogGateway("DocumentGateway", "LoadDocument");
 
-            var config = new DynamoDBOperationConfig
-            {
-                IndexName = "DirectoryId_Name",
-            };
+            var document = await _documentStorageContext.Documents
+                .Where(x => x.UserId == userId && x.Id == documentId)
+                .SingleOrDefaultAsync();
 
-            var search = _context.QueryAsync<DocumentDb>(directoryId, config);
-
-            do
-            {
-                var newDocuments = await search.GetNextSetAsync();
-
-                documentList.AddRange(newDocuments);
-
-            } while (search.IsDone == false);
-
-            return documentList;
+            return document;
         }
     }
 }

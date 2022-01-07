@@ -14,9 +14,15 @@ namespace DocumentServiceListener.Tests.Helpers
             _testDataDirectory = GetTestDataDirectoryPath();
         }
 
-        public static string GetFilePath(string fileName, int fileSize)
+        public static string GetFilePath(string fileName)
         {
-            var filePath = Path.Combine(_testDataDirectory, fileName);
+            return Path.Combine(_testDataDirectory, fileName);
+
+        }
+
+        public static string GenerateTestFile(string fileName, int fileSize)
+        {
+            var filePath = GetFilePath(fileName);
 
             using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create)))
             {

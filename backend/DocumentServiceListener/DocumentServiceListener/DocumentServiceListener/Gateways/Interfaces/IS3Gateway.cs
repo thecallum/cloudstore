@@ -1,13 +1,13 @@
-﻿using DocumentServiceListener.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DocumentServiceListener.Gateways.Models;
+using System.IO;
 using System.Threading.Tasks;
 
-namespace DocumentServiceListener.Gateways
+namespace AWSServerless1.Gateways
 {
     public interface IS3Gateway
     {
-        Task DeleteDocuments(List<DocumentDb> documents, Guid userId);
+        Task<ObjectMetadata> GetObjectMetadata(string key);
+        Task<DownloadedImage> DownloadImage(string key);
+        Task SaveThumbnail(string key, string contentType, MemoryStream outStream);
     }
 }

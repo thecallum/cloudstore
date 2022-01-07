@@ -43,7 +43,7 @@ namespace DocumentServiceListener.Tests.Helpers
 
             try
             {
-                await _s3Client.GetObjectMetadataAsync(request);
+                var response = await _s3Client.GetObjectMetadataAsync(request);
             }
             catch (Exception)
             {
@@ -105,4 +105,5 @@ namespace DocumentServiceListener.Tests.Helpers
             }
         }
     }
+
 }

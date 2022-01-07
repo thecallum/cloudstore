@@ -1,29 +1,37 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace DocumentServiceListener.Infrastructure
 {
-    [DynamoDBTable("Document", LowerCamelCaseProperties = true)]
+    [Table("document_table")]
     public class DocumentDb
     {
-        [DynamoDBHashKey]
+        [Key]
+        [Column("id")]
+        public Guid Id { get; set; }
+
+        [ForeignKey("directory_table")]
+        [Column("directory_id")]
+        public Guid? DirectoryId { get; set; }
+        public DirectoryDb Directory { get; set; }
+
+        [Column("user_id")]
         public Guid UserId { get; set; }
 
-        [DynamoDBRangeKey]
-        public Guid DocumentId { get; set; }
-
-        [DynamoDBProperty]
-        public Guid DirectoryId { get; set; }
-
-        [DynamoDBProperty]
+        [Column("name")]
         public string Name { get; set; }
 
-        [DynamoDBProperty]
+        [Column("s3_location")]
         public string S3Location { get; set; }
 
-        [DynamoDBProperty]
+        [Column("file_size")]
         public long FileSize { get; set; }
+
+        [Column("thumbnail")]
+        public string Thumbnail { get; set; }
+
     }
 }
