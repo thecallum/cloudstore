@@ -113,18 +113,21 @@ namespace DocumentServiceListener
             }
         }
 
-        private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
+        private static CloudStoreSnsEvent DeserialiseSnsMessage(SQSMessage message)
+        {
+            var body = JsonSerializer.Deserialize<SnsBody>(message.Body);
+
+            return JsonSerializer.Deserialize<CloudStoreSnsEvent>(body.Message, _jsonOptions);
+        }
+
+        private async Task ProcessMessageAsync(SQSMessage message, ILambdaContext context)
         {
             context.Logger.LogLine($"Processing message {message.MessageId}");
+           
+            var entityEvent = DeserialiseSnsMessage(message);
 
-            var entityEvent = JsonSerializer.Deserialize<CloudStoreSnsEvent>(message.Body, _jsonOptions);
-        
             var eventHandler = EventHandlerFactory.Find(entityEvent.EventName, ServiceProvider);
-
-            if (eventHandler == null)
-            {
-                throw new Exception($"EventName [{entityEvent.EventName}] not found");
-            }
+            if (eventHandler == null) throw new Exception($"EventName [{entityEvent.EventName}] not found");
 
             await eventHandler.ProcessMessageAsync(entityEvent);
         }

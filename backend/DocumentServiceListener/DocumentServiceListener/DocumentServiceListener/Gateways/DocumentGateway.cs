@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace DocumentServiceListener.Gateways
 {
-
     public class DocumentGateway : IDocumentGateway
     {
         private readonly DocumentServiceContext _documentStorageContext;
@@ -30,6 +29,8 @@ namespace DocumentServiceListener.Gateways
             
             var newPath = $"{S3BaseThumbnailPath}/{userId}/{documentId}";
 
+            Console.WriteLine($"Saving Thumbnail: {newPath}");
+
             document.Thumbnail = newPath;
 
             await _documentStorageContext.SaveChangesAsync();
@@ -39,9 +40,12 @@ namespace DocumentServiceListener.Gateways
         {
             LogHelper.LogGateway("DocumentGateway", "LoadDocument");
 
-            var document = await _documentStorageContext.Documents
-                .Where(x => x.UserId == userId && x.Id == documentId)
-                .SingleOrDefaultAsync();
+            var document = await _documentStorageContext.Documents.FindAsync(documentId);
+
+            if (document.UserId != userId) {
+                Console.WriteLine("Document.UserId doesn't match");
+                return null;
+            }
 
             return document;
         }
