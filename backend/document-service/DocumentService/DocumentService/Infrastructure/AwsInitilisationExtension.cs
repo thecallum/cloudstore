@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Amazon.S3;
+using Amazon.SimpleNotificationService;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DocumentService.Infrastructure
 {
@@ -22,10 +24,21 @@ namespace DocumentService.Infrastructure
                     var config = new AmazonS3Config { ServiceURL = "http://localhost:4566", ForcePathStyle = true };
                     return new AmazonS3Client(config);
                 });
+
+
+                services.TryAddSingleton<IAmazonSimpleNotificationService>(sp =>
+                {
+                    var clientConfig = new AmazonSimpleNotificationServiceConfig {
+                        ServiceURL = "http://localhost:4566"
+                    };
+
+                    return new AmazonSimpleNotificationServiceClient(clientConfig);
+                });
             }
             else
             {
                 services.AddScoped<IAmazonS3>(x => new AmazonS3Client());
+                services.AddScoped<IAmazonSimpleNotificationService>(x => new AmazonSimpleNotificationServiceClient());
             }
         }
     }

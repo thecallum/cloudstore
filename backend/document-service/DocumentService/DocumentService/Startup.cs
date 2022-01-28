@@ -82,6 +82,7 @@ namespace DocumentService
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
             services.AddScoped<IS3Gateway, S3Gateway>();
             services.AddScoped<IUserGateway, UserGateway>();
+            services.AddScoped<ISnsGateway, SnsGateway>();
         }
 
         private void SetupUseCases(IServiceCollection services)

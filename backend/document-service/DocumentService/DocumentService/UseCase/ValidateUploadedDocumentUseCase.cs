@@ -2,6 +2,7 @@
 using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Factories;
+using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
@@ -18,13 +19,16 @@ namespace DocumentService.UseCase
     {
         private readonly IS3Gateway _s3Gateway;
         private readonly IDocumentGateway _documentGateway;
+        private readonly ISnsGateway _snsGateway;
 
         public ValidateUploadedDocumentUseCase(
             IS3Gateway s3Gateway,
-            IDocumentGateway documentGateway)
+            IDocumentGateway documentGateway,
+            ISnsGateway snsGateway)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
+            _snsGateway = snsGateway;
         }
 
         public async Task<DocumentResponse> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user)
@@ -50,27 +54,44 @@ namespace DocumentService.UseCase
 
             if (existingDocument == null)
             {
-                LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Uploading new document");
-
-                var newDocument = new DocumentDomain
-                {
-                    Id = documentId,
-                    UserId = user.Id,
-                    DirectoryId = request.DirectoryId,
-                    FileSize = documentUploadResponse.FileSize,
-                    Name = request.FileName,
-                    S3Location = key,
-                };
-
-                await UploadNewDocument(newDocument, key);
-
-                return newDocument.ToResponse();
+                return await HandleNewDocument(documentId, request, user, key, documentUploadResponse);
             }
 
+            return await HandleExistingDocument(documentId, user, key, documentUploadResponse, existingDocument);
+        }
+
+        private async Task<DocumentResponse> HandleExistingDocument(Guid documentId, User user, string key, DocumentUploadResponse documentUploadResponse, DocumentDomain existingDocument)
+        {
             LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Updating existing document");
 
             await UpdateExistingDocument(existingDocument, documentUploadResponse, key);
+
+            // publish event
+            await _snsGateway.PublishDocumentUploadedEvent(user, documentId);
+
             return existingDocument.ToResponse();
+        }
+
+        private async Task<DocumentResponse> HandleNewDocument(Guid documentId, ValidateUploadedDocumentRequest request, User user, string key, DocumentUploadResponse documentUploadResponse)
+        {
+            LogHelper.LogUseCase("ValidateUploadedDocumentUseCase - Uploading new document");
+
+            var newDocument = new DocumentDomain
+            {
+                Id = documentId,
+                UserId = user.Id,
+                DirectoryId = request.DirectoryId,
+                FileSize = documentUploadResponse.FileSize,
+                Name = request.FileName,
+                S3Location = key,
+            };
+
+            await UploadNewDocument(newDocument, key);
+
+            // publish event
+            await _snsGateway.PublishDocumentUploadedEvent(user, documentId);
+
+            return newDocument.ToResponse();
         }
 
         private async Task<DocumentDomain> UpdateExistingDocument(DocumentDomain existingDocument, DocumentUploadResponse documentUploadResponse, string key)

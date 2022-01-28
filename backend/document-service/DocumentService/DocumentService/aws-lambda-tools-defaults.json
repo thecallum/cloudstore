@@ -14,6 +14,6 @@
   "function-runtime": "dotnetcore3.1",
   "template-parameters": "",
   "function-memory-size": 256,
-  "function-timeout": 30,
+  "function-timeout": 900,
   "function-handler": "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
 }
