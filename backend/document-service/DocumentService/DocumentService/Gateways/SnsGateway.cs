@@ -15,9 +15,14 @@ namespace DocumentService.Gateways
         private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
         private const string MessageGroupId = "DocumentService";
 
+        private readonly string SnsTopicArn;
+
         public SnsGateway(IAmazonSimpleNotificationService snsService)
         {
             _SNSService = snsService;
+
+            SnsTopicArn = Environment.GetEnvironmentVariable("SNS_TOPIC_ARN");
+            // "arn:aws:sns:eu-west-1:714664911966:DocumentService.fifo"
         }
 
         public async Task PublishDocumentUploadedEvent(User user, Guid documentId)
@@ -37,17 +42,17 @@ namespace DocumentService.Gateways
             };
 
             var msgBody = JsonSerializer.Serialize(CSEvent, _jsonOptions);
-
             var request = new PublishRequest
             {
                 Message = msgBody,
-                TopicArn = "arn:aws:sns:eu-west-1:714664911966:DocumentService.fifo",
+                TopicArn = SnsTopicArn,
                 MessageGroupId = MessageGroupId
             };
 
             // publish event
 
             Console.WriteLine("Publishing DocumentUploadedEvent");
+
             await _SNSService.PublishAsync(request);
         }
 

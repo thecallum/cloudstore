@@ -1,5 +1,18 @@
 version: "3.2"
 services:
+  test:
+    image: test
+    build:
+      context: .
+      dockerfile: DocumentService.Tests/Dockerfile
+   
+    environment:
+      - Localstack_url=http://localstack:4566
+      - AWS_REGION=eu-west-2
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    links:
+      - localstack
   localstack:
     image: localstack/localstack:latest
     container_name: localstack

@@ -32,7 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="TokenService">
-      <HintPath>..\..\..\TokenService\TokenService\dist\TokenService.dll</HintPath>
+      <HintPath>..\External\TokenService.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

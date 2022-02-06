@@ -37,7 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="TokenService">
-      <HintPath>..\..\..\TokenService\TokenService\bin\Release\netcoreapp3.1\TokenService.dll</HintPath>
+      <HintPath>..\External\TokenService.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
