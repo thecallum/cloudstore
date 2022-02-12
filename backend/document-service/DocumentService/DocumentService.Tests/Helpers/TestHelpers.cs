@@ -17,21 +17,12 @@ namespace DocumentService.Tests.Helpers
 
         public static string GetFilePath(string fileName, int fileSize)
         {
-            Console.WriteLine($"GetFilePath: fileName={fileName} fileSize={fileSize}");
-
             var filePath = Path.Combine(_testDataDirectory, fileName);
 
-            Console.WriteLine($"FilePath: {filePath}");
-
-
-            bool directoryExists = System.IO.Directory.Exists(_testDataDirectory);
-
-            if(!directoryExists)
+            if(!System.IO.Directory.Exists(_testDataDirectory))
             {
                 System.IO.Directory.CreateDirectory(_testDataDirectory);
             }
-
-
 
             using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create)))
             {
@@ -44,13 +35,9 @@ namespace DocumentService.Tests.Helpers
         private static string GetTestDataDirectoryPath()
         {
             string workingDirectory = Environment.CurrentDirectory;
-            Console.WriteLine($"CurrentDirectory: {workingDirectory}");
-
             string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            Console.WriteLine($"projectDirectory: {projectDirectory}");
 
-// return projectDirectory;
-           return Path.Combine(projectDirectory, "TestData");
+            return Path.Combine(projectDirectory, "TestData");
         }
     }
 }
