@@ -19,6 +19,11 @@ namespace DocumentService.Tests.Helpers
         {
             var filePath = Path.Combine(_testDataDirectory, fileName);
 
+            if(!System.IO.Directory.Exists(_testDataDirectory))
+            {
+                System.IO.Directory.CreateDirectory(_testDataDirectory);
+            }
+
             using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create)))
             {
                 sw.Write(new char[fileSize]);

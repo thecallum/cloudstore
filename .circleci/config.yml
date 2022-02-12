@@ -4,33 +4,22 @@ version: 2.1
 
 jobs:
   build-and-test:
-    docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    machine: true # Use a Linux VM instead of docker environment
+
+    # docker:
+      # - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     steps:
       - checkout
-      - setup_remote_docker
-      - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="17.03.0-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            curl -L https://github.com/docker/compose/releases/download/2.2.3/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
       - run:
           working_directory: ./backend/document-service/DocumentService
           name: build
-          command: docker-compose build repairs-api-test
+          # command: docker-compose build test
+          command: docker-compose build test
       - run:
           working_directory: ./backend/document-service/DocumentService
           name: Run tests
-          command: docker-compose run repairs-api-test
+          # command: docker-compose run test
+          command: docker-compose run test
 
 workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
