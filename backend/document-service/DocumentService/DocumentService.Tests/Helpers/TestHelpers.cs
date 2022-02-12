@@ -23,6 +23,16 @@ namespace DocumentService.Tests.Helpers
 
             Console.WriteLine($"FilePath: {filePath}");
 
+
+            bool directoryExists = System.IO.Directory.Exists(_testDataDirectory);
+
+            if(!directoryExists)
+            {
+                System.IO.Directory.CreateDirectory(_testDataDirectory);
+            }
+
+
+
             using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create)))
             {
                 sw.Write(new char[fileSize]);
@@ -39,8 +49,8 @@ namespace DocumentService.Tests.Helpers
             string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             Console.WriteLine($"projectDirectory: {projectDirectory}");
 
-return projectDirectory;
-           // return Path.Combine(projectDirectory, "TestData");
+// return projectDirectory;
+           return Path.Combine(projectDirectory, "TestData");
         }
     }
 }
