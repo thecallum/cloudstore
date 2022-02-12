@@ -39,8 +39,8 @@ namespace DocumentService.Tests.Helpers
             string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             Console.WriteLine($"projectDirectory: {projectDirectory}");
 
-
-            return Path.Combine(projectDirectory, "TestData");
+return projectDirectory;
+           // return Path.Combine(projectDirectory, "TestData");
         }
     }
 }
