@@ -11,13 +11,15 @@ jobs:
     steps:
       - checkout
       - run:
-          working_directory: ./backend/document-service/DocumentService
+          # working_directory: ./backend/document-service/DocumentService
           name: build
-          command: docker-compose build test
+          # command: docker-compose build test
+          command: docker-compose -f .\backend\document-service\DocumentService\docker-compose.yml build test
       - run:
-          working_directory: ./backend/document-service/DocumentService
+          # working_directory: ./backend/document-service/DocumentService
           name: Run tests
-          command: docker-compose run test
+          # command: docker-compose run test
+          command: docker-compose -f .\backend\document-service\DocumentService\docker-compose.yml run test
 
 workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
