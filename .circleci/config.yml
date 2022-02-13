@@ -44,6 +44,7 @@ jobs:
       - aws-cli/setup:
           profile-name: default
       - run:
+          context: aws
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
           command: dotnet-lambda deploy-function --function-name DocumentService
