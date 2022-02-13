@@ -38,9 +38,9 @@ jobs:
       # - run:
       #     name: install-zip
       #     command: apt-get -y install zip
-      # - run:
-      #     name: install-aws-extensions
-      #     command: dotnet tool install -g Amazon.Lambda.Tools 
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools 
       - aws-cli/setup:
           profile-name: default
       - run:
