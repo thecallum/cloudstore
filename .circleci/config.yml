@@ -30,21 +30,22 @@ jobs:
       - checkout
       - run:
           name: install-aws-extensions
-          command: dotnet tool install -g Amazon.Lambda.Tools 
+          command: dotnet tool install -g Amazon.Lambda.Tools
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
           command: dotnet-lambda deploy-function --function-name DocumentService
 
 workflows:
-  test-and-deploy: 
+  test-and-deploy:
     jobs:
       - build-and-test
   deploy:
     jobs:
       - deploy-lambda:
-        requires:
-          - build-and-test
-        filters:
-          branches:
-            only: main
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: main
+
