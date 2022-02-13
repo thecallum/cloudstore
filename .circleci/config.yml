@@ -4,7 +4,7 @@ version: 2.1
 
 orbs:
   windows: circleci/windows@2.2.0
-  
+
 executors:
   docker-dotnet:
     docker:
@@ -32,9 +32,9 @@ jobs:
     executor: windows/default
     steps:
       - checkout
-      - run:
-          name: install-zip
-          command: apt-get -y install zip
+      # - run:
+      #     name: install-zip
+      #     command: apt-get -y install zip
       - run:
           name: install-aws-extensions
           command: dotnet tool install -g Amazon.Lambda.Tools 
