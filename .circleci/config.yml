@@ -25,14 +25,17 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools 
+      - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
           command: dotnet lambda deploy-function --function-name DocumentService
 
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
+  test-and-deploy: 
     jobs:
-      - build-and-test
+      # - build-and-test
       - deploy-lambda:
           requires:
             - build-and-test
