@@ -37,8 +37,8 @@ workflows:
     jobs:
       # - build-and-test
       - deploy-lambda:
-          requires:
-            - build-and-test
+          # requires:
+          #   - build-and-test
   # deploy:
   #   jobs:
   #     - deploy:
