@@ -4,6 +4,8 @@ version: 2.1
 
 orbs:
   windows: circleci/windows@2.2.0
+  aws-cli: circleci/aws-cli@2.0
+
 
 executors:
   docker-dotnet:
@@ -38,6 +40,8 @@ jobs:
       - run:
           name: install-aws-extensions
           command: dotnet tool install -g Amazon.Lambda.Tools 
+      - aws-cli/setup:
+          profile-name: default
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
