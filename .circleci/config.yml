@@ -6,7 +6,6 @@ orbs:
   windows: circleci/windows@2.2.0
   aws-cli: circleci/aws-cli@2.0
 
-
 executors:
   docker-dotnet:
     docker:
@@ -15,32 +14,23 @@ executors:
 jobs:
   build-and-test:
     machine: true # Use a Linux VM instead of docker environment
-
-    # docker:
-      # - image: mcr.microsoft.com/dotnet/core/sdk:3.1
     steps:
       - checkout
       - run:
           working_directory: ./backend/document-service/DocumentService
           name: build
-          # command: docker-compose build test
           command: docker-compose build test
       - run:
           working_directory: ./backend/document-service/DocumentService
           name: Run tests
-          # command: docker-compose run test
           command: docker-compose run test
   deploy-lambda:
     executor: windows/default
     steps:
       - checkout
-      # - run:
-      #     name: install-zip
-      #     command: apt-get -y install zip
       - run:
           name: install-aws-extensions
           command: dotnet tool install -g Amazon.Lambda.Tools 
-          
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
@@ -49,15 +39,12 @@ jobs:
 workflows:
   test-and-deploy: 
     jobs:
-      # - build-and-test
-      - deploy-lambda
-          # requires:
-          #   - build-and-test
-  # deploy:
-  #   jobs:
-  #     - deploy:
-  #       requires:
-  #         - build-and-test
-  #       # filters:
-  #       #   branches:
-  #       #     only: main
+      - build-and-test
+  deploy:
+    jobs:
+      - deploy-lambda:
+        requires:
+          - build-and-test
+        filters:
+          branches:
+            only: main
