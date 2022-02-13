@@ -21,6 +21,7 @@ jobs:
           # command: docker-compose run test
           command: docker-compose run test
   deploy:
+    machine: true # Use a Linux VM instead of docker environment
     steps:
       - checkout
       - run:
