@@ -35,7 +35,7 @@ jobs:
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
-          command: dotnet-lambda deploy-function --function-name DocumentService
+          command: /root/.dotnet/tools/dotnet-lambda deploy-function --function-name DocumentService
 
 workflows:
   test-and-deploy: 
