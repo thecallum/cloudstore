@@ -20,7 +20,7 @@ jobs:
           name: Run tests
           # command: docker-compose run test
           command: docker-compose run test
-  deploy:
+  deploy-lambda:
     machine: true # Use a Linux VM instead of docker environment
     steps:
       - checkout
@@ -33,9 +33,9 @@ workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
       - build-and-test
-      - deploy:
-        requires:
-          - build-and-test 
+      - deploy-lambda:
+          requires:
+            - build-and-test
   # deploy:
   #   jobs:
   #     - deploy:
