@@ -11,58 +11,53 @@ executors:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
-commands:
-  install-aws-extensions:
-    steps:
-      - run: dotnet tool install -g Amazon.Lambda.Tools
-  build-and-test:
-    parameters:
-      service-name: 
-        type: string
-    steps:
-      - run:
-          name: build
-          command: docker-compose build <<parameters.service-name>>
-      - run:
-          name: Run tests
-          command: docker-compose run <<parameters.service-name>>
-  deploy-to-lambda:
-    parameters:
-      function-name: 
-        type: string
-    steps:
-      - run: dotnet-lambda deploy-function --function-name <<parameters.function-name>>
-
 jobs:
   build-and-test-document-service:
     machine: true # Use a Linux VM instead of docker environment
     steps:
       - checkout
-      - build-and-test:
-          service-name: "test"
+      - run:
+          working_directory: ./backend/document-service/DocumentService
+          name: build
+          command: docker-compose build test
+      - run:
+          working_directory: ./backend/document-service/DocumentService
+          name: Run tests
+          command: docker-compose run test
   build-and-test-listener-service:
     machine: true # Use a Linux VM instead of docker environment
-    working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
     steps:
       - checkout
-      - build-and-test:
-          service-name: "listener-tests"
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: build
+          command: docker-compose build listener-tests
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: Run tests
+          command: docker-compose run listener-tests
   deploy-document-service:
     executor: windows/default
-    working_directory: ./backend/document-service/DocumentService/DocumentService
     steps:
       - checkout
-      - install-aws-extensions
-      - deploy-to-lambda:
-          function-name: "DocumentService"
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools
+      - run:
+          working_directory: ./backend/document-service/DocumentService/DocumentService
+          name: deploy
+          command: dotnet-lambda deploy-function --function-name DocumentService
   deploy-listener-service:
     executor: windows/default
-    working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
     steps:
       - checkout
-      - install-aws-extensions
-      - deploy-to-lambda:
-          function-name: "DocumentServiceListener"
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: deploy
+          command: dotnet-lambda deploy-function --function-name DocumentServiceListener
   deploy-frontend:
     docker:
       - image: circleci/node:10.16.3
@@ -85,8 +80,12 @@ jobs:
           name: deploy
           command: aws s3 sync . s3://cloudstore.thecallum.com
       - run:
+          # working_directory: ./backend/document-service/DocumentService
           name: invalidate-cloudfront
           command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
+
+
+ 
 
 workflows:
   test-and-deploy:
