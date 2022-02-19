@@ -1,5 +1,6 @@
 import HeaderLinks from "./headerLinks";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const HeaderStyled = styled.header`
   background: hsl(180, 20%, 50%);
@@ -33,7 +34,12 @@ const header = () => {
       <HeaderContainerStyled>
         <div style={{
           fontSize: "26px"
-        }}>CloudStore</div>
+        }}>
+          <Link 
+            style={{ color: "inherit", textDecoration: "none"}}
+          to="/">CloudStore</Link>
+
+        </div>
 
         <HeaderLinks />
       </HeaderContainerStyled>
