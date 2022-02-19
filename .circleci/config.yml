@@ -69,9 +69,6 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-        # - run:
-          # name: install-npm
-          # command: 'sudo npm install -g npm@latest'
       - run:
           name: install-yarn
           command: 'sudo npm install --global yarn'
@@ -88,32 +85,28 @@ jobs:
           name: deploy
           command: aws s3 sync . s3://cloudstore.thecallum.com
       - run:
-          # working_directory: ./backend/document-service/DocumentService
           name: invalidate-cloudfront
           command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
-
-
- 
 
 workflows:
   test-and-deploy:
     jobs:
-      # - build-and-test-document-service
-      # - build-and-test-listener-service
-      # - deploy-document-service:
-      #     requires:
-      #       - build-and-test-document-service
-      #     filters:
-      #       branches:
-      #         only: main
-      # - deploy-listener-service:
-      #     requires:
-      #       - build-and-test-listener-service
-      #     filters:
-      #       branches:
-      #         only: main
+      - build-and-test-document-service
+      - build-and-test-listener-service
+      - deploy-document-service:
+          requires:
+            - build-and-test-document-service
+          filters:
+            branches:
+              only: main
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
+          filters:
+            branches:
+              only: main
       - deploy-frontend
-          # filters:
-          #   branches:
-          #     only: main
+          filters:
+            branches:
+              only: main
 
