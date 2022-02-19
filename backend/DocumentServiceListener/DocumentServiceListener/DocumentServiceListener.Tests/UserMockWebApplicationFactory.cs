@@ -81,57 +81,13 @@ namespace DocumentServiceListener.Tests
         {
             services.AddDbContext<DocumentServiceContext>(options =>
             {
-                //if (_connection != null)
-                //{
-                //    options.UseNpgsql(_connection);
-                //}
-                //else
-                //{
-                    options.UseInMemoryDatabase("integration");
-                    options.ConfigureWarnings(warningOptions =>
-                    {
-                        warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                    });
-                //}
+                options.UseInMemoryDatabase("integration");
+                options.ConfigureWarnings(warningOptions =>
+                {
+                    warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                });
             });
         }
-
-
-
-        //protected override void ConfigureWebHost(IWebHostBuilder builder)
-        //{
-        //    builder.ConfigureServices(services =>
-        //    {
-        //        services.ConfigureAws();
-
-        //        services.RemoveAll(typeof(DbContextOptions<DocumentServiceContext>));
-
-        //        services.AddDbContext<DocumentServiceContext>(options =>
-        //        {
-        //            if (_connection != null)
-        //            {
-        //                options.UseNpgsql(_connection);
-        //            }
-        //            else
-        //            {
-        //                options.UseInMemoryDatabase("integration");
-        //                options.ConfigureWarnings(warningOptions =>
-        //                {
-        //                    warningOptions.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-        //                });
-        //            }
-        //        });
-
-        //        var serviceProvider = services.BuildServiceProvider();
-        //        InitialiseDB(serviceProvider);
-
-        //        S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
-
-        //        EnsureBucketExists();
-        //        //CreateTestFiles();
-
-        //    });
-        //}
 
         private void CreateTestFiles()
         {

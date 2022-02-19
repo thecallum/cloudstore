@@ -41,6 +41,7 @@ namespace DocumentServiceListener.Gateways
             LogHelper.LogGateway("DocumentGateway", "LoadDocument");
 
             var document = await _documentStorageContext.Documents.FindAsync(documentId);
+            if (document == null) return null;
 
             if (document.UserId != userId) {
                 Console.WriteLine("Document.UserId doesn't match");
