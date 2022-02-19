@@ -47,6 +47,17 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
           command: dotnet-lambda deploy-function --function-name DocumentService
+  deploy-listener-service:
+    executor: windows/default
+    steps:
+      - checkout
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: deploy
+          command: dotnet-lambda deploy-function --function-name DocumentServiceListener
 
 workflows:
   test-and-deploy:
@@ -59,4 +70,10 @@ workflows:
           filters:
             branches:
               only: main
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
+          # filters:
+          #   branches:
+          #     only: main
 
