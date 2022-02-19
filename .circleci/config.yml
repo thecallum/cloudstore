@@ -79,9 +79,9 @@ jobs:
           name: build
           command: CI=false yarn build
       - run:
-          working_directory: ./frontend
+          working_directory: ./frontend/build
           name: deploy
-          command: aws s3 sync .\build\ s3://cloudstore.thecallum.com
+          command: aws s3 sync . s3://cloudstore.thecallum.com
       - run:
           # working_directory: ./backend/document-service/DocumentService
           name: invalidate-cloudfront
