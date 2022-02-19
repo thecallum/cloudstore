@@ -72,12 +72,11 @@ jobs:
       - run:
           working_directory: ./frontend
           name: init-yarn
-          command: yarn install
-          # command: yarn install --production=true
+          command: yarn install --production=true
       - run:
           working_directory: ./frontend
           name: build
-          command: yarn build
+          command: CI=false yarn build
       - run:
           working_directory: ./frontend
           name: deploy
