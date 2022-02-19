@@ -71,6 +71,10 @@ jobs:
           command: 'sudo npm install --global yarn'
       - run:
           working_directory: ./frontend
+          name: init-yarn
+          command: yarn install --production=true
+      - run:
+          working_directory: ./frontend
           name: build
           command: yarn build
       - run:
