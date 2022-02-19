@@ -20,7 +20,7 @@ commands:
       function-name: 
         type: string
     steps:
-      run: "dotnet-lambda deploy-function --function-name <<parameters.function-name>>""
+      run: dotnet-lambda deploy-function --function-name <<parameters.function-name>>
 
 jobs:
   build-and-test-document-service:
