@@ -92,20 +92,20 @@ jobs:
 workflows:
   test-and-deploy:
     jobs:
-      - build-and-test-document-service
-      - build-and-test-listener-service
-      - deploy-document-service:
-          requires:
-            - build-and-test-document-service
-          filters:
-            branches:
-              only: main
-      - deploy-listener-service:
-          requires:
-            - build-and-test-listener-service
-          filters:
-            branches:
-              only: main
+      # - build-and-test-document-service
+      # - build-and-test-listener-service
+      # - deploy-document-service:
+      #     requires:
+      #       - build-and-test-document-service
+      #     filters:
+      #       branches:
+      #         only: main
+      # - deploy-listener-service:
+      #     requires:
+      #       - build-and-test-listener-service
+      #     filters:
+      #       branches:
+      #         only: main
       - deploy-frontend
           # filters:
           #   branches:
