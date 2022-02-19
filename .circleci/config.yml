@@ -24,7 +24,19 @@ jobs:
           working_directory: ./backend/document-service/DocumentService
           name: Run tests
           command: docker-compose run test
-  deploy-lambda-document-service:
+  build-and-test-listener-service:
+    machine: true # Use a Linux VM instead of docker environment
+    steps:
+      - checkout
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: build
+          command: docker-compose build listener-tests
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: Run tests
+          command: docker-compose run listener-tests
+  deploy-document-service:
     executor: windows/default
     steps:
       - checkout
@@ -40,7 +52,8 @@ workflows:
   test-and-deploy:
     jobs:
       - build-and-test-document-service
-      - deploy-lambda-document-service:
+      - build-and-test-listener-service
+      - deploy-document-service:
           requires:
             - build-and-test-document-service
           filters:
