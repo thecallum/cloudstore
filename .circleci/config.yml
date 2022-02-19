@@ -39,14 +39,14 @@ jobs:
     steps:
       - checkout
       - build-and-test:
-        service-name: "test"
+          service-name: "test"
   build-and-test-listener-service:
     machine: true # Use a Linux VM instead of docker environment
     working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
     steps:
       - checkout
       - build-and-test:
-        service-name: "listener-tests"
+          service-name: "listener-tests"
   deploy-document-service:
     executor: windows/default
     working_directory: ./backend/document-service/DocumentService/DocumentService
