@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Validator from "Validator";
 
 import registerRequest from "../requests/register";
@@ -144,9 +145,24 @@ const Register = ({ history }) => {
 
         <br />
 
-        <button type="submit" className="form">
+       <div style={{ 
+         display: "flex", 
+         alignItems: "center", 
+         flexWrap: "wrap",
+         margin: "-15px 0 0 -15px"
+       }}>
+          <button type="submit" className="form" style={{
+            margin: "15px 0 0 15px"
+          }}>
           Register
         </button>
+
+          <div style={{
+            margin: "15px 0 0 15px"
+          }}>
+            <Link to="/login/">Login</Link>
+          </div>
+       </div>
       </form>
 
     </Layout>
