@@ -12,7 +12,7 @@ executors:
       - image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
 jobs:
-  build-and-test:
+  build-and-test-document-service:
     machine: true # Use a Linux VM instead of docker environment
     steps:
       - checkout
@@ -24,7 +24,19 @@ jobs:
           working_directory: ./backend/document-service/DocumentService
           name: Run tests
           command: docker-compose run test
-  deploy-lambda:
+  build-and-test-listener-service:
+    machine: true # Use a Linux VM instead of docker environment
+    steps:
+      - checkout
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: build
+          command: docker-compose build listener-tests
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
+          name: Run tests
+          command: docker-compose run listener-tests
+  deploy-document-service:
     executor: windows/default
     steps:
       - checkout
@@ -35,14 +47,32 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: deploy
           command: dotnet-lambda deploy-function --function-name DocumentService
+  deploy-listener-service:
+    executor: windows/default
+    steps:
+      - checkout
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: deploy
+          command: dotnet-lambda deploy-function --function-name DocumentServiceListener
 
 workflows:
   test-and-deploy:
     jobs:
-      - build-and-test
-      - deploy-lambda:
+      - build-and-test-document-service
+      - build-and-test-listener-service
+      - deploy-document-service:
           requires:
-            - build-and-test
+            - build-and-test-document-service
+          filters:
+            branches:
+              only: main
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
           filters:
             branches:
               only: main

@@ -12,16 +12,19 @@ namespace DocumentServiceListener.Infrastructure
     {
         public static void ConfigureAws(this IServiceCollection services)
         {
-
-            _ = bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out bool localMode);
-
             bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production";
 
             if (isDevelopment || false)
             {
+                var localstackUrl = Environment.GetEnvironmentVariable("Localstack_url");
+
                 services.AddScoped<IAmazonS3>(x =>
                 {
-                    var config = new AmazonS3Config { ServiceURL = "http://localhost:4566", ForcePathStyle = true };
+                    var config = new AmazonS3Config { 
+                        ServiceURL = localstackUrl ?? "http://localhost:4566", 
+                        ForcePathStyle = true 
+                    };
+
                     return new AmazonS3Client(config);
                 });
             }

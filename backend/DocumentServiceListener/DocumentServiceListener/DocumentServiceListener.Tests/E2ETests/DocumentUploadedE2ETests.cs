@@ -216,7 +216,8 @@ namespace DocumentServiceListener.Tests.E2ETests
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
+                WriteIndented = true,
+                PropertyNameCaseInsensitive = true
             };
             options.Converters.Add(new JsonStringEnumConverter());
             return options;
@@ -226,7 +227,10 @@ namespace DocumentServiceListener.Tests.E2ETests
 
         private SQSEvent CreateSQSEvent(CloudStoreSnsEvent cloudStoreEvent)
         {
-            var msgBody = JsonSerializer.Serialize(cloudStoreEvent, _jsonOptions);
+            var snsEvent = JsonSerializer.Serialize(cloudStoreEvent, _jsonOptions);
+
+            var snsBody = new SnsBody { Message = snsEvent };
+            var msgBody = JsonSerializer.Serialize(snsBody, _jsonOptions);
 
             var SQSMessage = _fixture.Build<SQSEvent.SQSMessage>()
                    .With(x => x.Body, msgBody)

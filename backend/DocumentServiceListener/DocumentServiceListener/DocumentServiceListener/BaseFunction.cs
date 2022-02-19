@@ -115,9 +115,11 @@ namespace DocumentServiceListener
 
         private static CloudStoreSnsEvent DeserialiseSnsMessage(SQSMessage message)
         {
-            var body = JsonSerializer.Deserialize<SnsBody>(message.Body);
+            var body = JsonSerializer.Deserialize<SnsBody>(message.Body, _jsonOptions);
 
-            return JsonSerializer.Deserialize<CloudStoreSnsEvent>(body.Message, _jsonOptions);
+            var snsEvent = JsonSerializer.Deserialize<CloudStoreSnsEvent>(body.Message, _jsonOptions);
+
+            return snsEvent;
         }
 
         private async Task ProcessMessageAsync(SQSMessage message, ILambdaContext context)
@@ -139,7 +141,8 @@ namespace DocumentServiceListener
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
+                WriteIndented = true,
+                PropertyNameCaseInsensitive = true
             };
             options.Converters.Add(new JsonStringEnumConverter());
             return options;
