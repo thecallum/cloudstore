@@ -13,7 +13,9 @@ const header = () => {
         alignItems: "center",
       }}
     >
-      <div>CloudStore</div>
+      <div style={{
+        fontSize: "26px"
+      }}>CloudStore</div>
 
       <HeaderLinks />
       
