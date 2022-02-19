@@ -15,6 +15,17 @@ commands:
   install-aws-extensions:
     steps:
       - run: dotnet tool install -g Amazon.Lambda.Tools
+  build-and-test:
+    parameters:
+      service-name: 
+        type: string
+    steps:
+      - run:
+          name: build
+          command: docker-compose build <<parameters.service-name>>
+      - run:
+          name: Run tests
+          command: docker-compose run <<parameters.service-name>>
   deploy-to-lambda:
     parameters:
       function-name: 
@@ -27,25 +38,15 @@ jobs:
     machine: true # Use a Linux VM instead of docker environment
     steps:
       - checkout
-      - run:
-          working_directory: ./backend/document-service/DocumentService
-          name: build
-          command: docker-compose build test
-      - run:
-          working_directory: ./backend/document-service/DocumentService
-          name: Run tests
-          command: docker-compose run test
+      - build-and-test:
+        service-name: "test"
   build-and-test-listener-service:
     machine: true # Use a Linux VM instead of docker environment
     working_directory: ./backend/DocumentServiceListener/DocumentServiceListener
     steps:
       - checkout
-      - run:
-          name: build
-          command: docker-compose build listener-tests
-      - run:
-          name: Run tests
-          command: docker-compose run listener-tests
+      - build-and-test:
+        service-name: "listener-tests"
   deploy-document-service:
     executor: windows/default
     working_directory: ./backend/document-service/DocumentService/DocumentService
