@@ -64,11 +64,11 @@ jobs:
     steps:
       - checkout
         # - run:
-        #   name: install-yarn
-        #   command: 'sudo npm install -g npm@latest'
+          # name: install-npm
+          # command: 'sudo npm install -g npm@latest'
       - run:
           name: install-yarn
-          command: 'npm install --global yarn'
+          command: 'sudo npm install --global yarn'
       - run:
           working_directory: ./frontend
           name: build
