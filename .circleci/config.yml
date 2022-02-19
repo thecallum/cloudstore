@@ -58,6 +58,32 @@ jobs:
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: deploy
           command: dotnet-lambda deploy-function --function-name DocumentServiceListener
+  deploy-frontend:
+    docker:
+      - image: circleci/node:10.16.3
+    steps:
+      - checkout
+        # - run:
+        #   name: install-yarn
+        #   command: 'sudo npm install -g npm@latest'
+      - run:
+          name: install-yarn
+          command: 'npm install --global yarn'
+      - run:
+          working_directory: ./frontend
+          name: build
+          command: yarn build
+      - run:
+          working_directory: ./frontend
+          name: deploy
+          command: aws s3 sync .\build\ s3://cloudstore.thecallum.com
+      - run:
+          # working_directory: ./backend/document-service/DocumentService
+          name: invalidate-cloudfront
+          command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
+
+
+ 
 
 workflows:
   test-and-deploy:
@@ -76,4 +102,8 @@ workflows:
           filters:
             branches:
               only: main
+      - deploy-frontend
+          # filters:
+          #   branches:
+          #     only: main
 
