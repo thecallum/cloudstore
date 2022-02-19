@@ -1,14 +1,28 @@
 version: "3.2"
 services:
+  listener-tests:
+    image: listener-tests
+    build:
+      context: .
+      dockerfile: DocumentServiceListener.Tests/Dockerfile
+   
+    environment:
+      - Localstack_url=http://listener-localstack:4566
+      - AWS_REGION=eu-west-2
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    links:
+      - listener-localstack
+
   listener-localstack:
     image: localstack/localstack:latest
     container_name: listener-localstack
     ports:
       - 127.0.0.1:4566:4566
     environment:
-      - SERVICES=s3
-      - DEBUG=1
-      - LS_LOG=trace
+      - SERVICES=s3,sns,sqs
+      # - DEBUG=1
+      # - LS_LOG=trace
     volumes:
       - ./.localstack:/tmp/localstack
       - /var/run/docker.sock:/var/run/docker.sock

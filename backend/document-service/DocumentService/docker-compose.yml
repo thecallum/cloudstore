@@ -20,8 +20,8 @@ services:
       - 127.0.0.1:4566:4566
     environment:
       - SERVICES=s3,sns,sqs
-      - DEBUG=1
-      - LS_LOG=trace
+      # - DEBUG=1
+      # - LS_LOG=trace
     volumes:
       - ./.localstack:/tmp/localstack
       - /var/run/docker.sock:/var/run/docker.sock

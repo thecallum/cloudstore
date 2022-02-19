@@ -41,33 +41,16 @@ namespace DocumentServiceListener.Tests
           {
 
               services.AddSingleton<IConfiguration>(hostContext.Configuration);
-              // services.ConfigureElasticSearch(hostContext.Configuration);
 
               services.ConfigureAws();
 
-
               services.RemoveAll(typeof(DbContextOptions<DocumentServiceContext>));
 
-              //services.AddScoped<IAmazonS3>(x => new AmazonS3Client());
-
-              //services.AddScoped<IDocumentUploadedUseCase, DocumentUploadedUseCase>();
-              //services.AddScoped<IDocumentDeletedUseCase, DocumentDeletedUseCase>();
-              //services.AddScoped<IDirectoryDeletedUseCase, DirectoryDeletedUseCase>();
-              //services.AddScoped<IAccountDeletedUseCase, AccountDeletedUseCase>();
-
-              //services.AddScoped<IS3Gateway, S3Gateway>();
-              //services.AddScoped<IDocumentGateway, DocumentGateway>();
-
-              //services.AddScoped<IImageFormatter, ImageFormatter>();
-
               ConfigureDbContext(services);
-
-
 
               var serviceProvider = services.BuildServiceProvider();
 
               _services = serviceProvider;
-
 
               InitialiseDB(serviceProvider);
 
