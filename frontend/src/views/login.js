@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Validator from "Validator";
 
 import loginRequest from "../requests/login";
@@ -104,9 +105,30 @@ const Login = ({ history }) => {
 
         <br />
 
-        <button type="submit" class="form">
+       
+
+        <div style={{ 
+         display: "flex", 
+         alignItems: "center", 
+         flexWrap: "wrap",
+         margin: "-15px 0 0 -15px"
+       }}>
+         
+
+        <button type="submit" class="form" style={{
+            margin: "15px 0 0 15px"
+          }}>
           Login
         </button>
+
+          <div style={{
+            margin: "15px 0 0 15px"
+          }}>
+            <Link to="/register/">Register</Link>
+          </div>
+       </div>
+
+
       </form>
     </Layout>
   );

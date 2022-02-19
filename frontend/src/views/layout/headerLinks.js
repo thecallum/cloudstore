@@ -46,7 +46,7 @@ const HeaderLinks = () => {
    return (
     <ul
     style={{
-      margin: 0,
+      margin: "0 -15px 0 0",
       padding: 0,
       display: "flex",
     }}
@@ -56,7 +56,8 @@ const HeaderLinks = () => {
         key={index}
         style={{
           display: "block",
-          marginLeft: "8px",
+          // marginLeft: "8px",
+          margin: "0 15px 0 0"
         }}
       >
         <Link
