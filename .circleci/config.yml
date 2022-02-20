@@ -65,7 +65,6 @@ jobs:
       - run:
           name: terraform init & plan
           command: |
-            cd ./terraform/<<parameters.environment>>/
             terraform get -update=true
             terraform init
       - run:
