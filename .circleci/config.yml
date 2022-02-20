@@ -56,6 +56,28 @@ jobs:
           name: Upload zip to S3
           command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentService.zip s3://terraform-state-cloudstore/DocumentService/DocumentService.zip
 
+  terraform-apply:
+    working_directory: ./terraform
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: terraform init & plan
+          command: |
+            terraform init -input=false
+            terraform plan -out tfapply -var-file variables.tfvars
+
+      - run:
+        name: terraform
+        command: |
+          terraform apply -auto-approve tfapply
+          
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - .
+
   deploy-listener-service:
     executor: windows/default
     steps:
@@ -117,4 +139,5 @@ workflows:
           filters:
             branches:
               only: main
+      - terraform-apply
 
