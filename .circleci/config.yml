@@ -66,8 +66,7 @@ jobs:
           name: terraform init & plan
           command: |
             terraform init -input=false
-            terraform plan -out tfapply -var-file variables.tfvars
-
+            terraform plan -out tfapply
       - run:
           name: terraform
           command: |
@@ -121,23 +120,23 @@ jobs:
 workflows:
   test-and-deploy:
     jobs:
-      # - build-and-test-document-service
-      - build-and-test-listener-service
-      - deploy-document-service
-          # requires:
-          #   - build-and-test-document-service
-          # filters:
-          #   branches:
-          #     only: main
-      - deploy-listener-service:
-          requires:
-            - build-and-test-listener-service
-          filters:
-            branches:
-              only: main
-      - deploy-frontend:
-          filters:
-            branches:
-              only: main
+      # # - build-and-test-document-service
+      # - build-and-test-listener-service
+      # - deploy-document-service
+      #     # requires:
+      #     #   - build-and-test-document-service
+      #     # filters:
+      #     #   branches:
+      #     #     only: main
+      # - deploy-listener-service:
+      #     requires:
+      #       - build-and-test-listener-service
+      #     filters:
+      #       branches:
+      #         only: main
+      # - deploy-frontend:
+      #     filters:
+      #       branches:
+      #         only: main
       - terraform-apply
 
