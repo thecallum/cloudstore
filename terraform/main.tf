@@ -4,15 +4,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.27"
     }
-
-    backend "s3" {
-      bucket = "terraform-state-cloudstore"
-      key    = "terraform/DocumentService/terraform.tfstate"
-      region = "eu-west-1"
-    }
+    required_version = ">= 0.14.9"
   }
 
-  required_version = ">= 0.14.9"
+  backend "s3" {
+    bucket = "terraform-state-cloudstore"
+    key    = "terraform/DocumentService/terraform.tfstate"
+    region = "eu-west-1"
+  }
 }
 
 provider "aws" {
