@@ -57,17 +57,19 @@ jobs:
           command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentService.zip s3://terraform-state-cloudstore/DocumentService/DocumentService.zip
 
   terraform-apply:
-    working_directory: ./terraform
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
+      # -*attach_workspace 
       - checkout
       - run:
+          working_directory: ./terraform
           name: terraform init & plan
           command: |
             terraform get -update=true
             terraform init
       - run:
+          working_directory: ./terraform
           name: terraform
           command: |
             terraform apply -auto-approve
