@@ -65,12 +65,13 @@ jobs:
       - run:
           name: terraform init & plan
           command: |
-            terraform init -input=false
-            terraform plan -out tfapply
+            cd ./terraform/<<parameters.environment>>/
+            terraform get -update=true
+            terraform init
       - run:
           name: terraform
           command: |
-            terraform apply -auto-approve tfapply
+            terraform apply -auto-approve
 
       # - persist_to_workspace:
       #     root: .
