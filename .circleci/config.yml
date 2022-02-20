@@ -72,7 +72,7 @@ jobs:
           working_directory: ./terraform
           name: terraform
           command: |
-            terraform apply -auto-approve
+            terraform apply -auto-approve -var="DatabaseConnectionString=<< var.DatabaseConnectionString >>" -var="SECRET=<< var.SECRET >>"
 
       # - persist_to_workspace:
       #     root: .
