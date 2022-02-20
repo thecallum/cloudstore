@@ -69,10 +69,10 @@ jobs:
             terraform plan -out tfapply -var-file variables.tfvars
 
       - run:
-        name: terraform
-        command: |
-          terraform apply -auto-approve tfapply
-          
+          name: terraform
+          command: |
+            terraform apply -auto-approve tfapply
+
       # - persist_to_workspace:
       #     root: .
       #     paths:
