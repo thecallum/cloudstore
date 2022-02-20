@@ -43,10 +43,19 @@ jobs:
       - run:
           name: install-aws-extensions
           command: dotnet tool install -g Amazon.Lambda.Tools
+      # - run:
+      #     working_directory: ./backend/document-service/DocumentService/DocumentService
+      #     name: deploy
+      #     command: dotnet-lambda deploy-function --function-name DocumentService
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
-          name: deploy
-          command: dotnet-lambda deploy-function --function-name DocumentService
+          name: publish
+          command: dotnet lambda package
+      - run:
+          working_directory: ./backend/document-service/DocumentService/DocumentService
+          name: Upload zip to S3
+          command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentService.zip s3://terraform-state-cloudstore/DocumentService/DocumentService.zip
+
   deploy-listener-service:
     executor: windows/default
     steps:
@@ -90,14 +99,14 @@ jobs:
 workflows:
   test-and-deploy:
     jobs:
-      - build-and-test-document-service
+      # - build-and-test-document-service
       - build-and-test-listener-service
-      - deploy-document-service:
-          requires:
-            - build-and-test-document-service
-          filters:
-            branches:
-              only: main
+      - deploy-document-service
+          # requires:
+          #   - build-and-test-document-service
+          # filters:
+          #   branches:
+          #     only: main
       - deploy-listener-service:
           requires:
             - build-and-test-listener-service
