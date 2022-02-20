@@ -74,11 +74,6 @@ jobs:
           command: |
             terraform apply -auto-approve -var="DatabaseConnectionString=${DatabaseConnectionString}" -var="SECRET=${SECRET}"
 
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - .
-
   deploy-listener-service:
     executor: windows/default
     steps:
@@ -122,23 +117,30 @@ jobs:
 workflows:
   test-and-deploy:
     jobs:
-      # # - build-and-test-document-service
-      # - build-and-test-listener-service
-      # - deploy-document-service
-      #     # requires:
-      #     #   - build-and-test-document-service
-      #     # filters:
-      #     #   branches:
-      #     #     only: main
-      # - deploy-listener-service:
-      #     requires:
-      #       - build-and-test-listener-service
-      #     filters:
-      #       branches:
-      #         only: main
-      # - deploy-frontend:
-      #     filters:
-      #       branches:
-      #         only: main
-      - terraform-apply
+      - build-and-test-document-service
+      - build-and-test-listener-service
+      - deploy-document-service:
+          requires:
+            - build-and-test-document-service
+          filters:
+            branches:
+              only: main
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
+          filters:
+            branches:
+              only: main
+      - deploy-frontend:
+          filters:
+            branches:
+              only: main
+      - terraform-apply:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
+          filters:
+            branches:
+              only: main
+
 
