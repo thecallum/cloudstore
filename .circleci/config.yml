@@ -43,10 +43,6 @@ jobs:
       - run:
           name: install-aws-extensions
           command: dotnet tool install -g Amazon.Lambda.Tools
-      # - run:
-      #     working_directory: ./backend/document-service/DocumentService/DocumentService
-      #     name: deploy
-      #     command: dotnet-lambda deploy-function --function-name DocumentService
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: publish
@@ -55,6 +51,23 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: Upload zip to S3
           command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentService.zip s3://terraform-state-cloudstore/DocumentService/DocumentService.zip
+
+  deploy-listener-service:
+    executor: windows/default
+    steps:
+      - checkout
+      - run:
+          name: install-aws-extensions
+          command: dotnet tool install -g Amazon.Lambda.Tools
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: publish
+          command: dotnet lambda package
+      - run:
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: Upload zip to S3
+          command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip
+
 
   terraform-apply:
     docker:
@@ -74,17 +87,6 @@ jobs:
           command: |
             terraform apply -auto-approve -var="DatabaseConnectionString=${DatabaseConnectionString}" -var="SECRET=${SECRET}"
 
-  deploy-listener-service:
-    executor: windows/default
-    steps:
-      - checkout
-      - run:
-          name: install-aws-extensions
-          command: dotnet tool install -g Amazon.Lambda.Tools
-      - run:
-          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
-          name: deploy
-          command: dotnet-lambda deploy-function --function-name DocumentServiceListener
   deploy-frontend:
     docker:
       - image: circleci/node:10.16.3
@@ -132,6 +134,9 @@ workflows:
             branches:
               only: main
       - deploy-frontend:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
           filters:
             branches:
               only: main
