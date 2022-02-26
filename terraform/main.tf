@@ -52,7 +52,7 @@ resource "aws_lambda_function" "DocumentService" {
       ASPNETCORE_ENVIRONMENT = "Production"
       DatabaseConnectionString = var.DatabaseConnectionString
       SECRET = var.SECRET
-      SNS_TOPIC_ARN = "arn:aws:sns:eu-west-1:714664911966:DocumentService.fifo"
+      SNS_TOPIC_ARN = aws_sns_topic.DocumentService.arn
     }
   }
 }
