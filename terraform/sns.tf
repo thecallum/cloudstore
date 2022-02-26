@@ -13,6 +13,7 @@ resource "aws_sqs_queue" "DocumentService" {
   max_message_size          = 262144 
   message_retention_seconds = 86400 # 1 day
   receive_wait_time_seconds = 0
+  visibility_timeout_seconds = 500
  
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.DocumentServiceDLQ.arn
