@@ -20,7 +20,7 @@ resource "aws_lambda_function" "DocumentServiceListener" {
   environment {
     variables = {
       ASPNETCORE_ENVIRONMENT = "Production"
-      DatabaseConnectionString = var.DatabaseConnectionString
+      CONNECTION_STRING = var.DatabaseConnectionString
     }
   }
 }
