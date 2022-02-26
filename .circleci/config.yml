@@ -113,39 +113,36 @@ jobs:
           name: invalidate-cloudfront
           command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
 
-
- 
-
 workflows:
   test-and-deploy:
     jobs:
-      # - build-and-test-document-service
-      # - build-and-test-listener-service
-      # - deploy-document-service:
-      #     requires:
-      #       - build-and-test-document-service
-      #     filters:
-      #       branches:
-      #         only: main
-      # - deploy-listener-service:
-      #     requires:
-      #       - build-and-test-listener-service
-      #     filters:
-      #       branches:
-      #         only: main
-      # - deploy-frontend:
-      #     requires:
-      #       - deploy-document-service
-      #       - deploy-listener-service
-      #     filters:
-      #       branches:
-      #         only: main
-      - terraform-apply
-          # requires:
-          #   - deploy-document-service
-          #   - deploy-listener-service
-          # filters:
-          #   branches:
-          #     only: main
+      - build-and-test-document-service
+      - build-and-test-listener-service
+      - deploy-document-service:
+          requires:
+            - build-and-test-document-service
+          filters:
+            branches:
+              only: main
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
+          filters:
+            branches:
+              only: main
+      - deploy-frontend:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
+          filters:
+            branches:
+              only: main
+      - terraform-apply:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
+          filters:
+            branches:
+              only: main
 
 
