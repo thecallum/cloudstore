@@ -132,6 +132,9 @@ workflows:
             branches:
               only: main
       - deploy-frontend:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
           filters:
             branches:
               only: main
