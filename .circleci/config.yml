@@ -113,9 +113,6 @@ jobs:
           name: invalidate-cloudfront
           command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
 
-
- 
-
 workflows:
   test-and-deploy:
     jobs:

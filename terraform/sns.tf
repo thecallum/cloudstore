@@ -13,6 +13,7 @@ resource "aws_sqs_queue" "DocumentService" {
   max_message_size          = 262144 
   message_retention_seconds = 86400 # 1 day
   receive_wait_time_seconds = 0
+  visibility_timeout_seconds = 300
  
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.DocumentServiceDLQ.arn
@@ -29,6 +30,34 @@ resource "aws_sqs_queue" "DocumentServiceDLQ" {
   message_retention_seconds = 1209600 # 14 days
   receive_wait_time_seconds = 0
 }
+
+resource "aws_sqs_queue_policy" "test" {
+  queue_url = aws_sqs_queue.DocumentService.id
+
+  policy = <<POLICY
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "sns.amazonaws.com"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "${aws_sqs_queue.DocumentService.arn}",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "${aws_sns_topic.DocumentService.arn}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+#
+
 
 resource "aws_sns_topic_subscription" "DocumentServiceSubsciption" {
   topic_arn = aws_sns_topic.DocumentService.arn
