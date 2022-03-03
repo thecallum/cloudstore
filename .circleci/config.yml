@@ -48,7 +48,7 @@ jobs:
           name: publish
           command: dotnet lambda package
 
-      - run: oCertuntil -hashfile .\bin\Release\netcoreapp3.1\DocumentService.zip > lambda_function_payload.zip.base64sha256
+      - run: Certuntil -hashfile .\bin\Release\netcoreapp3.1\DocumentService.zip > lambda_function_payload.zip.base64sha256
       - run: aws s3 cp --content-type text/plain lambda_function_payload.zip.base64sha256 s3://terraform-state-cloudstore/lambda_function_payload.zip.base64sha256
 
     
