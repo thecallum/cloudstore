@@ -1,4 +1,9 @@
 
+data "aws_s3_bucket_object" "test_lambda_function_hash" {
+  bucket = "terraform-state-cloudstore"
+  key    = "/lambda_function_payload.zip.base64sha256"
+}
+
 resource "aws_lambda_function" "DocumentService" {
   function_name = "DocumentService"
   role = "arn:aws:iam::714664911966:role/DocumentServiceRole"
@@ -12,6 +17,8 @@ resource "aws_lambda_function" "DocumentService" {
 
   timeout = 300
   memory_size = 256
+
+  source_code_hash = "<source-code-hash>"
 
   environment {
     variables = {

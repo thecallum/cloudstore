@@ -47,6 +47,13 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: publish
           command: dotnet lambda package
+
+      - run: "openssl dgst -sha256 -binary .\bin\Release\netcoreapp3.1\DocumentService.zip | openssl enc -base64 | tr -d "\n" > lambda_function_payload.zip.base64sha256"
+      - run: "aws s3 cp --content-type text/plain lambda_function_payload.zip.base64sha256 s3://terraform-state-cloudstore/lambda_function_payload.zip.base64sha256"
+
+
+      
+
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: Upload zip to S3
