@@ -65,6 +65,8 @@ namespace DocumentService.Tests
 
         private void EnsureBucketExists()
         {
+            Environment.SetEnvironmentVariable("S3_BUCKET_NAME", "uploadfromcs");
+
             try
             {
                 S3Client.PutBucketAsync(new PutBucketRequest
