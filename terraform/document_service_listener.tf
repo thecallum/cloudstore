@@ -17,9 +17,6 @@ resource "aws_lambda_function" "DocumentServiceListener" {
       ASPNETCORE_ENVIRONMENT = "Production"
       CONNECTION_STRING = var.DatabaseConnectionString
       S3_BUCKET_BASE_PATH = "https://${aws_s3_bucket.S3.bucket}.s3.${data.aws_region.current}.amazonaws.com/thumbnails"
-      
-      
-
     }
   }
 }
