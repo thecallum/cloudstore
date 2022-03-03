@@ -13,7 +13,7 @@ namespace DocumentServiceListener.Gateways
     public class DocumentGateway : IDocumentGateway
     {
         private readonly DocumentServiceContext _documentStorageContext;
-        private const string S3BaseThumbnailPath = "https://uploadfromcs.s3.eu-west-1.amazonaws.com/thumbnails";
+        private readonly string _s3BaseThumbnailPath = Environment.GetEnvironmentVariable("S3_BUCKET_BASE_PATH");
 
         public DocumentGateway(DocumentServiceContext documentStorageContext)
         {
@@ -27,7 +27,7 @@ namespace DocumentServiceListener.Gateways
             var document = await LoadDocument(userId, documentId);
             if (document == null) throw new DocumentDbNotFoundException(userId, documentId);
             
-            var newPath = $"{S3BaseThumbnailPath}/{userId}/{documentId}";
+            var newPath = $"{_s3BaseThumbnailPath}/{userId}/{documentId}";
 
             Console.WriteLine($"Saving Thumbnail: {newPath}");
 

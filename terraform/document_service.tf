@@ -19,6 +19,7 @@ resource "aws_lambda_function" "DocumentService" {
       DatabaseConnectionString = var.DatabaseConnectionString
       SECRET = var.SECRET
       SNS_TOPIC_ARN = aws_sns_topic.DocumentService.arn
+      S3_BUCKET_NAME = aws_s3_bucket.S3.bucket
     }
   }
 }
