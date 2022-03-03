@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "document_storage" {
-  bucket = "CloudStoreDocumentStorage"
+  bucket = "cloudstore-document-storage"
   acl    = "public-read"
 
   tags = {
