@@ -80,6 +80,8 @@ namespace DocumentServiceListener.Tests
 
         private void EnsureBucketExists()
         {
+            Environment.SetEnvironmentVariable("S3_BUCKET_BASE_PATH", "https://uploadfromcs.s3.eu-west-1.amazonaws.com/thumbnails");
+
             try
             {
                 S3Client.PutBucketAsync(new PutBucketRequest
