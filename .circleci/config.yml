@@ -137,12 +137,12 @@ workflows:
           filters:
             branches:
               only: main
-      - terraform-apply:
-          requires:
-            - deploy-document-service
-            - deploy-listener-service
-          filters:
-            branches:
-              only: main
+      - terraform-apply
+          # requires:
+          #   - deploy-document-service
+          #   - deploy-listener-service
+          # filters:
+          #   branches:
+          #     only: main
 
 
