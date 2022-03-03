@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "document_storage" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "POST", "GET"]
-    allowed_origins = ["https://cloudstore.thecallum.com"]
+    allowed_origins = ["*"]
     expose_headers  = []
     max_age_seconds = 3000
   }
