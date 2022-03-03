@@ -14,7 +14,7 @@ namespace DocumentService.Gateways
         private readonly string _bucketName;
         public S3Gateway(IAmazonS3 amazonS3)
         {
-            _bucketName = "uploadfromcs";
+            _bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME");
             _amazonS3 = amazonS3;
         }
 
