@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "allow_thumbnail_get" {
     ]
 
     resources = [
-      "${ aws_s3_bucket.document_storage.arn}/thumbnails/*",
+      "${aws_s3_bucket.document_storage.arn}/thumbnails/*",
     ]
   }
 }
