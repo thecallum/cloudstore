@@ -47,6 +47,8 @@ namespace DocumentService.Gateways
         {
             LogHelper.LogGateway("S3Gateway", "GetDocumentUploadPresignedUrl");
 
+            Console.WriteLine($"S3Bucket {_bucketName}");
+
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
