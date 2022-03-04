@@ -26,7 +26,7 @@ namespace DocumentService.Services
             var token = JwtBuilder.Create()
                 .WithAlgorithm(_algorithm)
                 .WithSecret(_secret)
-                .AddClaim("exp", DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds())
+                .AddClaim("exp", DateTimeOffset.UtcNow.AddHours(4).ToUnixTimeSeconds())
                 .AddClaim("id", user.Id)
                 .AddClaim("firstName", user.FirstName)
                 .AddClaim("lastName", user.LastName)
