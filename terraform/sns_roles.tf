@@ -6,6 +6,30 @@ resource "aws_iam_role" "sns_feedback_role" {
         "Statement": [
             {
             "Sid": "Stmt1646404052824",
+            # "Action": [
+            #     "logs:CreateLogGroup",
+            #     "logs:CreateLogStream",
+            #     "logs:PutLogEvents",
+            #     "logs:PutMetricFilter",
+            #     "logs:PutRetentionPolicy"
+            # ],
+            "Action": "sts:AssumeRole",
+            "Effect": "Allow",
+            "Resource": "*"
+            }
+        ]
+    })
+}
+
+resource "aws_iam_policy" "sns_feedback_policy" {
+  name        = "sns_feedback_policy"
+  description = "Give SNS topic within CloudStore permission to create logs"
+
+  policy = jsonencode({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Sid": "Stmt1646404052824",
             "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
@@ -20,25 +44,7 @@ resource "aws_iam_role" "sns_feedback_role" {
     })
 }
 
-# resource "aws_iam_role" "sns_success_feedback_role" {
-#   name = "sns_success_feedback_role"
-
-#   assume_role_policy = jsonencode({
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#         "Effect": "Allow",
-#         "Action": [
-#             "logs:CreateLogGroup",
-#             "logs:CreateLogStream",
-#             "logs:PutLogEvents",
-#             "logs:PutMetricFilter",
-#             "logs:PutRetentionPolicy"
-#         ],
-#         "Resource": [
-#             "*"
-#         ]
-#         }
-#     ]
-#   })
-# }
+resource "aws_iam_role_policy_attachment" "sns_feedback_policy" {
+   role       = "${aws_iam_role.sns_feedback_role.name}"
+   policy_arn = "${aws_iam_policy.sns_feedback_policy.arn}"
+}
