@@ -5,7 +5,6 @@ data "aws_s3_bucket_object" "document_service_hash" {
 
 resource "aws_lambda_function" "DocumentService" {
   function_name = "DocumentService"
-  #role = "arn:aws:iam::714664911966:role/DocumentServiceRole"
   role = aws_iam_role.document_service_role.arn
   handler = "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
   runtime = "dotnetcore3.1"
@@ -13,7 +12,7 @@ resource "aws_lambda_function" "DocumentService" {
   s3_bucket = "terraform-state-cloudstore"
   s3_key = "DocumentService/DocumentService.zip"
 
-  description = "description..."
+  description = "API endpoint for CloudStore"
 
   timeout = 300
   memory_size = 256
@@ -29,36 +28,6 @@ resource "aws_lambda_function" "DocumentService" {
       S3_BUCKET_NAME = aws_s3_bucket.document_storage.bucket
     }
   }
-}
-
-resource "aws_iam_role" "document_service_role" {
-  name = "document_service_role"
-
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "sts:AssumeRole"
-            ],
-            "Principal": {
-                "Service": [
-                    "lambda.amazonaws.com"
-                ]
-            }
-        }
-    ]
-  })
-}
-
-data "aws_iam_policy" "AWSLambdaBasicExecutionRole" {
-  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
-resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
-   role       = "${aws_iam_role.document_service_role.name}"
-   policy_arn = "${data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn}"
 }
 
 resource "aws_lambda_permission" "apigw" {

@@ -5,14 +5,14 @@ data "aws_s3_bucket_object" "document_service_listener_hash" {
 
 resource "aws_lambda_function" "DocumentServiceListener" {
   function_name = "DocumentServiceListener"
-  role = "arn:aws:iam::714664911966:role/DocumentServiceListenerRole"
+  role = aws_iam_role.document_service_listener_role.arn
   handler = "DocumentServiceListener::DocumentServiceListener.LambdaEntryPoint::FunctionHandler"
   runtime = "dotnetcore3.1"
 
   s3_bucket = "terraform-state-cloudstore"
   s3_key = "DocumentServiceListener/DocumentServiceListener.zip"
 
-  description = "description..."
+  description = "Listener endpoint for CloudStore"
 
   timeout = 300
   memory_size = 256
