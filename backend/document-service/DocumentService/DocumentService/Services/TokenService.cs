@@ -39,14 +39,14 @@ namespace DocumentService.Services
 
         public User DecodeToken(string token)
         {
-            var payload = JwtBuilder.Create()
+            try
+            {
+                var payload = JwtBuilder.Create()
                 .WithAlgorithm(_algorithm)
                 .Decode<IDictionary<string, object>>(token);
 
-            if (payload == null) return null;
+                if (payload == null) return null;
 
-            try
-            {
                 return new User
                 {
                     Id = Guid.Parse((string)payload["id"]),

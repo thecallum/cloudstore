@@ -55,12 +55,11 @@ namespace DocumentService
             services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
             services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+            services.AddTransient<ITokenService, TokenService>();
+
             ConfigureDbContext(services);
 
             services.AddControllers();
-
-            // random change
-
             services.ConfigureAws();
 
             SetupGateways(services);
@@ -125,11 +124,10 @@ namespace DocumentService
 
             app.UseAuthorization();
 
-            app.UseTokenMiddleware();
+            app.UseAuthMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
-
                 endpoints.MapControllers();
                 endpoints.MapGet("/", async context =>
                 {
