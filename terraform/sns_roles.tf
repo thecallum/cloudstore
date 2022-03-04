@@ -12,8 +12,8 @@ resource "aws_iam_role" "sns_feedback_role" {
                 "logs:PutLogEvents",
                 "logs:PutMetricFilter",
                 "logs:PutRetentionPolicy"
-            ],
-            "Resource": "*"
+            ]
+            # "Resource": "*"
         }
     ]
   })
