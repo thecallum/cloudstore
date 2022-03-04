@@ -128,39 +128,39 @@ jobs:
 workflows:
   test-and-deploy:
     jobs:
-      # - build-and-test-document-service
-      # - build-and-test-listener-service
-      # - deploy-document-service:
-      #     requires:
-      #       - build-and-test-document-service
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - terraform-2
-      # - deploy-listener-service:
-      #     requires:
-      #       - build-and-test-listener-service
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - terraform-2
-      # - deploy-frontend:
-      #     requires:
-      #       - deploy-document-service
-      #       - deploy-listener-service
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - terraform-2
-      - terraform-apply
-          # requires:
-          #   - deploy-document-service
-          #   - deploy-listener-service
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
-          #       - terraform-2
+      - build-and-test-document-service
+      - build-and-test-listener-service
+      - deploy-document-service:
+          requires:
+            - build-and-test-document-service
+          filters:
+            branches:
+              only:
+                - main
+                # - terraform-2
+      - deploy-listener-service:
+          requires:
+            - build-and-test-listener-service
+          filters:
+            branches:
+              only:
+                - main
+                # - terraform-2
+      - deploy-frontend:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
+          filters:
+            branches:
+              only:
+                - main
+                # - terraform-2
+      - terraform-apply:
+          requires:
+            - deploy-document-service
+            - deploy-listener-service
+          filters:
+            branches:
+              only:
+                - main
+                # - terraform-2
