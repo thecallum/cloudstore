@@ -38,6 +38,7 @@ jobs:
           command: docker-compose run listener-tests
   deploy-document-service:
     executor: windows/default
+    shell: powershell.exe
     steps:
       - checkout
       - run:
@@ -48,7 +49,7 @@ jobs:
           name: publish
           command: dotnet lambda package
 
-      - run: SignTool.exe sign /a /fd SHA256 .\bin\Release\netcoreapp3.1\DocumentService.zip > lambda_function_payload.zip.base64sha256
+      - run: Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > lambda_function_payload.zip.base64sha256
       - run: aws s3 cp --content-type text/plain lambda_function_payload.zip.base64sha256 s3://terraform-state-cloudstore/lambda_function_payload.zip.base64sha256
 
     
