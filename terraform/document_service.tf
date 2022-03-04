@@ -17,7 +17,7 @@ resource "aws_lambda_function" "DocumentService" {
   timeout = 300
   memory_size = 256
 
-  source_code_hash = data.document_service_hash.test_lambda_function_hash
+  source_code_hash = data.aws_s3_bucket_object.document_service_hash
 
   environment {
     variables = {
