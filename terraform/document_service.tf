@@ -34,24 +34,22 @@ resource "aws_lambda_function" "DocumentService" {
 resource "aws_iam_role" "document_service_role" {
   name = "document_service_role"
 
-  assume_role_policy = <<EOF
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "sts:AssumeRole"
-                ],
-                "Principal": {
-                    "Service": [
-                        "lambda.amazonaws.com"
-                    ]
-                }
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sts:AssumeRole"
+            ],
+            "Principal": {
+                "Service": [
+                    "lambda.amazonaws.com"
+                ]
             }
-        ]
-    }
-  EOF
+        }
+    ]
+  })
 }
 
 data "aws_iam_policy" "AWSLambdaBasicExecutionRole" {
