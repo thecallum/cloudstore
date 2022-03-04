@@ -34,5 +34,5 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   event_source_arn = aws_sqs_queue.DocumentService.arn
   enabled          = true
   function_name    = aws_lambda_function.DocumentServiceListener.arn
-  batch_size       = 10
+  batch_size       = 1
 }
