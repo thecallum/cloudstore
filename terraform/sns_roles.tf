@@ -9,7 +9,11 @@ resource "aws_iam_role" "sns_feedback_role" {
                 "Action": "sts:AssumeRole",
                 "Effect": "Allow",
                 # "Resource": "*",
-                "Principal": "*"
+                  "Principal": {
+                    "Service": [
+                    "sns.amazonaws.com"
+                    ]
+                },
             }
         ]
     })
