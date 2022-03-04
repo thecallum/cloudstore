@@ -1,9 +1,7 @@
-﻿using DocumentService.Middleware;
+﻿using DocumentService.Domain;
+using DocumentService.Middleware;
+using DocumentService.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.Tests.Helpers
 {
@@ -23,7 +21,7 @@ namespace DocumentService.Tests.Helpers
 
         public static string CreateToken(User user)
         {
-            var tokenService = new TokenService.TokenService("askdjhaskjdasjkldasjkd");
+            var tokenService = new TokenService("askdjhaskjdasjkldasjkd");
 
             return tokenService.CreateToken(user);
         }

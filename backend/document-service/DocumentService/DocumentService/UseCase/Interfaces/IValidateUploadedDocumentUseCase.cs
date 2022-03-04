@@ -4,8 +4,6 @@ using DocumentService.Domain;
 using DocumentService.Infrastructure;
 using System;
 using System.Threading.Tasks;
-using TokenService.Models;
-using User = TokenService.Models.User;
 
 namespace DocumentService.UseCase.Interfaces
 {

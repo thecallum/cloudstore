@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using TokenService.Models;
+﻿using DocumentService.Domain;
+using System.Collections.Generic;
 
 namespace DocumentService.Gateways
 {

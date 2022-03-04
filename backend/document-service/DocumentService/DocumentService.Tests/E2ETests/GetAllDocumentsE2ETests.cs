@@ -76,7 +76,7 @@ namespace DocumentService.Tests.E2ETests
             var uri = new Uri($"/api/document/", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
             message.Method = HttpMethod.Get;
-            message.Headers.Add(TokenService.Constants.AuthToken, _token);
+            message.Headers.Add("Authorization", _token);
 
            // message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 

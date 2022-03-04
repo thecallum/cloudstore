@@ -10,8 +10,6 @@ using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
-using TokenService.Models;
-using User = TokenService.Models.User;
 
 namespace DocumentService.UseCase
 {

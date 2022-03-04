@@ -11,9 +11,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using TokenService;
-using TokenService.Models;
 using Xunit;
+using DocumentService.Services;
+using DocumentService.Domain;
 
 namespace DocumentService.TestsController
 {
@@ -63,7 +63,7 @@ namespace DocumentService.TestsController
 
             // Assert
             result.Should().BeOfType(typeof(NotFoundObjectResult));
-            _authController.Response.Headers.Should().NotContainKey(Constants.AuthToken);
+            _authController.Response.Headers.Should().NotContainKey("Authorization");
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace DocumentService.TestsController
 
             // Assert
             result.Should().BeOfType(typeof(UnauthorizedResult));
-            _authController.Response.Headers.Should().NotContainKey(Constants.AuthToken);
+            _authController.Response.Headers.Should().NotContainKey("Authorization");
         }
 
         [Fact]
@@ -100,14 +100,14 @@ namespace DocumentService.TestsController
 
             // setup jwtService to return custom token
             var tokenToReturn = _fixture.Create<string>();
-            _mockJWTService.Setup(x => x.CreateToken(It.IsAny<TokenService.Models.User>())).Returns(tokenToReturn);
+            _mockJWTService.Setup(x => x.CreateToken(It.IsAny<User>())).Returns(tokenToReturn);
 
             // Act
             var result = await _authController.Login(requestObject);
 
             // Assert
             result.Should().BeOfType(typeof(OkResult));
-            _authController.Response.Headers[Constants.AuthToken].Should().Equal(tokenToReturn);
+            _authController.Response.Headers["Authorization"].Should().Equal(tokenToReturn);
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace DocumentService.TestsController
         public async Task Delete_WhenUserDoesntExist_Returns404NotFound()
         {
             // Arrange    
-            var mockPayload = _fixture.Create<TokenService.Models.User>();
+            var mockPayload = _fixture.Create<User>();
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid
@@ -205,7 +205,7 @@ namespace DocumentService.TestsController
         public async Task Delete_WhenCalled_Returns201NoContent()
         {
             // Arrange    
-            var mockPayload = _fixture.Create<TokenService.Models.User>();
+            var mockPayload = _fixture.Create<User>();
             var mockToken = _fixture.Create<string>();
 
             // setup hashservice to return password is valid

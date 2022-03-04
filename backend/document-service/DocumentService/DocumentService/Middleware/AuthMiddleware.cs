@@ -1,32 +1,32 @@
 ﻿using Amazon.Lambda.Core;
+using DocumentService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TokenService;
 
 namespace DocumentService.Middleware
 {
-    public class TokenMiddleware
+    public class AuthMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public TokenMiddleware(RequestDelegate next)
+        public AuthMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
-            var tokenService = new TokenService.TokenService();
+            var tokenService = new TokenService();
 
             LambdaLogger.Log("Calling TokenMiddleware Invoke");
 
             try
             {
-                var tokenValue = httpContext.Request.Headers[TokenService.Constants.AuthToken];
+                var tokenValue = httpContext.Request.Headers["Authorization"];
 
                 LambdaLogger.Log("tokenValue: " + tokenValue);
 
@@ -58,7 +58,7 @@ namespace DocumentService.Middleware
     {
         public static IApplicationBuilder UseTokenMiddleware(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<TokenMiddleware>();
+            return builder.UseMiddleware<AuthMiddleware>();
         }
     }
 }

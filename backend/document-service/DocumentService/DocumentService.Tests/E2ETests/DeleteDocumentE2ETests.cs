@@ -77,7 +77,7 @@ namespace DocumentService.Tests.E2ETests
             var uri = new Uri($"/api/document/{documentId}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
             message.Method = HttpMethod.Delete;
-            message.Headers.Add(TokenService.Constants.AuthToken, _token);
+            message.Headers.Add("Authorization", _token);
 
 
             // call request

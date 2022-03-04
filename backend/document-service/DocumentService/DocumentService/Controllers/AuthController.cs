@@ -4,10 +4,10 @@ using DocumentService.Encryption;
 using DocumentService.Factories;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
+using DocumentService.Services;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TokenService;
 
 namespace DocumentService.Controllers
 {
@@ -56,7 +56,7 @@ namespace DocumentService.Controllers
 
             var payload = user.ToPayload();
             var token = _tokenService.CreateToken(payload);
-            Response.Headers.Add(TokenService.Constants.AuthToken, token);
+            Response.Headers.Add("Authorization", token);
 
             return Ok();
         }

@@ -35,9 +35,4 @@
   <ItemGroup>
     <ProjectReference Include="..\DocumentService\DocumentService.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="TokenService">
-      <HintPath>..\External\TokenService.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>

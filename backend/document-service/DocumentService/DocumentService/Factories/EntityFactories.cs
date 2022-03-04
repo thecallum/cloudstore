@@ -90,9 +90,9 @@ namespace DocumentService.Factories
             };
         }
 
-        public static TokenService.Models.User ToPayload(this UserDb user)
+        public static User ToPayload(this UserDb user)
         {
-            return new TokenService.Models.User
+            return new User
             {
                 Id = user.Id,
                 Email = user.Email,
