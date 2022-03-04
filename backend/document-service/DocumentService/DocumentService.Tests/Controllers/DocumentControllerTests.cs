@@ -149,7 +149,7 @@ namespace DocumentService.Tests.Controllers
             var exception = new DocumentNotFoundException();
 
             _mockDeleteDocumentUseCase
-                .Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<User>(), It.IsAny<Guid>()))
                 .ThrowsAsync(exception);
 
             // Act
