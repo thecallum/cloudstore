@@ -52,7 +52,7 @@ jobs:
       - run: 
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: Generate hash
-          run: |
+          command: |
             Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentService.zip.hash
             aws s3 cp --content-type text/plain DocumentService.zip.hash s3://terraform-state-cloudstore/DocumentService/DocumentService.zip.hash
       - run:
@@ -75,7 +75,7 @@ jobs:
       - run: 
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: Generate hash
-          run: |
+          command: |
             Get-FileHash .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentServiceListener.zip.hash
             aws s3 cp --content-type text/plain DocumentServiceListener.zip.hash s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip.hash
       - run:
