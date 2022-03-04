@@ -1,3 +1,8 @@
+data "aws_s3_bucket_object" "document_service_listener_hash" {
+  bucket = "terraform-state-cloudstore"
+  key    = "/DocumentServiceListener/DocumentServiceListener.zip.hash"
+}
+
 resource "aws_lambda_function" "DocumentServiceListener" {
   function_name = "DocumentServiceListener"
   role = "arn:aws:iam::714664911966:role/DocumentServiceListenerRole"
@@ -11,6 +16,8 @@ resource "aws_lambda_function" "DocumentServiceListener" {
 
   timeout = 300
   memory_size = 256
+
+  source_code_hash = data.document_service_listener_hash.test_lambda_function_hash
 
   environment {
     variables = {
