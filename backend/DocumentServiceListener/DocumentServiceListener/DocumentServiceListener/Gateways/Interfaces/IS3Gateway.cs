@@ -9,5 +9,6 @@ namespace AWSServerless1.Gateways
         Task<ObjectMetadata> GetObjectMetadata(string key);
         Task<DownloadedImage> DownloadImage(string key);
         Task SaveThumbnail(string key, string contentType, MemoryStream outStream);
+        Task DeleteThumbnail(string key);
     }
 }

@@ -22,23 +22,39 @@ namespace DocumentService.Gateways
             _SNSService = snsService;
 
             SnsTopicArn = Environment.GetEnvironmentVariable("SNS_TOPIC_ARN");
-            // "arn:aws:sns:eu-west-1:714664911966:DocumentService.fifo"
         }
 
         public async Task PublishDocumentUploadedEvent(User user, Guid documentId)
         {
-            // build event
+            Console.WriteLine("Publishing DocumentUploadedEvent");
 
-            Console.WriteLine($"Calling SNSGateway for [user: {user?.Id}] [document: {documentId}]");
+            var body = new Dictionary<string, object>()
+            {
+                { "DocumentId", documentId.ToString() }
+            };
 
+            await PublishEvent(user, body, EventNames.DocumentUploaded);
+        }
+
+        public async Task PublishDocumentDeletedEvent(User user, Guid documentId)
+        {
+            Console.WriteLine("Publishing DocumentDeletedEvent");
+
+            var body = new Dictionary<string, object>()
+            {
+                { "DocumentId", documentId.ToString() }
+            };
+
+            await PublishEvent(user, body, EventNames.DocumentDeleted);
+        }
+
+        private async Task PublishEvent(User user, Dictionary<string, object> body, string eventName)
+        {
             var CSEvent = new CloudStoreSnsEvent()
             {
-                EventName = EventNames.DocumentUploaded,
+                EventName = eventName,
                 User = user,
-                Body = new Dictionary<string, object>()
-                {
-                    { "DocumentId", documentId.ToString() }
-                }
+                Body = body
             };
 
             var msgBody = JsonSerializer.Serialize(CSEvent, _jsonOptions);
@@ -48,10 +64,6 @@ namespace DocumentService.Gateways
                 TopicArn = SnsTopicArn,
                 MessageGroupId = MessageGroupId
             };
-
-            // publish event
-
-            Console.WriteLine("Publishing DocumentUploadedEvent");
 
             await _SNSService.PublishAsync(request);
         }

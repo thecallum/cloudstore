@@ -21,6 +21,7 @@ namespace DocumentService.Tests.UseCase
         private readonly IDeleteDocumentUseCase _deleteDocumentUseCase;
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
+        private readonly Mock<ISnsGateway> _mockSnsGateway;
 
         private readonly Fixture _fixture = new Fixture();
 
@@ -28,17 +29,19 @@ namespace DocumentService.Tests.UseCase
         {
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
+            _mockSnsGateway = new Mock<ISnsGateway>();
 
             _deleteDocumentUseCase = new DeleteDocumentUseCase(
                 _mockS3Gateway.Object,
-                _mockDocumentGateway.Object);
+                _mockDocumentGateway.Object,
+                _mockSnsGateway.Object);
         }
 
         [Fact]
         public async Task DeleteDocument_WhenDocumentDoesntExist_ThrowsException()
         {
             // Arrange
-            var userId = Guid.NewGuid();
+            var user = _fixture.Create<User>();
             var documentId = Guid.NewGuid();
 
             var exception = new DocumentNotFoundException();
@@ -48,7 +51,7 @@ namespace DocumentService.Tests.UseCase
                 .ThrowsAsync(exception);
 
             // Act
-            Func<Task> func = async () => await _deleteDocumentUseCase.Execute(userId, documentId);
+            Func<Task> func = async () => await _deleteDocumentUseCase.Execute(user, documentId);
 
             // Assert
             await func.Should().ThrowAsync<DocumentNotFoundException>();
@@ -60,6 +63,7 @@ namespace DocumentService.Tests.UseCase
         public async Task DeleteDocument_WhenDocumentExists_S3GatewayIsCalled()
         {
             // Arrange
+            var user = _fixture.Create<User>();
             var document = _fixture.Create<DocumentDomain>();
 
             var exception = new DocumentNotFoundException();
@@ -69,10 +73,11 @@ namespace DocumentService.Tests.UseCase
                 .ReturnsAsync(document);
 
             // Act
-            await _deleteDocumentUseCase.Execute(document.UserId, document.Id);
+            await _deleteDocumentUseCase.Execute(user, document.Id);
 
             // Assert
             _mockS3Gateway.Verify(x => x.DeleteDocument(document.S3Location), Times.Once);
+            _mockSnsGateway.Verify(x => x.PublishDocumentDeletedEvent(user, document.Id), Times.Once);
         }
     }
 }

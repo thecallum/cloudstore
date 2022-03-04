@@ -117,7 +117,7 @@ namespace DocumentService.Controllers
 
             try
             {
-                await _deleteDocumentUseCase.Execute(user.Id, request.DocumentId);
+                await _deleteDocumentUseCase.Execute(user, request.DocumentId);
 
                 return NoContent();
 
