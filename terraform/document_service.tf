@@ -1,24 +1,23 @@
-
-data "aws_s3_bucket_object" "test_lambda_function_hash" {
+data "aws_s3_bucket_object" "document_service_hash" {
   bucket = "terraform-state-cloudstore"
-  key    = "/lambda_function_payload.zip.base64sha256"
+  key    = "/DocumentService/DocumentService.zip.hash"
 }
 
 resource "aws_lambda_function" "DocumentService" {
   function_name = "DocumentService"
-  role = "arn:aws:iam::714664911966:role/DocumentServiceRole"
+  role = aws_iam_role.document_service_role.arn
   handler = "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
   runtime = "dotnetcore3.1"
 
   s3_bucket = "terraform-state-cloudstore"
   s3_key = "DocumentService/DocumentService.zip"
 
-  description = "description..."
+  description = "API endpoint for CloudStore"
 
   timeout = 300
   memory_size = 256
 
-  source_code_hash = "<source-code-hash>"
+  source_code_hash = data.aws_s3_bucket_object.document_service_hash.body
 
   environment {
     variables = {

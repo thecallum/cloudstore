@@ -38,7 +38,7 @@ jobs:
           command: docker-compose run listener-tests
   deploy-document-service:
     executor:
-      name: win/default
+      name: windows/default
       shell: powershell.exe
     steps:
       - checkout
@@ -49,20 +49,20 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: publish
           command: dotnet lambda package
-
-      - run: Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > lambda_function_payload.zip.base64sha256
-      - run: aws s3 cp --content-type text/plain lambda_function_payload.zip.base64sha256 s3://terraform-state-cloudstore/lambda_function_payload.zip.base64sha256
-
-    
-      
-
+      - run: 
+          working_directory: ./backend/document-service/DocumentService/DocumentService
+          name: Generate hash
+          command: |
+            Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentService.zip.hash
+            aws s3 cp --content-type text/plain DocumentService.zip.hash s3://terraform-state-cloudstore/DocumentService/DocumentService.zip.hash
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: Upload zip to S3
           command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentService.zip s3://terraform-state-cloudstore/DocumentService/DocumentService.zip
-
   deploy-listener-service:
-    executor: windows/default
+    executor:
+      name: windows/default
+      shell: powershell.exe
     steps:
       - checkout
       - run:
@@ -72,12 +72,16 @@ jobs:
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: publish
           command: dotnet lambda package
+      - run: 
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: Generate hash
+          command: |
+            Get-FileHash .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentServiceListener.zip.hash
+            aws s3 cp --content-type text/plain DocumentServiceListener.zip.hash s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip.hash
       - run:
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: Upload zip to S3
           command: aws s3 cp .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip
-
-
   terraform-apply:
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -118,7 +122,6 @@ jobs:
           name: deploy
           command: aws s3 sync . s3://cloudstore.thecallum.com
       - run:
-          # working_directory: ./backend/document-service/DocumentService
           name: invalidate-cloudfront
           command: aws cloudfront create-invalidation --distribution-id E23ZX2UPNCXM1D --paths "/*"
 
@@ -132,26 +135,32 @@ workflows:
             - build-and-test-document-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                # - terraform-2
       - deploy-listener-service:
           requires:
             - build-and-test-listener-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                # - terraform-2
       - deploy-frontend:
           requires:
             - deploy-document-service
             - deploy-listener-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                # - terraform-2
       - terraform-apply:
           requires:
             - deploy-document-service
             - deploy-listener-service
           filters:
             branches:
-              only: main
-
-
+              only:
+                - main
+                # - terraform-2

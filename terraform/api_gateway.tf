@@ -1,6 +1,10 @@
 resource "aws_api_gateway_rest_api" "apiGateway" {
   name        = "CloudStore-API"
-  description = "Terraform Serverless Application Example"
+  description = "API Gateway for CloudStore"
+
+   endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
 resource "aws_api_gateway_resource" "proxy" {
