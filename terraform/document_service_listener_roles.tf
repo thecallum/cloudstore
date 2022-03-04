@@ -43,12 +43,12 @@ resource "aws_iam_policy" "document_service_listener_s3_access" {
                 "s3:PutObjectTagging"
             ],
             "Effect": "Allow",
-            "Resource": "${aws_s3_bucket.document_storage.arn}",
-            "Principal": {
-                "AWS": [
-                    "${aws_lambda_function.DocumentServiceListener.arn}"
-                ]
-            }
+            "Resource": "${aws_s3_bucket.document_storage.arn}/*",
+            # "Principal": {
+            #     "AWS": [
+            #         "${aws_lambda_function.DocumentServiceListener.arn}"
+            #     ]
+            # }
         }
     ]
   })
