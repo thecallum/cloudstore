@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DocumentService.Boundary.Request;
+using DocumentService.Domain;
 using DocumentService.Encryption;
 using DocumentService.Factories;
 using DocumentService.Infrastructure.Exceptions;
@@ -94,10 +95,7 @@ namespace DocumentService.Controllers
         {
             LogHelper.LogController("Delete");
 
-            var validToken = _tokenService.ValidateToken(token);
-            if (validToken == false) return Unauthorized();
-
-            var user = _tokenService.DecodeToken(token);
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
