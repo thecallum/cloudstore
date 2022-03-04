@@ -40,7 +40,6 @@ resource "aws_iam_policy" "document_service_s3_access" {
                 "s3:DeleteObject"
             ],
             "Resource": "${aws_s3_bucket.document_storage.arn}/*",
-            "Principal": "${aws_lambda_function.DocumentService.arn}"
         }
     ]
   })

@@ -2,6 +2,10 @@ resource "aws_sns_topic" "DocumentService" {
   name                        = "DocumentService.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
+
+  sqs_success_feedback_sample_rate = 100
+  sqs_success_feedback_role_arn = aws_iam_role.sns_feedback_role.arn
+  sqs_failure_feedback_role_arn = aws_iam_role.sns_feedback_role.arn
 }
 
 resource "aws_sqs_queue" "DocumentService" {
