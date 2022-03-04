@@ -132,26 +132,34 @@ workflows:
             - build-and-test-document-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - terraform-2
       - deploy-listener-service:
           requires:
             - build-and-test-listener-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - terraform-2
       - deploy-frontend:
           requires:
             - deploy-document-service
             - deploy-listener-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - terraform-2
       - terraform-apply:
           requires:
             - deploy-document-service
             - deploy-listener-service
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - terraform-2
 
 
