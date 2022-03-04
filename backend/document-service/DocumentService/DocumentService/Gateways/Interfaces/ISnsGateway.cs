@@ -1,6 +1,6 @@
-﻿using System;
+﻿using DocumentService.Domain;
+using System;
 using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.Gateways
 {

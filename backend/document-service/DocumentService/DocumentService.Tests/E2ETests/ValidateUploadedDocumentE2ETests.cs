@@ -184,13 +184,13 @@ namespace DocumentService.Tests.E2ETests
             databaseResponse.S3Location.Should().Be(existingDocument.S3Location);
         }
 
-        private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request, string? token = null)
+        private async Task<HttpResponseMessage> ValidateUploadedDocumentRequest(Guid documentId, ValidateUploadedDocumentRequest request, string token = null)
         {
             // setup request
             var uri = new Uri($"api/document/validate/{documentId}", UriKind.Relative);
             var message = new HttpRequestMessage(HttpMethod.Post, uri);
             message.Method = HttpMethod.Post;
-            message.Headers.Add(TokenService.Constants.AuthToken, token ?? _token);
+            message.Headers.Add("Authorization", token ?? _token);
 
             message.Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 

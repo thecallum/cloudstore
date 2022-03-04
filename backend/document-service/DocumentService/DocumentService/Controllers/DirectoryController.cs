@@ -1,5 +1,6 @@
 ﻿using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
+using DocumentService.Domain;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
 using DocumentService.Middleware;
@@ -10,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.Controllers
 {

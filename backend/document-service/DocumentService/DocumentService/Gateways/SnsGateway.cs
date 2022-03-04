@@ -1,11 +1,11 @@
 ﻿using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using DocumentService.Domain;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.Gateways
 {

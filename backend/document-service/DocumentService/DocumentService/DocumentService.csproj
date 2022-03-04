@@ -30,9 +30,4 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="TokenService">
-      <HintPath>..\External\TokenService.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>

@@ -30,9 +30,9 @@ namespace DocumentService.Boundary.Request.Validation
                 .MaximumLength(100);
         }
 
-        private static bool IsOnlyAlphabetical(string? value)
+        private static bool IsOnlyAlphabetical(string value)
         {
-            if (value == null) return false;
+            if (string.IsNullOrWhiteSpace(value)) return false;
 
             var pattern = @"^[a-zA-Z]*$";
 

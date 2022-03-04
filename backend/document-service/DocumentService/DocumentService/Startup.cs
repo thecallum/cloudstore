@@ -9,6 +9,7 @@ using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Middleware;
+using DocumentService.Services;
 using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
 using FluentValidation;
@@ -23,7 +24,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TokenService;
 
 namespace DocumentService
 {
@@ -52,15 +52,14 @@ namespace DocumentService
             services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
             services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
 
-            services.AddTransient<ITokenService>(x => new TokenService.TokenService(Environment.GetEnvironmentVariable("SECRET")));
+            services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+            services.AddTransient<ITokenService, TokenService>();
 
             ConfigureDbContext(services);
 
             services.AddControllers();
-
-            // random change
-
             services.ConfigureAws();
 
             SetupGateways(services);
@@ -125,11 +124,10 @@ namespace DocumentService
 
             app.UseAuthorization();
 
-            app.UseTokenMiddleware();
+            app.UseAuthMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
-
                 endpoints.MapControllers();
                 endpoints.MapGet("/", async context =>
                 {

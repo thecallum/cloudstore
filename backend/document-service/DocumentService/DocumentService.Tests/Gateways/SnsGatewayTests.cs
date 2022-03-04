@@ -1,12 +1,12 @@
 ﻿using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
+using DocumentService.Domain;
 using DocumentService.Gateways;
 using FluentAssertions;
 using Moq;
 using System;
 using System.Threading.Tasks;
-using TokenService.Models;
 using Xunit;
 
 namespace DocumentService.Tests.Gateways

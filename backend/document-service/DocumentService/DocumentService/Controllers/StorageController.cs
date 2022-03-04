@@ -1,4 +1,5 @@
 ﻿using DocumentService.Boundary.Response;
+using DocumentService.Domain;
 using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.Controllers
 {

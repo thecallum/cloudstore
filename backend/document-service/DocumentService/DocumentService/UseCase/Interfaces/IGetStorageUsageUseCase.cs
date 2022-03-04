@@ -1,9 +1,9 @@
 ﻿using DocumentService.Boundary.Response;
+using DocumentService.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TokenService.Models;
 
 namespace DocumentService.UseCase.Interfaces
 {

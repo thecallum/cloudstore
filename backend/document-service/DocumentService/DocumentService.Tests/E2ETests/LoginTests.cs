@@ -9,9 +9,9 @@ using DocumentService.Infrastructure;
 using AutoFixture;
 using FluentAssertions;
 using Newtonsoft.Json;
-using TokenService;
 using Xunit;
 using DocumentService.Tests;
+using DocumentService.Services;
 
 namespace DocumentService.Tests.E2ETests
 {
@@ -54,7 +54,7 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            response.Headers.Should().NotContainKey(Constants.AuthToken);
+            response.Headers.Should().NotContainKey("Authorization");
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            response.Headers.Should().NotContainKey(Constants.AuthToken);
+            response.Headers.Should().NotContainKey("Authorization");
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-            response.Headers.Should().NotContainKey(Constants.AuthToken);
+            response.Headers.Should().NotContainKey("Authorization");
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace DocumentService.Tests.E2ETests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Headers.Should().ContainKey(Constants.AuthToken);
+            response.Headers.Should().ContainKey("Authorization");
         }
 
         private string CreateHash(string password)

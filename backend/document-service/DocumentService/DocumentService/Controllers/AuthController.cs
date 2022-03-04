@@ -1,13 +1,14 @@
 ﻿using System.Threading.Tasks;
 using DocumentService.Boundary.Request;
+using DocumentService.Domain;
 using DocumentService.Encryption;
 using DocumentService.Factories;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
+using DocumentService.Services;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TokenService;
 
 namespace DocumentService.Controllers
 {
@@ -56,7 +57,7 @@ namespace DocumentService.Controllers
 
             var payload = user.ToPayload();
             var token = _tokenService.CreateToken(payload);
-            Response.Headers.Add(TokenService.Constants.AuthToken, token);
+            Response.Headers.Add("Authorization", token);
 
             return Ok();
         }
@@ -90,14 +91,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteAccount([FromHeader] string token)
+        public async Task<IActionResult> DeleteAccount()
         {
             LogHelper.LogController("Delete");
 
-            var validToken = _tokenService.ValidateToken(token);
-            if (validToken == false) return Unauthorized();
-
-            var user = _tokenService.DecodeToken(token);
+            var user = (User)HttpContext.Items["user"];
 
             try
             {
