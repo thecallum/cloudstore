@@ -49,8 +49,12 @@ jobs:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: publish
           command: dotnet lambda package
-      - run: Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentService.zip.hash
-      - run: aws s3 cp --content-type text/plain DocumentService.zip.hash s3://terraform-state-cloudstore/DocumentService/DocumentService.zip.hash
+      - run: 
+          working_directory: ./backend/document-service/DocumentService/DocumentService
+          name: Generate hash
+          run: |
+            Get-FileHash .\bin\Release\netcoreapp3.1\DocumentService.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentService.zip.hash
+            aws s3 cp --content-type text/plain DocumentService.zip.hash s3://terraform-state-cloudstore/DocumentService/DocumentService.zip.hash
       - run:
           working_directory: ./backend/document-service/DocumentService/DocumentService
           name: Upload zip to S3
@@ -68,8 +72,12 @@ jobs:
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: publish
           command: dotnet lambda package
-      - run: Get-FileHash .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentServiceListener.zip.hash
-      - run: aws s3 cp --content-type text/plain DocumentServiceListener.zip.hash s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip.hash
+      - run: 
+          working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
+          name: Generate hash
+          run: |
+            Get-FileHash .\bin\Release\netcoreapp3.1\DocumentServiceListener.zip -Algorithm SHA512 | Select-Object -ExpandProperty Hash > DocumentServiceListener.zip.hash
+            aws s3 cp --content-type text/plain DocumentServiceListener.zip.hash s3://terraform-state-cloudstore/DocumentServiceListener/DocumentServiceListener.zip.hash
       - run:
           working_directory: ./backend/DocumentServiceListener/DocumentServiceListener/DocumentServiceListener
           name: Upload zip to S3
