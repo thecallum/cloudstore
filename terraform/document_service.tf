@@ -5,7 +5,8 @@ data "aws_s3_bucket_object" "document_service_hash" {
 
 resource "aws_lambda_function" "DocumentService" {
   function_name = "DocumentService"
-  role = "arn:aws:iam::714664911966:role/DocumentServiceRole"
+  #role = "arn:aws:iam::714664911966:role/DocumentServiceRole"
+  role = aws_iam_role.document_service_role.arn
   handler = "DocumentService::DocumentService.LambdaEntryPoint::FunctionHandlerAsync"
   runtime = "dotnetcore3.1"
 
@@ -27,6 +28,30 @@ resource "aws_lambda_function" "DocumentService" {
       SNS_TOPIC_ARN = aws_sns_topic.DocumentService.arn
       S3_BUCKET_NAME = aws_s3_bucket.document_storage.bucket
     }
+  }
+}
+
+resource "aws_iam_role" "document_service_role" {
+  name = "test_role"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    tag-key = "tag-value"
   }
 }
 
