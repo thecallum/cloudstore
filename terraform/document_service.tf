@@ -32,27 +32,37 @@ resource "aws_lambda_function" "DocumentService" {
 }
 
 resource "aws_iam_role" "document_service_role" {
-  name = "test_role"
+  name = "document_service_role"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
+  # assume_role_policy = jsonencode({
+  #   Version = "2012-10-17"
+  #   Statement = [
+  #     {
+  #       "Effect": "Allow",
+  #       "Action": [
+  #           "logs:CreateLogGroup",
+  #           "logs:CreateLogStream",
+  #           "logs:PutLogEvents"
+  #       ],
+  #       "Resource": "*"
+  #     }
+  #   ]
+  # })
 
   tags = {
     tag-key = "tag-value"
   }
+}
+
+data "aws_iam_policy" "AWSLambdaBasicExecutionRole" {
+  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
+   role       = "${aws_iam_role.document_service_role.name}"
+   policy_arn = "${data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn}"
 }
 
 resource "aws_lambda_permission" "apigw" {
