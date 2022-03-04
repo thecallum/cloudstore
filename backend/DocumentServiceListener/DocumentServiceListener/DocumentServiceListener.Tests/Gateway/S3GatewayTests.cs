@@ -78,7 +78,6 @@ namespace DocumentServiceListener.Tests.Gateway
             response.Should().NotBeNull();
             response.ImageBytes.Should().HaveCount(200);
             response.ContentType.Should().Be("text/plain");
-
         }
 
         [Fact]
@@ -95,10 +94,21 @@ namespace DocumentServiceListener.Tests.Gateway
 
             // Assert
             await _s3TestHelper.VerifyDocumentUploadedToS3($"thumbnails/{key}");
-
         }
 
+        [Fact]
+        public async Task DeleteThumbnail_WhenCalled_DeletesThumbnailFromS3()
+        {
+            // Arrange
+            var key = Guid.NewGuid().ToString();
 
-       
+            await _s3TestHelper.UploadDocumentToS3($"thumbnails/{key}", _validFilePath);
+
+            // Act
+            await _gateway.DeleteThumbnail(key);
+
+            // Assert
+            await _s3TestHelper.VerifyDocumentDeletedFromS3($"thumbnails/{key}");
+        }
     }
 }

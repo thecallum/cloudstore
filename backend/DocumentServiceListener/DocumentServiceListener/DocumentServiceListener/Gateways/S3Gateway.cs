@@ -75,5 +75,19 @@ namespace AWSServerless1.Gateways
             };
             await _amazonS3.PutObjectAsync(putObjectRequest);
         }
+
+
+        public async Task DeleteThumbnail(string key)
+        {
+            Console.WriteLine($"Deleting thumbnail for key {key}");
+
+            var request = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = $"thumbnails/{key}"
+            };
+
+            await _amazonS3.DeleteObjectAsync(request);
+        }
     }
 }
