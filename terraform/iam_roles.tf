@@ -8,17 +8,30 @@ resource "aws_iam_role" "document_service_role" {
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "sts:AssumeRole"
-            ],
-            "Principal": {
-                "Service": [
-                    "lambda.amazonaws.com"
-                ]
-            }
+      {
+        "Effect": "Allow",
+        "Action": [
+            "sts:AssumeRole"
+        ],
+        "Principal": {
+            "Service": [
+                "lambda.amazonaws.com"
+            ]
         }
+      },
+      {
+        "Sid": "VisualEditor0",
+        "Effect": "Allow",
+        "Action": [
+            "s3:PutObject",
+            "s3:GetObjectAcl",
+            "s3:GetObject",
+            "s3:GetObjectTagging",
+            "s3:PutObjectTagging",
+            "s3:DeleteObject"
+        ],
+        "Resource": "${aws_s3_bucket.document_storage.arn}/*"
+      }
     ]
   })
 }
