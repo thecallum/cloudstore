@@ -91,7 +91,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteAccount([FromHeader] string token)
+        public async Task<IActionResult> DeleteAccount()
         {
             LogHelper.LogController("Delete");
 
