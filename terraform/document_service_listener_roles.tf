@@ -44,11 +44,7 @@ resource "aws_iam_policy" "document_service_listener_s3_access" {
             ],
             "Effect": "Allow",
             "Resource": "${aws_s3_bucket.document_storage.arn}/*",
-            # "Principal": {
-            #     "AWS": [
-            #         "${aws_lambda_function.DocumentServiceListener.arn}"
-            #     ]
-            # }
+            "Principal": "${aws_lambda_function.DocumentServiceListener.arn}"
         }
     ]
   })
