@@ -8,7 +8,7 @@ resource "aws_iam_role" "sns_feedback_role" {
                 "Sid": "Stmt1646404052824",
                 "Action": "sts:AssumeRole",
                 "Effect": "Allow",
-                "Resource": "*",
+                # "Resource": "*",
                 "Principal": "*"
             }
         ]
