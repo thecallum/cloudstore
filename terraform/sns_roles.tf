@@ -6,15 +6,10 @@ resource "aws_iam_role" "sns_feedback_role" {
         "Statement": [
             {
                 "Sid": "Stmt1646404052824",
-                # "Action": [
-                #     "logs:CreateLogGroup",
-                #     "logs:CreateLogStream",
-                #     "logs:PutLogEvents",
-                #     "logs:PutMetricFilter",
-                #     "logs:PutRetentionPolicy"
-                # ],
                 "Action": "sts:AssumeRole",
-                "Effect": "Allow"
+                "Effect": "Allow",
+                "Resource": "*",
+                "Principal": "*"
             }
         ]
     })
