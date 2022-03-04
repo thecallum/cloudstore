@@ -20,7 +20,6 @@ resource "aws_iam_role" "document_service_role" {
         }
       },
       {
-        "Sid": "VisualEditor0",
         "Effect": "Allow",
         "Action": [
             "s3:PutObject",
