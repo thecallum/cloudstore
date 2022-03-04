@@ -18,21 +18,40 @@ resource "aws_iam_role" "document_service_role" {
                 "lambda.amazonaws.com"
             ]
         }
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-            "s3:PutObject",
-            "s3:GetObjectAcl",
-            "s3:GetObject",
-            "s3:GetObjectTagging",
-            "s3:PutObjectTagging",
-            "s3:DeleteObject"
-        ],
-        "Resource": "${aws_s3_bucket.document_storage.arn}/*"
       }
     ]
   })
+}
+
+resource "aws_iam_policy" "document_service_s3_access" {
+  name        = "document_service_s3_access"
+  description = "Give DocumentService within CloudStore permission to access S3Bucket"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObjectAcl",
+                "s3:GetObject",
+                "s3:GetObjectTagging",
+                "s3:PutObjectTagging",
+                "s3:DeleteObject"
+            ],
+            "Resource": "${aws_s3_bucket.document_storage.arn}/*"
+        }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "c" {
+   role       = "${aws_iam_role.document_service_role.name}"
+   policy_arn = "${aws_iam_policy.document_service_s3_access.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "a" {
