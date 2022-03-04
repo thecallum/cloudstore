@@ -53,3 +53,8 @@ resource "aws_iam_role_policy_attachment" "e" {
    role       = "${aws_iam_role.document_service_listener_role.name}"
    policy_arn = "${aws_iam_policy.document_service_listener_s3_access.arn}"
 }
+
+resource "aws_iam_role_policy_attachment" "AWSLambdaSQSQueueExecutionRole" {
+   role       = "${aws_iam_role.document_service_listener_role.name}"
+   policy_arn = "${data.aws_iam_policy.AWSLambdaSQSQueueExecutionRole.arn}"
+}
