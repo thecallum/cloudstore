@@ -37,8 +37,9 @@ jobs:
           name: Run tests
           command: docker-compose run listener-tests
   deploy-document-service:
-    executor: windows/default
-    shell: powershell.exe
+    executor:
+      name: win/default
+      shell: powershell.exe
     steps:
       - checkout
       - run:
