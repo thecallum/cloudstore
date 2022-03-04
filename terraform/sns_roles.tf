@@ -1,11 +1,11 @@
 resource "aws_iam_role" "sns_feedback_role" {
-  name = "sns_feedback_role"
+    name = "sns_feedback_role"
 
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
+    assume_role_policy = jsonencode({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Sid": "Stmt1646404052824",
             "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
@@ -13,11 +13,11 @@ resource "aws_iam_role" "sns_feedback_role" {
                 "logs:PutMetricFilter",
                 "logs:PutRetentionPolicy"
             ],
-            "Principal": "*"
-            # "Resource": "*"
-        }
-    ]
-  })
+            "Effect": "Allow",
+            "Resource": "*"
+            }
+        ]
+    })
 }
 
 # resource "aws_iam_role" "sns_success_feedback_role" {
