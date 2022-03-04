@@ -5,17 +5,16 @@ resource "aws_iam_role" "sns_feedback_role" {
         "Version": "2012-10-17",
         "Statement": [
             {
-            "Sid": "Stmt1646404052824",
-            # "Action": [
-            #     "logs:CreateLogGroup",
-            #     "logs:CreateLogStream",
-            #     "logs:PutLogEvents",
-            #     "logs:PutMetricFilter",
-            #     "logs:PutRetentionPolicy"
-            # ],
-            "Action": "sts:AssumeRole",
-            "Effect": "Allow",
-            "Resource": "*"
+                "Sid": "Stmt1646404052824",
+                # "Action": [
+                #     "logs:CreateLogGroup",
+                #     "logs:CreateLogStream",
+                #     "logs:PutLogEvents",
+                #     "logs:PutMetricFilter",
+                #     "logs:PutRetentionPolicy"
+                # ],
+                "Action": "sts:AssumeRole",
+                "Effect": "Allow"
             }
         ]
     })
