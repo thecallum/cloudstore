@@ -49,8 +49,7 @@ namespace DocumentService.Factories
             };
         }
 
-#nullable enable
-        private static string? GenerateParentDirectoryIds(DirectoryDb? parentDirectory)
+        private static string GenerateParentDirectoryIds(DirectoryDb? parentDirectory)
         {
             // if null, must be root directory. cannot be parent of parent
             if (parentDirectory == null) return null;

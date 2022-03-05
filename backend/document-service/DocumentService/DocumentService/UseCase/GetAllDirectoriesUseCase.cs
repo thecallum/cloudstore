@@ -26,9 +26,9 @@ namespace DocumentService.UseCase
         {
             LogHelper.LogUseCase("GetAllDirectoriesUseCase");
 
-            var directoryGatewayResponse = await _directoryGateway.GetAllDirectories(userId);
+            var directories = await _directoryGateway.GetAllDirectories(userId);
 
-            return directoryGatewayResponse.ToResponse();
+            return directories.Select(x => x.ToDomain()).ToResponse();
         }
     }
 }

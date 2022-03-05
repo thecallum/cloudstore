@@ -8,5 +8,6 @@ namespace DocumentService.Gateways
     {
         Task PublishDocumentUploadedEvent(User user, Guid documentId);
         Task PublishDocumentDeletedEvent(User user, Guid documentId);
+        Task PublishDeleteDirectoryEvent(User user, Guid directoryId);
     }
 }

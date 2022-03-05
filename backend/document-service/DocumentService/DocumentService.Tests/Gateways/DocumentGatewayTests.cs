@@ -198,7 +198,7 @@ namespace DocumentService.Tests.Gateways
             var directoryId = Guid.NewGuid();
 
             // Act
-            var response = await _gateway.DirectoryContainsFiles(userId, directoryId);
+            var response = await _gateway.DirectoryContainsDocuments(userId, directoryId);
 
             // Assert
             response.Should().BeFalse();
@@ -220,7 +220,7 @@ namespace DocumentService.Tests.Gateways
             await SetupTestData(document);
 
             // Act
-            var response = await _gateway.DirectoryContainsFiles(userId, directoryId);
+            var response = await _gateway.DirectoryContainsDocuments(userId, directoryId);
 
             // Assert
             response.Should().BeFalse();

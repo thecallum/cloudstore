@@ -87,24 +87,12 @@ namespace DocumentService.Controllers
 
             try
             {
-                await _delteDirectoryUseCase.Execute(query, user.Id);
-                return Ok();
+                await _delteDirectoryUseCase.Execute(query, user);
+                return Accepted("Directory will be deleted in the background");
             }
-            catch (Exception e)
+            catch (DirectoryNotFoundException)
             {
-                if (e is DirectoryNotFoundException)
-                {
-                    return NotFound(query.DirectoryId);
-
-                }
-
-                if (e is DirectoryContainsDocumentsException || e is DirectoryContainsChildDirectoriesException)
-                {
-                    return BadRequest();
-                }
-
-                // any unknown exception
-                throw e;
+               return NotFound(query.DirectoryId);
             }
         }
 

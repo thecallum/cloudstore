@@ -48,6 +48,18 @@ namespace DocumentService.Gateways
             await PublishEvent(user, body, EventNames.DocumentDeleted);
         }
 
+        public async Task PublishDeleteDirectoryEvent(User user, Guid directoryId)
+        {
+            Console.WriteLine("Publishing DeleteDirectoryEvent");
+
+            var body = new Dictionary<string, object>()
+            {
+                { "DirectoryId", directoryId.ToString() }
+            };
+
+            await PublishEvent(user, body, EventNames.DirectoryDeleted);
+        }
+
         private async Task PublishEvent(User user, Dictionary<string, object> body, string eventName)
         {
             var CSEvent = new CloudStoreSnsEvent()

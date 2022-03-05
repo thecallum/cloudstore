@@ -12,7 +12,7 @@ namespace DocumentService.Gateways.Interfaces
         Task SaveDocument(DocumentDomain document);
         Task<DocumentDomain> GetDocumentById(Guid userId, Guid documentId);
         Task<IEnumerable<DocumentDomain>> GetAllDocuments(Guid userId, Guid? directoryId = null);
-        Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId);
+        Task<bool> DirectoryContainsDocuments(Guid userId, Guid directoryId);
         Task<DocumentDomain> DeleteDocument(Guid userId, Guid documentId);
         Task<StorageUsageDomain> GetUsage(User user);
         Task<bool> CanUploadFile(User user, long fileSize, long? originalFileSize = null);

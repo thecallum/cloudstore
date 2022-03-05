@@ -9,10 +9,9 @@ namespace DocumentService.Gateways.Interfaces
     public interface IDirectoryGateway
     {
         Task CreateDirectory(DirectoryDomain directory);
-        Task DeleteDirectory(Guid directoryId, Guid userId);
         Task RenameDirectory(string newName, Guid directoryId, Guid userId);
-        Task<IEnumerable<DirectoryDomain>> GetAllDirectories(Guid userId);
-        Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId);
+        Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null);
+        Task<bool> DirectoryExists(Guid directoryId, Guid userId);
         Task<bool> ContainsChildDirectories(Guid directoryId, Guid userId);
     }
 }

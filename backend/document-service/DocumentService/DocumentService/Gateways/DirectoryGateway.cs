@@ -21,7 +21,7 @@ namespace DocumentService.Gateways
             _documentServiceContext = documentServiceContext;
         }
 
-        public async Task<bool> CheckDirectoryExists(Guid directoryId, Guid userId)
+        public async Task<bool> DirectoryExists(Guid directoryId, Guid userId)
         {
             LogHelper.LogGateway("DirectoryGateway", "CheckDirectoryExists");
 
@@ -42,15 +42,24 @@ namespace DocumentService.Gateways
             return directories.Count() != 0;
         }
 
-        public async Task<IEnumerable<DirectoryDomain>> GetAllDirectories(Guid userId)
+        public async Task<IEnumerable<DirectoryDb>> GetAllDirectories(Guid userId, Guid? parentDirectoryId = null)
         {
             LogHelper.LogGateway("DirectoryGateway", "GetAllDirectories");
 
-            var directories = await _documentServiceContext.Directories
-                .Where(x => x.UserId == userId)
-                .ToListAsync();
+            if (parentDirectoryId == null)
+            {
+                // return directories with any parent
+                return await _documentServiceContext.Directories
+                    .Where(x => x.UserId == userId)
+                    .ToListAsync();
+            }
 
-            return directories.Select(x => x.ToDomain());
+            // return directories with a specific parentDirectory
+            return await _documentServiceContext.Directories
+                .Where(x => 
+                    x.ParentDirectoryIds.Contains(parentDirectoryId.ToString()) &&
+                    x.UserId == userId)
+                    .ToListAsync();
         }
 
         public async Task CreateDirectory(DirectoryDomain directory)
@@ -69,19 +78,6 @@ namespace DocumentService.Gateways
             if (parentDirectoryID == null) return null;
 
             return await _documentServiceContext.Directories.FindAsync(parentDirectoryID);
-        }
-
-
-        public async Task DeleteDirectory(Guid directoryId, Guid userId)
-        {
-            LogHelper.LogGateway("DirectoryGateway", "DeleteDirectory");
-
-            var existingDirectory = await LoadDirectory(directoryId, userId);
-            if (existingDirectory == null) throw new DirectoryNotFoundException();
-
-            _documentServiceContext.Directories.Remove(existingDirectory);
-
-            await _documentServiceContext.SaveChangesAsync();
         }
 
         public async Task RenameDirectory(string newName, Guid directoryId, Guid userId)
