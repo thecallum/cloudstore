@@ -73,8 +73,7 @@ namespace DocumentService.Tests.Factories
                 Name = _fixture.Create<string>(),
                 UserId = _fixture.Create<Guid>(),
                 ParentDirectoryId = _fixture.Create<Guid?>(),
-                #nullable enable
-                ParentDirectoryIds = _fixture.Create<string?>()
+                ParentDirectoryIds = _fixture.Create<string>()
             };
 
             // Act
