@@ -13,5 +13,6 @@ namespace DocumentServiceListener.Infrastructure
         }
 
         public DbSet<DocumentDb> Documents { get; set; }
+        public DbSet<DirectoryDb> Directories { get; set; }
     }
 }

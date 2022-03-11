@@ -20,6 +20,24 @@ namespace DocumentServiceListener.Gateways
             _documentStorageContext = documentStorageContext;
         }
 
+        public async Task DeleteAllDocuments(Guid userId, Guid directoryId)
+        {
+            var documents = _documentStorageContext.Documents
+                .Where(x => x.UserId == userId && x.DirectoryId == directoryId);
+
+            _documentStorageContext.Documents
+                .RemoveRange(documents);
+
+            await _documentStorageContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<DocumentDb>> GetAllDocuments(Guid userId, Guid directoryId)
+        {
+            return await _documentStorageContext.Documents
+                .Where(x => x.DirectoryId == (Guid?) directoryId && x.UserId == userId)
+                .ToListAsync();
+        }
+
         public async Task UpdateThumbnail(Guid userId, Guid documentId)
         {
             LogHelper.LogGateway("DocumentGateway", "UpdateThumbnail");

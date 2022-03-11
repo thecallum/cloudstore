@@ -73,21 +73,37 @@ namespace AWSServerless1.Gateways
                 ContentType = contentType,
                 InputStream = outStream
             };
+
             await _amazonS3.PutObjectAsync(putObjectRequest);
         }
 
-
         public async Task DeleteThumbnail(string key)
         {
-            Console.WriteLine($"Deleting thumbnail for key {key}");
+            Console.WriteLine($"Deleting thumbnail with key {key}");
 
+            await DeleteDocument($"thumbnails/{key}");
+        }
+
+        private async Task DeleteDocument(string key)
+        {
             var request = new DeleteObjectRequest
             {
                 BucketName = _bucketName,
-                Key = $"thumbnails/{key}"
+                Key = key
             };
 
             await _amazonS3.DeleteObjectAsync(request);
+        }
+
+        public async Task DeleteDocuments(List<string> keys)
+        {
+            var request = new DeleteObjectsRequest
+            {
+                BucketName = _bucketName,
+                Objects = keys.Select(x => new KeyVersion { Key = x }).ToList()
+            };
+
+            await _amazonS3.DeleteObjectsAsync(request);
         }
     }
 }

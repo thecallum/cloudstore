@@ -22,8 +22,7 @@ namespace DocumentServiceListener.Infrastructure
         [Column("parent_directory_id")]
         public Guid? ParentDirectoryId { get; set; }
 
-#nullable enable
         [Column("parent_directory_ids")]
-        public string? ParentDirectoryIds { get; set; }
+        public string ParentDirectoryIds { get; set; }
     }
 }
