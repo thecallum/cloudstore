@@ -74,6 +74,7 @@ namespace DocumentServiceListener
 
             services.AddScoped<IS3Gateway, S3Gateway>();
             services.AddScoped<IDocumentGateway, DocumentGateway>();
+            services.AddScoped<IDirectoryGateway, DirectoryGateway>();
 
             services.AddScoped<IImageFormatter, ImageFormatter>();
             services.AddScoped<IImageLoader, ImageLoader>();
