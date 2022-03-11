@@ -18,7 +18,7 @@ const deleteDirectory = (token, directoryId) =>
 
     fetch(url, requestOptions)
       .then((res) => {
-        if (res.status !== 200) {
+        if (res.status !== 202) {
           resolve({
             success: false,
             status: res.status,
