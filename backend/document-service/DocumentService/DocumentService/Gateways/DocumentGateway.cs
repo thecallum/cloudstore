@@ -35,9 +35,9 @@ namespace DocumentService.Gateways
             return existingDocument.ToDomain();
         }
 
-        public async Task<bool> DirectoryContainsFiles(Guid userId, Guid directoryId)
+        public async Task<bool> DirectoryContainsDocuments(Guid userId, Guid directoryId)
         {
-            LogHelper.LogGateway("DocumentGateway", "DirectoryContainsFiles");
+            LogHelper.LogGateway("DocumentGateway", "DirectoryContainsDocuments");
 
             var documents = await GetAllDocuments(userId, directoryId);
 

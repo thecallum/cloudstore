@@ -109,7 +109,7 @@ namespace DocumentService.Tests.Controllers
             var exception = new DirectoryNotFoundException();
 
             _mockDeleteDirectoryUseCase
-                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()))
+                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<User>()))
                 .ThrowsAsync(exception);
 
             // Act
@@ -121,56 +121,19 @@ namespace DocumentService.Tests.Controllers
         }
 
         [Fact]
-        public async Task Delete_WhenDirectoryContainsDocuments_ThrowsException()
+        public async Task Delete_WhenValid_Returns202Accepted()
         {
             // Arrange
             var query = _fixture.Create<DeleteDirectoryQuery>();
 
-            var exception = new DirectoryContainsDocumentsException();
+            // Act
+            var response = await _directoryController.DeleteDirectory(query);
+
+            // Assert
+            response.Should().BeOfType(typeof(AcceptedResult));
 
             _mockDeleteDirectoryUseCase
-                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _directoryController.DeleteDirectory(query);
-
-            // Assert
-            response.Should().BeOfType(typeof(BadRequestResult));
-        }
-
-        [Fact]
-        public async Task Delete_WhenDirectoryContainsChildDirectories_ThrowsException()
-        {
-            // Arrange
-            var query = _fixture.Create<DeleteDirectoryQuery>();
-
-            var exception = new DirectoryContainsChildDirectoriesException();
-
-            _mockDeleteDirectoryUseCase
-                .Setup(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
-
-            // Act
-            var response = await _directoryController.DeleteDirectory(query);
-
-            // Assert
-            response.Should().BeOfType(typeof(BadRequestResult));
-        }
-
-        [Fact]
-        public async Task Delete_WhenValid_CallsUseCase()
-        {
-            // Arrange
-            var query = _fixture.Create<DeleteDirectoryQuery>();
-
-            // Act
-            var response = await _directoryController.DeleteDirectory(query);
-
-            // Assert
-            response.Should().BeOfType(typeof(OkResult));
-
-            _mockDeleteDirectoryUseCase.Verify(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<Guid>()));
+                .Verify(x => x.Execute(It.IsAny<DeleteDirectoryQuery>(), It.IsAny<User>()));
         }
 
         [Fact]

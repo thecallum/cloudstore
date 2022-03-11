@@ -2,6 +2,7 @@
 using DocumentService.Boundary.Request;
 using DocumentService.Boundary.Response;
 using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
@@ -23,88 +24,68 @@ namespace DocumentService.Tests.UseCase
         private readonly DeleteDirectoryUseCase _useCase;
         private readonly Mock<IDirectoryGateway> _mockDirectoryGateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
+        private readonly Mock<ISnsGateway> _mockSnsGateway;
 
         private readonly Fixture _fixture = new Fixture();
+        private readonly Random _random = new Random();
+
         public DeleteDirectoryUseCaseTests()
         {
             _mockDirectoryGateway = new Mock<IDirectoryGateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
+            _mockSnsGateway = new Mock<ISnsGateway>();
 
-            _useCase = new DeleteDirectoryUseCase(_mockDirectoryGateway.Object, _mockDocumentGateway.Object);
+            _useCase = new DeleteDirectoryUseCase(
+                _mockDirectoryGateway.Object, 
+                _mockDocumentGateway.Object,
+                _mockSnsGateway.Object);
         }
 
         [Fact]
-        public async Task Delete_WhenDirectoryNotFound_ThrowsException()
+        public async Task DeleteDirectory_WhenDirectoryNotFound_ThrowsException()
         {
             // Arrange
             var query = _fixture.Create<DeleteDirectoryQuery>();
-            var userId = Guid.NewGuid();
-
-            var exception = new DirectoryNotFoundException();
+            var user = _fixture.Create<User>();
 
             _mockDirectoryGateway
-                .Setup(x => x.DeleteDirectory(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ThrowsAsync(exception);
+                .Setup(x => x.DirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
 
             // Act
-            Func<Task> func = async () => await _useCase.Execute(query, userId);
+            Func<Task> func = async () => await _useCase.Execute(query, user);
 
             // Assert
             await func.Should().ThrowAsync<DirectoryNotFoundException>();
         }
 
         [Fact]
-        public async Task Delete_WhenDirectoryContainsDocuments_ThrowsException()
+        public async Task DeleteDirectory_WhenDirectoryExists_PublishesSnsEvents()
         {
             // Arrange
             var query = _fixture.Create<DeleteDirectoryQuery>();
-            var userId = Guid.NewGuid();
-
-            _mockDocumentGateway
-                .Setup(x => x.DirectoryContainsFiles(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync(true);
-
-            // Act
-            Func<Task> func = async () => await _useCase.Execute(query, userId);
-
-            // Assert
-            await func.Should().ThrowAsync<DirectoryContainsDocumentsException>();
-        }
-
-        [Fact]
-        public async Task Delete_WhenDirectoryContainsChildDirectories_ThrowsException()
-        {
-            // Arrange
-            var query = _fixture.Create<DeleteDirectoryQuery>();
-            var userId = Guid.NewGuid();
-
-            _mockDocumentGateway
-                .Setup(x => x.DirectoryContainsFiles(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync(false);
+            var user = _fixture.Create<User>();
 
             _mockDirectoryGateway
-                .Setup(x => x.ContainsChildDirectories(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Setup(x => x.DirectoryExists(It.IsAny<Guid>(), It.IsAny<Guid>()))
                 .ReturnsAsync(true);
 
-            // Act
-            Func<Task> func = async () => await _useCase.Execute(query, userId);
+            var numberOfDirectories = _random.Next(2, 5);
 
-            // Assert
-            await func.Should().ThrowAsync<DirectoryContainsChildDirectoriesException>();
-        }
+            var childDirectories = _fixture
+               .CreateMany<DirectoryDb>(numberOfDirectories)
+               .ToList();
 
-        [Fact]
-        public async Task Delete_WhenValid_CallsGateway()
-        {
-            // Arrange
-            var query = _fixture.Create<DeleteDirectoryQuery>();
-            var userId = Guid.NewGuid();
+            _mockDirectoryGateway
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync(childDirectories);
 
             // Act
-            await _useCase.Execute(query, userId);
+            await _useCase.Execute(query, user);
 
             // Assert
-            _mockDirectoryGateway.Verify(x => x.DeleteDirectory(It.IsAny<Guid>(), It.IsAny<Guid>()));
+            _mockSnsGateway
+                .Verify(x => x.PublishDeleteDirectoryEvent(It.IsAny<User>(), It.IsAny<Guid>()), Times.Exactly(numberOfDirectories + 1));
         }
     }
 }

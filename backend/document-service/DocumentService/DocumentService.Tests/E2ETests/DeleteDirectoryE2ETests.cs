@@ -41,54 +41,6 @@ namespace DocumentService.Tests.E2ETests
         }
 
         [Fact]
-        public async Task Delete_WhenDirectoryContainsDocuments_ReturnsBadRequest()
-        {
-            // Arrange
-            var directoryId = Guid.NewGuid();
-
-            var document = _fixture.Build<DocumentDomain>()
-                .With(x => x.UserId, _user.Id)
-                .With(x => x.DirectoryId, directoryId)
-                .Create()
-                .ToDatabase();
-
-            await _dbFixture.SetupTestData(document);
-
-            // Act
-            var response = await DeleteDirectoryRequest(directoryId);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task Delete_WhenDirectoryContainsChildDirectories_ReturnsBadRequest()
-        {
-            // Arrange
-            var parentDirectory = _fixture.Build<DirectoryDomain>()
-                .With(x => x.UserId, _user.Id)
-                .With(x => x.ParentDirectoryId, _user.Id)
-                .Create()
-                .ToDatabase(null);
-
-            await _dbFixture.SetupTestData(parentDirectory);
-
-            var childDirectory = _fixture.Build<DirectoryDomain>()
-                .With(x => x.UserId, _user.Id)
-                .With(x => x.ParentDirectoryId, parentDirectory.Id)
-                .Create()
-                .ToDatabase(null);
-
-            await _dbFixture.SetupTestData(childDirectory);
-
-            // Act
-            var response = await DeleteDirectoryRequest(parentDirectory.Id);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
         public async Task DeleteDirectory_WhenValid_ShouldRemoveDirectoryFromDatabase()
         {
             // Arrange
@@ -103,11 +55,7 @@ namespace DocumentService.Tests.E2ETests
             var response = await DeleteDirectoryRequest(mockDirectory.Id);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var databaseResponse = await _dbFixture.GetDirectoryById(mockDirectory.Id);
-
-            databaseResponse.Should().BeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         }
 
         private async Task<HttpResponseMessage> DeleteDirectoryRequest(Guid id)

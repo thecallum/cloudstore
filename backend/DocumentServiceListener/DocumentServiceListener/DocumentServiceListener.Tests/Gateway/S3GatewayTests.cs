@@ -110,5 +110,40 @@ namespace DocumentServiceListener.Tests.Gateway
             // Assert
             await _s3TestHelper.VerifyDocumentDeletedFromS3($"thumbnails/{key}");
         }
+
+        [Fact]
+        public async Task DeleteDocuments_WhenNoneExist_DoesntThrowException()
+        {
+            // Arrange
+            var keys = _fixture.CreateMany<Guid>(4).Select(x => x.ToString()).ToList();
+
+            // Act
+            Func<Task> func = async () => await _gateway.DeleteDocuments(keys);
+
+            // Assert
+            await func.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task DeleteDocuments_WhenCalled_DeletesManyDocumentsFromS3()
+        {
+            // Arrange
+            var keys = _fixture.CreateMany<Guid>(2).Select(x => x.ToString()).ToList();
+
+            foreach(var key in keys)
+            {
+                await _s3TestHelper.UploadDocumentToS3(key, _validFilePath);
+            }
+
+            // Act
+            await _gateway.DeleteDocuments(keys);
+
+            // Assert
+
+            foreach (var key in keys)
+            {
+                await _s3TestHelper.VerifyDocumentDeletedFromS3(key);
+            }
+        }
     }
 }

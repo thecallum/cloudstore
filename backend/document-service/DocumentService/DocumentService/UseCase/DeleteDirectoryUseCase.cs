@@ -1,6 +1,9 @@
 ﻿using DocumentService.Boundary.Request;
+using DocumentService.Domain;
+using DocumentService.Factories;
 using DocumentService.Gateways;
 using DocumentService.Gateways.Interfaces;
+using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
 using DocumentService.UseCase.Interfaces;
@@ -15,26 +18,50 @@ namespace DocumentService.UseCase
     {
         private readonly IDirectoryGateway _directoryGateway;
         private readonly IDocumentGateway _documentGateway;
+        private readonly ISnsGateway _snsGateway;
 
-        public DeleteDirectoryUseCase(IDirectoryGateway directoryGateway, IDocumentGateway documentGateway)
+        public DeleteDirectoryUseCase(
+            IDirectoryGateway directoryGateway, 
+            IDocumentGateway documentGateway,
+            ISnsGateway snsGateway)
         {
             _directoryGateway = directoryGateway;
             _documentGateway = documentGateway;
+            _snsGateway = snsGateway;
         }
 
-        public async Task Execute(DeleteDirectoryQuery query, Guid userId)
+        public async Task Execute(DeleteDirectoryQuery query, User user)
         {
             LogHelper.LogUseCase("DeleteDirectoryUseCase");
 
-            var directoryContainsFiles = await _documentGateway.DirectoryContainsFiles(userId, query.DirectoryId);
+            // 1. Check directory exists
+            var directoryExists = await _directoryGateway.DirectoryExists(query.DirectoryId, user.Id);
+            if (!directoryExists) throw new DirectoryNotFoundException();
 
-            // Need to implement recursive delete functionality, but it is too complicated for now
-            if (directoryContainsFiles) throw new DirectoryContainsDocumentsException();
+            // 2. Load all child directories
+            var childDirectories = await _directoryGateway.GetAllDirectories(user.Id, query.DirectoryId);
 
-            var directoryContainsChildDirectories = await _directoryGateway.ContainsChildDirectories(query.DirectoryId, userId);
-            if (directoryContainsChildDirectories) throw new DirectoryContainsChildDirectoriesException();
+            // 3. Delete any child directories
+            if (childDirectories.Any())
+            {
+                await DeleteAllChildDirectories(user, childDirectories);
+            }
 
-            await _directoryGateway.DeleteDirectory(query.DirectoryId, userId);
+            // 4. Publish DeleteDirectory SNS event for primary directory
+            await _snsGateway.PublishDeleteDirectoryEvent(user, query.DirectoryId);
+        }
+
+        private async Task DeleteAllChildDirectories(User user, IEnumerable<DirectoryDb> childDirectories)
+        {
+            // order by most parents
+            var directoriesOrdered = childDirectories
+                .OrderByDescending(x => x.ParentDirectoryIds?.Length ?? 0)
+                .Select(x => x.ToDomain());
+
+            foreach (var childDirectory in directoriesOrdered)
+            {
+                await _snsGateway.PublishDeleteDirectoryEvent(user, childDirectory.Id);
+            }
         }
     }
 }

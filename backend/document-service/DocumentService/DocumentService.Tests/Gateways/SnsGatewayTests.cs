@@ -54,5 +54,20 @@ namespace DocumentService.Tests.Gateways
             _mockAwsSns
                 .Verify(x => x.PublishAsync(It.IsAny<PublishRequest>(), default), Times.Once);
         }
+
+        [Fact]
+        public async Task PublishDeleteDirectoryEvent_WhenCalled_PublishesEvent()
+        {
+            // Arrange
+            var user = _fixture.Create<User>();
+            var directoryId = Guid.NewGuid();
+
+            // Act
+            await _snsGateway.PublishDeleteDirectoryEvent(user, directoryId);
+
+            // Assert
+            _mockAwsSns
+                .Verify(x => x.PublishAsync(It.IsAny<PublishRequest>(), default), Times.Once);
+        }
     }
 }

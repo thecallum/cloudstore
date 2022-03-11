@@ -48,10 +48,10 @@ namespace DocumentService.Tests.UseCase
                 .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(documentGatewayResponse);
 
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(0);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
 
             _mockDirectoryGateway
-                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(directoryGatewayResponse);
 
             // Act
@@ -75,10 +75,10 @@ namespace DocumentService.Tests.UseCase
                 .Setup(x => x.GetAllDocuments(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(documentGatewayResponse);
 
-            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDomain>(0);
+            var directoryGatewayResponse = _fixture.CreateMany<DirectoryDb>(0);
 
             _mockDirectoryGateway
-                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>()))
+                .Setup(x => x.GetAllDirectories(It.IsAny<Guid>(), It.IsAny<Guid?>()))
                 .ReturnsAsync(directoryGatewayResponse);
 
             // Act

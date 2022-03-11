@@ -3,6 +3,7 @@ using AWSServerless1.Gateways;
 using DocumentServiceListener.Boundary;
 using DocumentServiceListener.Gateways;
 using DocumentServiceListener.Gateways.Interfaces;
+using DocumentServiceListener.Helpers;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
@@ -45,24 +46,9 @@ namespace AWSServerless1
             return DefaultMaxImageSize;
         }
 
-        private static Guid? TryParseGuid(Dictionary<string, object> body, string name)
-        {
-            if (!body.ContainsKey(name)) return null;
-
-            var paramter = body[name].ToString();
-
-            try
-            {
-                return Guid.Parse(paramter);
-            } catch (Exception)
-            {
-                return null;
-            }
-        }
-
         public async Task ProcessMessageAsync(CloudStoreSnsEvent entity)
         {
-            var objectId = TryParseGuid(entity.Body, "DocumentId");
+            var objectId = EntityHelper.TryParseGuid(entity.Body, "DocumentId");
             if (objectId == null) throw new ArgumentNullException(nameof(entity));
 
             Console.WriteLine($"Document Was Uploded: {objectId}");
