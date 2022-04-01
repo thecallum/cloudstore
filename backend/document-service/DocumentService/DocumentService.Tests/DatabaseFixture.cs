@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using DocumentService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace DocumentService.Tests
         public HttpClient Client { get; }
 
         public IAmazonS3 S3Client => _factory.S3Client;
+
+        public IConnectionMultiplexer Redis => _factory.Redis;
 
 
         public string ValidFilePath => _factory.ValidFilePath;

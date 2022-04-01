@@ -1,6 +1,7 @@
 ﻿using DocumentService.Boundary.Response;
 using DocumentService.Domain;
 using DocumentService.Logging;
+using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,11 @@ namespace DocumentService.Controllers
     [ApiController]
     public class StorageController : ControllerBase
     {
-        private readonly IGetStorageUsageUseCase _getStorageUsageUseCase;
+        private readonly IStorageUsageUseCase _storageUsageUseCase;
 
-        public StorageController(IGetStorageUsageUseCase getStorageUsageUseCase)
+        public StorageController(IStorageUsageUseCase storageUsageUseCase)
         {
-            _getStorageUsageUseCase = getStorageUsageUseCase;
+            _storageUsageUseCase = storageUsageUseCase;
         }
 
         [Route("usage")]
@@ -32,7 +33,13 @@ namespace DocumentService.Controllers
 
             var user = (User)HttpContext.Items["user"];
 
-            var response = await _getStorageUsageUseCase.Execute(user);
+            var storageUsage = await _storageUsageUseCase.GetUsage(user);
+
+            var response = new StorageUsageResponse
+            {
+                StorageUsage = storageUsage,
+                Capacity = user.StorageCapacity
+            };
 
             return Ok(response);
         }

@@ -5,6 +5,7 @@ using DocumentService.Controllers;
 using DocumentService.Domain;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Tests.Helpers;
+using DocumentService.UseCase;
 using DocumentService.UseCase.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -22,30 +23,34 @@ namespace DocumentService.Tests.Controllers
     public class StorageControllerTests
     {
         private readonly StorageController _storageController;
-        private readonly Mock<IGetStorageUsageUseCase> _mockGetStorageUsageUseCase;
+        private readonly Mock<IStorageUsageUseCase> _mockStorageUsageUseCase;
 
         private readonly Fixture _fixture = new Fixture();
         private readonly Random _random = new Random();
 
+        private readonly User _user;
+
         public StorageControllerTests()
         {
-            _mockGetStorageUsageUseCase = new Mock<IGetStorageUsageUseCase>();
+            _mockStorageUsageUseCase = new Mock<IStorageUsageUseCase>();
 
-            _storageController = new StorageController(_mockGetStorageUsageUseCase.Object);
+            _storageController = new StorageController(_mockStorageUsageUseCase.Object);
+
+            _user = ContextHelper.CreateUser();
 
             _storageController.ControllerContext = new ControllerContext();
             _storageController.ControllerContext.HttpContext = new DefaultHttpContext();
-            _storageController.ControllerContext.HttpContext.Items["user"] = ContextHelper.CreateUser();
+            _storageController.ControllerContext.HttpContext.Items["user"] = _user;
         }
 
         [Fact]
         public async Task GetStorageUsage_WhenCalled_CallsUseCase()
         {
             // Arrange
-            var useCaseResponse = _fixture.Create<StorageUsageResponse>();
+            var useCaseResponse = _fixture.Create<long>();
 
-            _mockGetStorageUsageUseCase
-                .Setup(x => x.Execute(It.IsAny<User>()))
+            _mockStorageUsageUseCase
+                .Setup(x => x.GetUsage(It.IsAny<User>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
@@ -54,8 +59,8 @@ namespace DocumentService.Tests.Controllers
             // Assert
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().BeOfType(typeof(StorageUsageResponse));
-            ((response as OkObjectResult).Value as StorageUsageResponse).Capacity.Should().Be(useCaseResponse.Capacity);
-            ((response as OkObjectResult).Value as StorageUsageResponse).StorageUsage.Should().Be(useCaseResponse.StorageUsage);
+            ((response as OkObjectResult).Value as StorageUsageResponse).Capacity.Should().Be(_user.StorageCapacity);
+            ((response as OkObjectResult).Value as StorageUsageResponse).StorageUsage.Should().Be(useCaseResponse);
         }
     }
 }

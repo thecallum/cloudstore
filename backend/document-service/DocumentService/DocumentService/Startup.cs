@@ -24,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace DocumentService
 {
@@ -52,10 +53,14 @@ namespace DocumentService
             services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
             services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
 
-            services.AddTransient<ITokenService>(x => new TokenService(Environment.GetEnvironmentVariable("SECRET")));
+            services.AddTransient<ITokenService, TokenService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
+
+            services.AddTransient<IStorageUsageCache, StorageUsageCache>();
+
+            ConfigureRedis(services);
 
             ConfigureDbContext(services);
 
@@ -64,6 +69,15 @@ namespace DocumentService
 
             SetupGateways(services);
             SetupUseCases(services);
+        }
+
+        private static void ConfigureRedis(IServiceCollection services)
+        {
+            var configuration = Environment.GetEnvironmentVariable("REDIS_CONFIG") ?? "localhost";
+
+            var multiplexer = ConnectionMultiplexer.Connect(configuration);
+
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
 
         private void ConfigureDbContext(IServiceCollection services)
@@ -97,11 +111,10 @@ namespace DocumentService
             services.AddScoped<IGetDocumentUploadLinkUseCase, GetDocumentUploadLinkUseCase>();
             services.AddScoped<IValidateUploadedDocumentUseCase, ValidateUploadedDocumentUseCase>();
             services.AddScoped<IGetAllDirectoriesUseCase, GetAllDirectoriesUseCase>();
-            services.AddScoped<IGetStorageUsageUseCase, GetStorageUsageUseCase>();
+            services.AddScoped<IStorageUsageUseCase, StorageUsageUseCase>();
             services.AddScoped<ILoginUseCase, LoginUseCase>();
             services.AddScoped<IRegisterUseCase, RegisterUseCase>();
             services.AddScoped<IDeleteUserUseCase, DeleteUserUseCase>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

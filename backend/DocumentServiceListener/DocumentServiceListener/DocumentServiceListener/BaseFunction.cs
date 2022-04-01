@@ -16,6 +16,7 @@ using DocumentServiceListener.Boundary;
 using DocumentServiceListener.Gateways;
 using DocumentServiceListener.Gateways.Interfaces;
 using DocumentServiceListener.Infrastructure;
+using DocumentServiceListener.Services;
 using DocumentServiceListener.UseCase;
 using DocumentServiceListener.UseCase.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using static Amazon.Lambda.SQSEvents.SQSEvent;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -63,7 +65,7 @@ namespace DocumentServiceListener
             builder.AddEnvironmentVariables();
         }
 
-        protected void ConfigureServices(IServiceCollection services)
+        protected static void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IAmazonS3>(x => new AmazonS3Client());
 
@@ -76,12 +78,24 @@ namespace DocumentServiceListener
             services.AddScoped<IDocumentGateway, DocumentGateway>();
             services.AddScoped<IDirectoryGateway, DirectoryGateway>();
 
+            services.AddScoped<IStorageUsageCache, StorageUsageCache>();
+
             services.AddScoped<IImageFormatter, ImageFormatter>();
             services.AddScoped<IImageLoader, ImageLoader>();
 
+            ConfigureRedis(services);
 
             ConfigureDbContext(services);
             services.ConfigureAws();
+        }
+
+        private static void ConfigureRedis(IServiceCollection services)
+        {
+            var configuration = Environment.GetEnvironmentVariable("REDIS_CONFIG") ?? "localhost";
+
+            var multiplexer = ConnectionMultiplexer.Connect(configuration);
+
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
 
         protected static void ConfigureDbContext(IServiceCollection services)

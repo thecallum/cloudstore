@@ -5,6 +5,7 @@ using DocumentServiceListener.Gateways;
 using DocumentServiceListener.Gateways.Interfaces;
 using DocumentServiceListener.Helpers;
 using DocumentServiceListener.Infrastructure;
+using DocumentServiceListener.Services;
 using DocumentServiceListener.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,12 +20,18 @@ namespace DocumentServiceListener.UseCase
         private readonly IS3Gateway _s3Gateway;
         private readonly IDocumentGateway _documentGateway;
         private readonly IDirectoryGateway _directoryGateway;
+        private readonly IStorageUsageCache _storageUsageCache;
 
-        public DirectoryDeletedUseCase(IS3Gateway s3Gateway, IDocumentGateway documentGateway, IDirectoryGateway directoryGateway)
+        public DirectoryDeletedUseCase(
+            IS3Gateway s3Gateway, 
+            IDocumentGateway documentGateway, 
+            IDirectoryGateway directoryGateway, 
+            IStorageUsageCache storageUsageCache)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
             _directoryGateway = directoryGateway;
+            _storageUsageCache = storageUsageCache;
         }
 
         public async Task ProcessMessageAsync(CloudStoreSnsEvent entity)
@@ -45,6 +52,8 @@ namespace DocumentServiceListener.UseCase
 
                 // 4. Delete all documents in DB where directoryId is X
                 await _documentGateway.DeleteAllDocuments(entity.User.Id, (Guid) directoryId);
+
+                await _storageUsageCache.DeleteCache(entity.User);
             }
 
             // 5. Delete Directory from DB

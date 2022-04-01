@@ -25,6 +25,7 @@ resource "aws_lambda_function" "DocumentServiceListener" {
       CONNECTION_STRING = var.DatabaseConnectionString
       S3_BUCKET_NAME = aws_s3_bucket.document_storage.bucket
       S3_BUCKET_BASE_PATH = "https://${ aws_s3_bucket.document_storage.bucket}.s3.${data.aws_region.current.name}.amazonaws.com/thumbnails"
+      REDIS_CONFIG = aws_elasticache_cluster.redis.cache_nodes.0.address
     }
   }
 }

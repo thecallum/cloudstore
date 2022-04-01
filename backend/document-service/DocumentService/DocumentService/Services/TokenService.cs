@@ -8,7 +8,7 @@ namespace DocumentService.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly string _secret = string.Empty;
+        private readonly string _secret;
         private readonly IJwtAlgorithm _algorithm = new HMACSHA256Algorithm();
 
         public TokenService(string secret)
@@ -18,7 +18,7 @@ namespace DocumentService.Services
 
         public TokenService()
         {
-
+            _secret = Environment.GetEnvironmentVariable("SECRET");
         }
 
         public string CreateToken(User user)

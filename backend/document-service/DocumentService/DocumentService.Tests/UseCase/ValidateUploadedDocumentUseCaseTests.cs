@@ -24,6 +24,7 @@ namespace DocumentService.Tests.UseCase
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
         private readonly Mock<ISnsGateway> _mockSnsGateway;
+        private readonly Mock<IStorageUsageUseCase> _mockStorageUsageUseCase;
 
         private readonly Fixture _fixture = new Fixture();
 
@@ -32,11 +33,13 @@ namespace DocumentService.Tests.UseCase
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
             _mockSnsGateway = new Mock<ISnsGateway>();
+            _mockStorageUsageUseCase = new Mock<IStorageUsageUseCase>();
 
             _useCase = new ValidateUploadedDocumentUseCase(
                 _mockS3Gateway.Object,
                 _mockDocumentGateway.Object,
-                _mockSnsGateway.Object);
+                _mockSnsGateway.Object,
+                _mockStorageUsageUseCase.Object);
         }
 
         [Fact]
@@ -158,6 +161,9 @@ namespace DocumentService.Tests.UseCase
 
             _mockSnsGateway
                 .Verify(x => x.PublishDocumentUploadedEvent(It.IsAny<User>(), It.IsAny<Guid>()), Times.Once);
+
+            _mockStorageUsageUseCase
+                .Verify(x => x.UpdateUsage(It.IsAny<User>(), documentUploadResponse.FileSize), Times.Once);
         }
 
         [Fact]
@@ -198,6 +204,9 @@ namespace DocumentService.Tests.UseCase
 
             _mockSnsGateway
                 .Verify(x => x.PublishDocumentUploadedEvent(It.IsAny<User>(), It.IsAny<Guid>()), Times.Once);
+
+            _mockStorageUsageUseCase
+                .Verify(x => x.UpdateUsage(It.IsAny<User>(), documentUploadResponse.FileSize - existingDocument.FileSize), Times.Once);
         }
     }
 }

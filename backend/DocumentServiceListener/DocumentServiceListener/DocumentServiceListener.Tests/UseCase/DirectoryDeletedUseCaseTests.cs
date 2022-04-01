@@ -5,6 +5,7 @@ using DocumentServiceListener.Boundary;
 using DocumentServiceListener.Gateways;
 using DocumentServiceListener.Gateways.Interfaces;
 using DocumentServiceListener.Infrastructure;
+using DocumentServiceListener.Services;
 using DocumentServiceListener.UseCase;
 using FluentAssertions;
 using Moq;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using TokenService.Models;
 using Xunit;
 
 namespace DocumentServiceListener.Tests.UseCase
@@ -23,6 +25,7 @@ namespace DocumentServiceListener.Tests.UseCase
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
         private readonly Mock<IDirectoryGateway> _mockDirectoryGateway;
+        private readonly Mock<IStorageUsageCache> _mockStorageUsageCache;
 
         private readonly DirectoryDeletedUseCase _classUnderTest;
 
@@ -31,11 +34,13 @@ namespace DocumentServiceListener.Tests.UseCase
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
             _mockDirectoryGateway = new Mock<IDirectoryGateway>();
+            _mockStorageUsageCache = new Mock<IStorageUsageCache>();
 
             _classUnderTest = new DirectoryDeletedUseCase(
                 _mockS3Gateway.Object,
                 _mockDocumentGateway.Object,
-                _mockDirectoryGateway.Object);
+                _mockDirectoryGateway.Object,
+                _mockStorageUsageCache.Object);
         }
 
         [Fact]
@@ -123,6 +128,9 @@ namespace DocumentServiceListener.Tests.UseCase
 
             _mockDirectoryGateway
                 .Verify(x => x.DeleteDirectory(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+
+            _mockStorageUsageCache
+                .Verify(x => x.DeleteCache(It.IsAny<User>()), Times.Once);
         }
     }
 }
