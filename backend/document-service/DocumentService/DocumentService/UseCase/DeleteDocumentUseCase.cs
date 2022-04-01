@@ -15,15 +15,18 @@ namespace DocumentService.UseCase
         private readonly IS3Gateway _s3Gateway;
         private readonly IDocumentGateway _documentGateway;
         private readonly ISnsGateway _snsGateway;
+        private readonly IStorageUsageUseCase _storageUsageUseCase;
 
         public DeleteDocumentUseCase(
-            IS3Gateway s3Gateway, 
+            IS3Gateway s3Gateway,
             IDocumentGateway documentGateway,
-            ISnsGateway snsGateway)
+            ISnsGateway snsGateway, 
+            IStorageUsageUseCase storageUsageUseCase)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
             _snsGateway = snsGateway;
+            _storageUsageUseCase = storageUsageUseCase;
         }
 
         public async Task Execute(User user, Guid documentId)
@@ -34,6 +37,9 @@ namespace DocumentService.UseCase
 
             await _s3Gateway.DeleteDocument(document.S3Location);
             await _snsGateway.PublishDocumentDeletedEvent(user, documentId);
+
+            var difference = document.FileSize * -1;
+            await _storageUsageUseCase.UpdateUsage(user, difference);
         }
     }
 }

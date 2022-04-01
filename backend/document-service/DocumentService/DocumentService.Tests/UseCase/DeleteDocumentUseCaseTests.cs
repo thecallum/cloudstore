@@ -22,6 +22,7 @@ namespace DocumentService.Tests.UseCase
         private readonly Mock<IS3Gateway> _mockS3Gateway;
         private readonly Mock<IDocumentGateway> _mockDocumentGateway;
         private readonly Mock<ISnsGateway> _mockSnsGateway;
+        private readonly Mock<IStorageUsageUseCase> _mockDocumentStorageUseCase;
 
         private readonly Fixture _fixture = new Fixture();
 
@@ -30,11 +31,13 @@ namespace DocumentService.Tests.UseCase
             _mockS3Gateway = new Mock<IS3Gateway>();
             _mockDocumentGateway = new Mock<IDocumentGateway>();
             _mockSnsGateway = new Mock<ISnsGateway>();
+            _mockDocumentStorageUseCase = new Mock<IStorageUsageUseCase>();
 
             _deleteDocumentUseCase = new DeleteDocumentUseCase(
                 _mockS3Gateway.Object,
                 _mockDocumentGateway.Object,
-                _mockSnsGateway.Object);
+                _mockSnsGateway.Object,
+                _mockDocumentStorageUseCase.Object);
         }
 
         [Fact]
@@ -78,6 +81,9 @@ namespace DocumentService.Tests.UseCase
             // Assert
             _mockS3Gateway.Verify(x => x.DeleteDocument(document.S3Location), Times.Once);
             _mockSnsGateway.Verify(x => x.PublishDocumentDeletedEvent(user, document.Id), Times.Once);
+
+            var expectedDifference = document.FileSize * -1;
+            _mockDocumentStorageUseCase.Verify(x => x.UpdateUsage(user, expectedDifference), Times.Once);
         }
     }
 }

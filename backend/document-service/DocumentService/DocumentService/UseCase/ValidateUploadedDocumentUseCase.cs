@@ -7,6 +7,7 @@ using DocumentService.Gateways.Interfaces;
 using DocumentService.Infrastructure;
 using DocumentService.Infrastructure.Exceptions;
 using DocumentService.Logging;
+using DocumentService.Services;
 using DocumentService.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -18,15 +19,18 @@ namespace DocumentService.UseCase
         private readonly IS3Gateway _s3Gateway;
         private readonly IDocumentGateway _documentGateway;
         private readonly ISnsGateway _snsGateway;
+        private readonly IStorageUsageUseCase _storageUsageUseCase;
 
         public ValidateUploadedDocumentUseCase(
             IS3Gateway s3Gateway,
             IDocumentGateway documentGateway,
-            ISnsGateway snsGateway)
+            ISnsGateway snsGateway,
+            IStorageUsageUseCase storageUsageUseCase)
         {
             _s3Gateway = s3Gateway;
             _documentGateway = documentGateway;
             _snsGateway = snsGateway;
+            _storageUsageUseCase = storageUsageUseCase;
         }
 
         public async Task<DocumentResponse> Execute(Guid documentId, ValidateUploadedDocumentRequest request, User user)
@@ -67,6 +71,9 @@ namespace DocumentService.UseCase
             // publish event
             await _snsGateway.PublishDocumentUploadedEvent(user, documentId);
 
+            // update storageUsage
+            await _storageUsageUseCase.UpdateUsage(user, documentUploadResponse.FileSize - existingDocument.FileSize);
+
             return existingDocument.ToResponse();
         }
 
@@ -85,6 +92,9 @@ namespace DocumentService.UseCase
             };
 
             await UploadNewDocument(newDocument, key);
+
+            // update storageUsage
+            await _storageUsageUseCase.UpdateUsage(user, documentUploadResponse.FileSize);
 
             // publish event
             await _snsGateway.PublishDocumentUploadedEvent(user, documentId);
@@ -114,6 +124,7 @@ namespace DocumentService.UseCase
             await _s3Gateway.MoveDocumentToStoreDirectory(key);
 
             await _documentGateway.SaveDocument(newDocument);
+
 
             return newDocument;
         }
