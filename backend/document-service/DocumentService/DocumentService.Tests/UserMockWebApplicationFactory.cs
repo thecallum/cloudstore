@@ -28,7 +28,7 @@ namespace DocumentService.Tests
             builder.ConfigureServices(services =>
             {
                 services.ConfigureAws();
-                ConfigureRedis(services);
+                Redis = services.ConfigureRedis();
 
                 services.RemoveAll(typeof(DbContextOptions<DocumentServiceContext>));
 
@@ -53,21 +53,10 @@ namespace DocumentService.Tests
 
                 S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
-                Redis = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
-
                 EnsureBucketExists();
                 CreateTestFiles();
 
             });
-        }
-
-        private static void ConfigureRedis(IServiceCollection services)
-        {
-            //Configure other services up here
-            //  var multiplexer = ConnectionMultiplexer.Connect("test.a79zju.0001.euw1.cache.amazonaws.com:6379");
-            var multiplexer = ConnectionMultiplexer.Connect("localhost");
-
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
 
         private void CreateTestFiles()

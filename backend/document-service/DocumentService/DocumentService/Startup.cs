@@ -60,7 +60,7 @@ namespace DocumentService
 
             services.AddTransient<IStorageUsageCache, StorageUsageCache>();
 
-            ConfigureRedis(services);
+            services.ConfigureRedis();
 
             ConfigureDbContext(services);
 
@@ -71,14 +71,6 @@ namespace DocumentService
             SetupUseCases(services);
         }
 
-        private static void ConfigureRedis(IServiceCollection services)
-        {
-            var configuration = Environment.GetEnvironmentVariable("REDIS_CONFIG") ?? "localhost";
-
-            var multiplexer = ConnectionMultiplexer.Connect(configuration);
-
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
-        }
 
         private void ConfigureDbContext(IServiceCollection services)
         {
