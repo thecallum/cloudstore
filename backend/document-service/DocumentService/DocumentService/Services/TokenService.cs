@@ -11,10 +11,14 @@ namespace DocumentService.Services
         private readonly string _secret;
         private readonly IJwtAlgorithm _algorithm = new HMACSHA256Algorithm();
 
-        public TokenService(string secret = null)
+        public TokenService(string secret)
         {
-            _secret = string.IsNullOrEmpty(secret) ? 
-                Environment.GetEnvironmentVariable("SECRET") : secret;
+            _secret = secret;
+        }
+
+        public TokenService()
+        {
+            _secret = Environment.GetEnvironmentVariable("SECRET");
         }
 
         public string CreateToken(User user)

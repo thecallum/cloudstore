@@ -26,6 +26,7 @@ resource "aws_lambda_function" "DocumentService" {
       SECRET = var.SECRET
       SNS_TOPIC_ARN = aws_sns_topic.DocumentService.arn
       S3_BUCKET_NAME = aws_s3_bucket.document_storage.bucket
+      REDIS_CONFIG = aws_elasticache_cluster.redis.cache_nodes.0.address
     }
   }
 }

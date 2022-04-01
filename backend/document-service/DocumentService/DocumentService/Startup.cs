@@ -53,7 +53,7 @@ namespace DocumentService
             services.AddTransient<IValidator<LoginRequestObject>, LoginRequestObjectValidation>();
             services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
 
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddTransient<ITokenService, TokenService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
 
             services.AddTransient<IValidator<RegisterRequestObject>, RegisterRequestObjectValidation>();
@@ -73,7 +73,9 @@ namespace DocumentService
 
         private static void ConfigureRedis(IServiceCollection services)
         {
-            var multiplexer = ConnectionMultiplexer.Connect("localhost");
+            var configuration = Environment.GetEnvironmentVariable("REDIS_CONFIG") ?? "localhost";
+
+            var multiplexer = ConnectionMultiplexer.Connect(configuration);
 
             services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
