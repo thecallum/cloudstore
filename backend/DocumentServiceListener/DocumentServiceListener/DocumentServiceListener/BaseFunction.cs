@@ -83,19 +83,10 @@ namespace DocumentServiceListener
             services.AddScoped<IImageFormatter, ImageFormatter>();
             services.AddScoped<IImageLoader, ImageLoader>();
 
-            ConfigureRedis(services);
+            services.ConfigureRedis();
 
             ConfigureDbContext(services);
             services.ConfigureAws();
-        }
-
-        private static void ConfigureRedis(IServiceCollection services)
-        {
-            var configuration = Environment.GetEnvironmentVariable("REDIS_CONFIG") ?? "localhost";
-
-            var multiplexer = ConnectionMultiplexer.Connect(configuration);
-
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
         }
 
         protected static void ConfigureDbContext(IServiceCollection services)

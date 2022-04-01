@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: DocumentService.Tests/Dockerfile
-   
+
     environment:
       - Localstack_url=http://localstack:4566
       - AWS_REGION=eu-west-2

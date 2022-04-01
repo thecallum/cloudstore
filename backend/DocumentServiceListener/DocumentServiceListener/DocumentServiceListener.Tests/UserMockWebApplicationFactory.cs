@@ -56,24 +56,13 @@ namespace DocumentServiceListener.Tests
 
               InitialiseDB(serviceProvider);
 
-              Redis = ConfigureRedis(services);
+              Redis = services.ConfigureRedis();
 
               S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
               EnsureBucketExists();
               CreateTestFiles();
           });
-
-        private static IConnectionMultiplexer ConfigureRedis(IServiceCollection services)
-        {
-            var configuration = "localhost";
-
-            var multiplexer = ConnectionMultiplexer.Connect(configuration);
-
-            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
-
-            return multiplexer;
-        }
 
         protected void ConfigureDbContext(IServiceCollection services)
         {
