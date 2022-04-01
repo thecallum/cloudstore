@@ -5,9 +5,11 @@ services:
     build:
       context: .
       dockerfile: DocumentService.Tests/Dockerfile
-   
+
     environment:
       - Localstack_url=http://localstack:4566
+      - REDIS_URL=redis:6379
+      - DOTNET_RUNNING_IN_CONTAINER=true
       - AWS_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
