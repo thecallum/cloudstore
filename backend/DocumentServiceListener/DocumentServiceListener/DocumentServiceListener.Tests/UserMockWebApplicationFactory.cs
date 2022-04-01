@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,6 +30,7 @@ namespace DocumentServiceListener.Tests
 
         public string ValidFilePath { get; private set; }
         public string TooLargeFilePath { get; private set; }
+        public IConnectionMultiplexer Redis { get; private set; }
 
         private IServiceProvider _services;
 
@@ -54,11 +56,24 @@ namespace DocumentServiceListener.Tests
 
               InitialiseDB(serviceProvider);
 
+              Redis = ConfigureRedis(services);
+
               S3Client = serviceProvider.GetRequiredService<IAmazonS3>();
 
               EnsureBucketExists();
               CreateTestFiles();
           });
+
+        private static IConnectionMultiplexer ConfigureRedis(IServiceCollection services)
+        {
+            var configuration = "localhost";
+
+            var multiplexer = ConnectionMultiplexer.Connect(configuration);
+
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+
+            return multiplexer;
+        }
 
         protected void ConfigureDbContext(IServiceCollection services)
         {
