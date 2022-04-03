@@ -156,9 +156,9 @@ workflows:
       #           - main
       #           - update-terraform
       - terraform-apply:
-          requires:
-            - deploy-document-service
-            # - deploy-listener-service
+          # requires:
+          #   - deploy-document-service
+          #   # - deploy-listener-service
           filters:
             branches:
               only:
