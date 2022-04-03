@@ -130,14 +130,14 @@ workflows:
     jobs:
       # - build-and-test-document-service
       # - build-and-test-listener-service
-      - deploy-document-service:
-          # requires:
-          #   - build-and-test-document-service
-          filters:
-            branches:
-              only:
-                - main                
-                - update-terraform
+      # - deploy-document-service:
+      #     # requires:
+      #     #   - build-and-test-document-service
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main                
+      #           - update-terraform
       # - deploy-listener-service:
       #     requires:
       #       - build-and-test-listener-service

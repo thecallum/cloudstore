@@ -90,14 +90,14 @@ resource "aws_security_group" "document_service_vpc_security_group" {
   description = "DocumentService VPC security Group"
 
   ingress {
-    from_port        = 0
-    to_port          = 0
+    from_port        = "0"
+    to_port          = "6553"
     protocol         = "-1"
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
+    from_port        = "0"
+    to_port          = "6553"
     protocol         = "-1"
   }
 }
