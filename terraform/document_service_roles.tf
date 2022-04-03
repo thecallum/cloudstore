@@ -76,3 +76,28 @@ resource "aws_iam_role_policy_attachment" "a" {
    role       = "${aws_iam_role.document_service_role.name}"
    policy_arn = "${data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn}"
 }
+
+
+# arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess
+# AmazonElastiCacheFullAccess
+
+# arn:aws:iam::aws:policy/ser vice-role/AWSLambdaVPCAccessExecutionRole
+# AWSLambdaVPCAccessExecutionRole
+
+
+resource "aws_security_group" "document_service_vpc_security_group" {
+  name        = "document_service_vpc_security_group"
+  description = "DocumentService VPC security Group"
+
+  ingress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+  }
+}
