@@ -6,7 +6,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids = [
     "rtb-5933e621"
   ]
-  
+
   tags = {
     Name = "S3 VPC Endpoint"
   }
@@ -22,6 +22,12 @@ resource "aws_vpc_endpoint" "sns" {
   ]
 
   private_dns_enabled = true
+
+  subnet_ids = [
+      "subnet-a4ce21ef",
+      "subnet-2b441d71",
+      "subnet-96e4f8f0"
+  ]
 
   tags = {
     Name = "SNS VPC Endpoint"
