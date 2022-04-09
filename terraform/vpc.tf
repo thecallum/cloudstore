@@ -3,6 +3,10 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_id       = "vpc-81eb49f8"
   service_name = "com.amazonaws.eu-west-1.s3"
 
+  route_table_ids = [
+    "rtb-5933e621"
+  ]
+  
   tags = {
     Name = "S3 VPC Endpoint"
   }
@@ -15,10 +19,6 @@ resource "aws_vpc_endpoint" "sns" {
 
   security_group_ids = [
     aws_security_group.sns_vpc_endpoint.id,
-  ]
-
-  route_table_ids = [
-    "rtb-5933e621"
   ]
 
   private_dns_enabled = true
