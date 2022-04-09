@@ -6,8 +6,9 @@ resource "aws_elasticache_cluster" "redis" {
   parameter_group_name   = "default.redis3.2"
   engine_version         = "3.2.10"
   port                   = 6379
-  description            = "Redis Cache for CloudStore"
-  vpc_security_group_ids = [
+  # description            = "Redis Cache for CloudStore"
+  security_group_ids = [
     aws_security_group.redis_security_group.id
   ]
 }
+
