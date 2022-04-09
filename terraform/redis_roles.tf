@@ -7,7 +7,9 @@ resource "aws_security_group" "redis_security_group" {
     protocol         = "tcp"
     from_port        = "6379"
     to_port          = "6379"
-    cidr_blocks      = [aws_security_group.document_service_security_group.id]
+    security_groups = [
+      "${aws_security_group.document_service_security_group.id}"
+    ]
   }
 
   egress {
