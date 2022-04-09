@@ -4,7 +4,7 @@ resource "aws_vpc_endpoint" "s3" {
   service_name = "com.amazonaws.eu-west-1.s3"
 
   tags = {
-    name = "S3 VPC Endpoint"
+    Name = "S3 VPC Endpoint"
   }
 }
 
@@ -17,9 +17,14 @@ resource "aws_vpc_endpoint" "sns" {
     aws_security_group.sns_vpc_endpoint.id,
   ]
 
+  route_table_ids = [
+    "rtb-5933e621"
+  ]
+
   private_dns_enabled = true
+
   tags = {
-    name = "SNS VPC Endpoint"
+    Name = "SNS VPC Endpoint"
   }
 }
 
@@ -32,7 +37,6 @@ resource "aws_security_group" "sns_vpc_endpoint" {
     from_port        = "0"
     to_port          = "65535"
     cidr_blocks      = ["0.0.0.0/0"]
-
   }
 
   egress {
