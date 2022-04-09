@@ -77,6 +77,10 @@ resource "aws_iam_role_policy_attachment" "a" {
    policy_arn = "${data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn}"
 }
 
+# resource "aws_iam_role_policy_attachment" "attach_elasticache_full_access" {
+#    role       = "${aws_iam_role.document_service_role.name}"
+#    policy_arn = "${data.aws_iam_policy.AmazonElastiCacheFullAccess.arn}"
+# }
 
 # arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess
 # AmazonElastiCacheFullAccess
