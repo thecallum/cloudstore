@@ -85,9 +85,9 @@ resource "aws_iam_role_policy_attachment" "a" {
 # AWSLambdaVPCAccessExecutionRole
 
 
-resource "aws_security_group" "document_service_vpc_security_group" {
-  name        = "document_service_vpc_security_group"
-  description = "DocumentService VPC security Group"
+resource "aws_security_group" "document_service_security_group" {
+  name        = "document_service_security_group"
+  description = "DocumentService security Group"
 
   ingress {
     description      = "Temp Allow All"
