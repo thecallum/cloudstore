@@ -28,6 +28,18 @@ resource "aws_lambda_function" "DocumentServiceListener" {
       REDIS_CONFIG = aws_elasticache_cluster.redis.cache_nodes.0.address
     }
   }
+
+  vpc_config {
+    # Every subnet should be able to reach an EFS mount target in the same Availability Zone. Cross-AZ mounts are not permitted.
+    subnet_ids = [
+      "subnet-a4ce21ef",
+      "subnet-96e4f8f0",
+      "subnet-2b441d71"
+    ]
+    security_group_ids = [
+      aws_security_group.document_service_listener_security_group.id
+    ]
+  }
 }
 
 # SQS trigger

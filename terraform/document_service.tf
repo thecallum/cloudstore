@@ -30,7 +30,7 @@ resource "aws_lambda_function" "DocumentService" {
     }
   }
 
-    vpc_config {
+  vpc_config {
     # Every subnet should be able to reach an EFS mount target in the same Availability Zone. Cross-AZ mounts are not permitted.
     subnet_ids = [
       "subnet-a4ce21ef",

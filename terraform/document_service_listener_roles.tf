@@ -58,3 +58,24 @@ resource "aws_iam_role_policy_attachment" "AWSLambdaSQSQueueExecutionRole" {
    role       = "${aws_iam_role.document_service_listener_role.name}"
    policy_arn = "${data.aws_iam_policy.AWSLambdaSQSQueueExecutionRole.arn}"
 }
+
+resource "aws_security_group" "document_service_listener_security_group" {
+  name        = "DocumentServiceListener security group"
+  description = "DocumentServiceListener security Group"
+
+  ingress {
+    description      = "Temp Allow All"
+    protocol         = "tcp"
+    from_port        = "0"
+    to_port          = "6553"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description      = "Temp Allow All"
+    protocol         = "tcp"
+    from_port        = "0"
+    to_port          = "6553"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}

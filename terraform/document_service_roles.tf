@@ -77,18 +77,6 @@ resource "aws_iam_role_policy_attachment" "a" {
    policy_arn = "${data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn}"
 }
 
-# resource "aws_iam_role_policy_attachment" "attach_elasticache_full_access" {
-#    role       = "${aws_iam_role.document_service_role.name}"
-#    policy_arn = "${data.aws_iam_policy.AmazonElastiCacheFullAccess.arn}"
-# }
-
-# arn:aws:iam::aws:policy/AmazonElastiCacheFullAccess
-# AmazonElastiCacheFullAccess
-
-# arn:aws:iam::aws:policy/ser vice-role/AWSLambdaVPCAccessExecutionRole
-# AWSLambdaVPCAccessExecutionRole
-
-
 resource "aws_security_group" "document_service_security_group" {
   name        = "document_service_security_group"
   description = "DocumentService security Group"
