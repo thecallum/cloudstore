@@ -35,7 +35,7 @@ resource "aws_s3_bucket_acl" "document_storage_acl" {
 }
 
 resource "aws_s3_bucket_cors_configuration" "document_storage_cors" {
-  bucket = aws_s3_bucket.document_storage.id
+  bucket = aws_s3_bucket.document_storage.bucket
 
   cors_rule {
     allowed_headers = ["*"]
