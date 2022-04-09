@@ -38,7 +38,7 @@ resource "aws_lambda_function" "DocumentService" {
       "subnet-2b441d71"
     ]
     security_group_ids = [
-      aws_security_group.document_service_vpc_security_group.id
+      aws_security_group.document_service_security_group.id
     ]
   }
 }
