@@ -1,4 +1,13 @@
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = "vpc-81eb49f8"
+  service_name = "com.amazonaws.eu-west-1.s3"
+
+  tags = {
+    name = "S3 VPC Endpoint"
+  }
+}
+
 resource "aws_vpc_endpoint" "sns" {
   vpc_id            = "vpc-81eb49f8"
   service_name      = "com.amazonaws.eu-west-1.sns"
@@ -9,6 +18,9 @@ resource "aws_vpc_endpoint" "sns" {
   ]
 
   private_dns_enabled = true
+  tags = {
+    name = "SNS VPC Endpoint"
+  }
 }
 
 resource "aws_security_group" "sns_vpc_endpoint" {
