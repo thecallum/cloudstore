@@ -91,15 +91,17 @@ resource "aws_security_group" "document_service_vpc_security_group" {
 
   ingress {
     description      = "Temp Allow All"
+    protocol         = "tcp"
     from_port        = "0"
     to_port          = "6553"
-    protocol         = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     description      = "Temp Allow All"
+    protocol         = "tcp"
     from_port        = "0"
     to_port          = "6553"
-    protocol         = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
