@@ -1,5 +1,5 @@
 resource "aws_security_group" "redis_security_group" {
-  name        = "redis_security_group"
+  name        = "Redis Security Group"
   description = "RedisCache security Group"
 
   ingress {
